@@ -83,6 +83,7 @@ export default function InviteMemberModal({
                                     <Select
                                         name="role"
                                         data-test="invite-role"
+                                        items={availableRoles}
                                         value={inviteRole}
                                         onValueChange={(value) =>
                                             setInviteRole(
@@ -109,8 +110,10 @@ export default function InviteMemberModal({
                             </div>
 
                             <DialogFooter className="gap-2">
-                                <DialogClose asChild>
-                                    <Button variant="secondary">Cancel</Button>
+                                <DialogClose
+                                    render={<Button variant="secondary" />}
+                                >
+                                    Cancel
                                 </DialogClose>
 
                                 <Button
