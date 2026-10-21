@@ -1,10 +1,12 @@
 import { router, usePage } from '@inertiajs/react';
 import { Check, ChevronsUpDown, Plus, Users } from 'lucide-react';
+import { useState } from 'react';
 import CreateTeamModal from '@/components/create-team-modal';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -23,6 +25,7 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
     const isMobile = useIsMobile();
     const currentTeam = page.props.currentTeam;
     const teams = page.props.teams ?? [];
+    const [createTeamOpen, setCreateTeamOpen] = useState(false);
 
     const switchTeam = (team: Team) => {
         const previousTeamSlug = currentTeam?.slug;
@@ -52,15 +55,19 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
     };
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    data-test="team-switcher-trigger"
-                    className={
-                        inHeader
-                            ? 'h-8 gap-1 px-2'
-                            : 'w-full justify-start px-2 has-[>svg]:px-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger
+                    render={
+                        <Button
+                            variant="ghost"
+                            data-test="team-switcher-trigger"
+                            className={
+                                inHeader
+                                    ? 'h-8 gap-1 px-2'
+                                    : 'w-full justify-start px-2 has-[>svg]:px-2 data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground'
+                            }
+                        />
                     }
                 >
                     <Users
@@ -94,46 +101,46 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                                 : 'ml-auto group-data-[collapsible=icon]:hidden'
                         }
                     />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-                className={
-                    inHeader
-                        ? 'w-56'
-                        : 'w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg'
-                }
-                side={inHeader ? undefined : isMobile ? 'bottom' : 'right'}
-                align={inHeader ? 'end' : 'start'}
-                sideOffset={inHeader ? undefined : 4}
-            >
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                    Teams
-                </DropdownMenuLabel>
-                {teams.map((team) => (
-                    <DropdownMenuItem
-                        key={team.id}
-                        data-test="team-switcher-item"
-                        className={
-                            inHeader
-                                ? 'cursor-pointer gap-2'
-                                : 'cursor-pointer gap-2 p-2'
-                        }
-                        onSelect={() => switchTeam(team)}
-                    >
-                        {team.name}
-                        {currentTeam?.id === team.id && (
-                            <Check
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                    className={
+                        inHeader
+                            ? 'w-56'
+                            : 'w-(--anchor-width) min-w-56 rounded-lg'
+                    }
+                    side={inHeader ? undefined : isMobile ? 'bottom' : 'right'}
+                    align={inHeader ? 'end' : 'start'}
+                    sideOffset={inHeader ? undefined : 4}
+                >
+                    <DropdownMenuGroup>
+                        <DropdownMenuLabel className="text-xs text-muted-foreground">
+                            Teams
+                        </DropdownMenuLabel>
+                        {teams.map((team) => (
+                            <DropdownMenuItem
+                                key={team.id}
+                                data-test="team-switcher-item"
                                 className={
                                     inHeader
-                                        ? 'ml-auto size-4'
-                                        : 'ml-auto h-4 w-4'
+                                        ? 'cursor-pointer gap-2'
+                                        : 'cursor-pointer gap-2 p-2'
                                 }
-                            />
-                        )}
-                    </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <CreateTeamModal>
+                                onClick={() => switchTeam(team)}
+                            >
+                                {team.name}
+                                {currentTeam?.id === team.id && (
+                                    <Check
+                                        className={
+                                            inHeader
+                                                ? 'ml-auto size-4'
+                                                : 'ml-auto h-4 w-4'
+                                        }
+                                    />
+                                )}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                         data-test="team-switcher-new-team"
                         className={
@@ -141,13 +148,17 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                                 ? 'cursor-pointer gap-2'
                                 : 'cursor-pointer gap-2 p-2'
                         }
-                        onSelect={(event) => event.preventDefault()}
+                        onClick={() => setCreateTeamOpen(true)}
                     >
                         <Plus className={inHeader ? 'size-4' : 'h-4 w-4'} />
                         <span className="text-muted-foreground">New team</span>
                     </DropdownMenuItem>
-                </CreateTeamModal>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <CreateTeamModal
+                open={createTeamOpen}
+                onOpenChange={setCreateTeamOpen}
+            />
+        </>
     );
 }
