@@ -44,6 +44,7 @@ export default defineConfig({
             'resources/js/components/ui/*',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
+            'resources/css/typeset.css',
         ],
         options: {
             denyWarnings: true,
