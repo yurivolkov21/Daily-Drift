@@ -32,6 +32,45 @@ export type Issue = {
     updatedAt: string;
 };
 
+export type IssueComment = {
+    id: string;
+    body: string;
+    author?: IssueUser | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+type Change<T> = {
+    from: T;
+    to: T;
+};
+
+export type IssueActivity = {
+    id: string;
+    actor?: IssueUser | null;
+    createdAt: string;
+} & (
+    | { type: 'created' | 'description_changed'; properties: null }
+    | { type: 'title_changed'; properties: Change<string> }
+    | { type: 'status_changed'; properties: Change<IssueStatus> }
+    | { type: 'priority_changed'; properties: Change<IssuePriority> }
+    | { type: 'assignee_changed'; properties: Change<IssueUser | null> }
+    | { type: 'due_date_changed'; properties: Change<string | null> }
+    | {
+          type: 'labels_changed';
+          properties: { added: IssueLabel[]; removed: IssueLabel[] };
+      }
+);
+
+export type IssueTimelineEntry =
+    | { kind: 'comment'; id: string; createdAt: string; comment: IssueComment }
+    | {
+          kind: 'activity';
+          id: string;
+          createdAt: string;
+          activity: IssueActivity;
+      };
+
 export type IssueFilters = {
     project: string | null;
     assignee: 'me' | null;

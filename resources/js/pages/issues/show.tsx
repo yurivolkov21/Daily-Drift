@@ -5,6 +5,9 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { IssueActivityChat } from '@/components/issue-activity-chat';
+import { IssueActivityThread } from '@/components/issue-activity-thread';
+import { IssueActivityTimeline } from '@/components/issue-activity-timeline';
 import { IssueLabelChips } from '@/components/issue-label-chips';
 import {
     IssueAssigneePicker,
@@ -22,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useHotkeys } from '@/hooks/use-hotkeys';
 import { usePaletteActions } from '@/hooks/use-issue-tracker';
 import { useUpdateIssue } from '@/hooks/use-update-issue';
+import { buildTimeline } from '@/lib/issue-activity';
 import {
     formatDueDate,
     isOverdue,
@@ -30,13 +34,26 @@ import {
 } from '@/lib/issues';
 import { cn } from '@/lib/utils';
 import { destroy, index, show } from '@/routes/issues';
-import type { Issue } from '@/types';
+import type { Issue, IssueActivity, IssueComment } from '@/types';
 
 type Props = {
     issue: Issue;
+    comments: IssueComment[];
+    activities: IssueActivity[];
 };
 
 type Picker = 'status' | 'priority' | 'assignee' | 'labels' | 'dueDate';
+
+type ActivityLayout = 'timeline' | 'thread' | 'chat';
+
+/**
+ * The layouts Yuri is choosing between; only the chosen one stays.
+ */
+const activityLayouts: { value: ActivityLayout; label: string }[] = [
+    { value: 'timeline', label: 'A · Timeline' },
+    { value: 'thread', label: 'B · Thread' },
+    { value: 'chat', label: 'C · Chat' },
+];
 
 function PropertyRow({
     label,
@@ -53,7 +70,7 @@ function PropertyRow({
     );
 }
 
-export default function IssueShow({ issue }: Props) {
+export default function IssueShow({ issue, comments, activities }: Props) {
     const page = usePage();
     const updateIssue = useUpdateIssue();
     const teamSlug = page.props.currentTeam?.slug ?? '';
@@ -66,6 +83,9 @@ export default function IssueShow({ issue }: Props) {
     const [description, setDescription] = useState(issue.description ?? '');
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [activityLayout, setActivityLayout] =
+        useState<ActivityLayout>('timeline');
+    const timeline = buildTimeline(comments, activities);
 
     const pickerState = (picker: Picker) => ({
         open: openPicker === picker,
@@ -214,6 +234,62 @@ export default function IssueShow({ issue }: Props) {
                         onBlur={saveDescription}
                         className="min-h-40 border-0 text-sm leading-relaxed"
                     />
+
+                    <section
+                        aria-labelledby="issue-activity-heading"
+                        className="mt-6 grid gap-5 border-t pt-6"
+                    >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h2
+                                id="issue-activity-heading"
+                                className="text-xs font-semibold tracking-wider uppercase"
+                            >
+                                Activity
+                            </h2>
+                            <div
+                                role="group"
+                                aria-label="Preview layout"
+                                className="flex border"
+                            >
+                                {activityLayouts.map((layout) => (
+                                    <Button
+                                        key={layout.value}
+                                        size="xs"
+                                        variant={
+                                            activityLayout === layout.value
+                                                ? 'default'
+                                                : 'ghost'
+                                        }
+                                        aria-pressed={
+                                            activityLayout === layout.value
+                                        }
+                                        onClick={() =>
+                                            setActivityLayout(layout.value)
+                                        }
+                                    >
+                                        {layout.label}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {activityLayout === 'timeline' ? (
+                            <IssueActivityTimeline
+                                entries={timeline}
+                                issueIdentifier={issue.identifier}
+                            />
+                        ) : activityLayout === 'thread' ? (
+                            <IssueActivityThread
+                                entries={timeline}
+                                issueIdentifier={issue.identifier}
+                            />
+                        ) : (
+                            <IssueActivityChat
+                                entries={timeline}
+                                issueIdentifier={issue.identifier}
+                            />
+                        )}
+                    </section>
                 </div>
 
                 <aside className="grid w-full content-start gap-3 border-t p-6 lg:w-80 lg:border-t-0 lg:border-l">
