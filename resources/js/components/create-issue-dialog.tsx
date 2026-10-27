@@ -25,6 +25,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { CreateIssueDefaults } from '@/hooks/use-issue-tracker';
 import { formatDueDate, priorityLabel, statusLabel } from '@/lib/issues';
@@ -145,7 +146,7 @@ export function CreateIssueDialog({ open, onOpenChange, defaults }: Props) {
                         </DialogHeader>
 
                         <div className="grid gap-2 px-4 py-4">
-                            <input
+                            <Input
                                 autoFocus
                                 aria-label="Issue title"
                                 placeholder="Issue title"
@@ -153,7 +154,8 @@ export function CreateIssueDialog({ open, onOpenChange, defaults }: Props) {
                                 onChange={(event) =>
                                     form.setData('title', event.target.value)
                                 }
-                                className="w-full bg-transparent text-lg font-semibold outline-none placeholder:text-muted-foreground"
+                                aria-invalid={Boolean(form.errors.title)}
+                                className="h-11 text-lg font-semibold md:text-lg"
                             />
                             <InputError message={form.errors.title} />
                             <Textarea
@@ -166,7 +168,7 @@ export function CreateIssueDialog({ open, onOpenChange, defaults }: Props) {
                                         event.target.value,
                                     )
                                 }
-                                className="max-h-64 min-h-20 border-0 py-1"
+                                className="max-h-64 min-h-24"
                             />
                             <InputError message={form.errors.description} />
                         </div>
