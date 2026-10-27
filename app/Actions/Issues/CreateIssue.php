@@ -2,6 +2,7 @@
 
 namespace App\Actions\Issues;
 
+use App\Enums\IssueActivityType;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\User;
@@ -25,6 +26,8 @@ class CreateIssue
             $issue->save();
 
             $issue->labels()->sync($labelIds);
+
+            $issue->recordActivity(IssueActivityType::Created, $creator);
 
             return $issue;
         });

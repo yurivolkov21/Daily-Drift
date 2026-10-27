@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\Issues;
 
 use App\Actions\Issues\CreateIssue;
+use App\Actions\Issues\UpdateIssue;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\StoreIssueRequest;
 use App\Http\Requests\Issues\UpdateIssueRequest;
+use App\Http\Resources\CommentResource;
+use App\Http\Resources\IssueActivityResource;
 use App\Http\Resources\IssueResource;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -72,27 +75,32 @@ class IssueController extends Controller
      */
     public function show(Team $currentTeam, string $identifier): Response
     {
-        $issue = $this->findIssue($currentTeam, $identifier)->load(['assignee', 'creator', 'labels']);
+        $issue = $this->findIssue($currentTeam, $identifier)->load([
+            'assignee',
+            'creator',
+            'labels',
+            'comments' => fn (HasMany $query) => $query->with('author')->oldest()->orderBy('id'),
+            'activities' => fn (HasMany $query) => $query->with('actor')->oldest()->orderBy('id'),
+        ]);
 
         return Inertia::render('issues/show', [
             'issue' => IssueResource::make($issue)->resolve(),
+            'comments' => CommentResource::collection($issue->comments)->resolve(),
+            'activities' => IssueActivityResource::collection($issue->activities)->resolve(),
         ]);
     }
 
     /**
-     * Update the given issue.
+     * Update the given issue and record the changes in its history.
      */
-    public function update(UpdateIssueRequest $request, Team $currentTeam, string $identifier): RedirectResponse
+    public function update(UpdateIssueRequest $request, Team $currentTeam, string $identifier, UpdateIssue $updateIssue): RedirectResponse
     {
-        $issue = $this->findIssue($currentTeam, $identifier);
-
-        DB::transaction(function () use ($request, $issue) {
-            $issue->update($request->safe()->except('label_ids'));
-
-            if ($request->has('label_ids')) {
-                $issue->labels()->sync($request->validated('label_ids'));
-            }
-        });
+        $updateIssue->handle(
+            $request->user(),
+            $this->findIssue($currentTeam, $identifier),
+            $request->safe()->except('label_ids'),
+            $request->safe()->has('label_ids') ? $request->safe()->array('label_ids') : null,
+        );
 
         return back();
     }

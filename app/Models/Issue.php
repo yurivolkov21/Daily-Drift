@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\IssueActivityType;
 use App\Enums\IssuePriority;
 use App\Enums\IssueStatus;
 use Database\Factories\IssueFactory;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -36,6 +38,8 @@ use Illuminate\Support\Str;
  * @property-read User|null $assignee
  * @property-read User|null $creator
  * @property-read Collection<int, Label> $labels
+ * @property-read Collection<int, Comment> $comments
+ * @property-read Collection<int, IssueActivity> $activities
  */
 #[Fillable(['title', 'description', 'status', 'priority', 'assignee_id', 'due_date'])]
 class Issue extends Model
@@ -98,6 +102,44 @@ class Issue extends Model
     public function labels(): BelongsToMany
     {
         return $this->belongsToMany(Label::class);
+    }
+
+    /**
+     * Get the comments on the issue.
+     *
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get the recorded changes to the issue.
+     *
+     * @return HasMany<IssueActivity, $this>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(IssueActivity::class);
+    }
+
+    /**
+     * Record a change to the issue in its history.
+     *
+     * @param  array<string, mixed>|null  $properties
+     */
+    public function recordActivity(IssueActivityType $type, ?User $actor, ?array $properties = null): IssueActivity
+    {
+        $activity = $this->activities()->make([
+            'type' => $type,
+            'properties' => $properties,
+        ]);
+
+        $activity->actor()->associate($actor);
+        $activity->save();
+
+        return $activity;
     }
 
     /**
