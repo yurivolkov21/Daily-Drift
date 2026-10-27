@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Http\Controllers\Issues;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Issues\SaveCommentRequest;
+use App\Models\Comment;
+use App\Models\Team;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
+
+class CommentController extends Controller
+{
+    /**
+     * Add a comment to the given issue.
+     */
+    public function store(SaveCommentRequest $request, Team $currentTeam, string $identifier): RedirectResponse
+    {
+        $issue = $currentTeam->issues()->identifiedBy($identifier)->firstOrFail();
+
+        $comment = $issue->comments()->make($request->validated());
+        $comment->author()->associate($request->user());
+        $comment->save();
+
+        return back();
+    }
+
+    /**
+     * Edit the given comment.
+     */
+    public function update(SaveCommentRequest $request, Team $currentTeam, string $identifier, string $commentId): RedirectResponse
+    {
+        $comment = $this->findComment($currentTeam, $identifier, $commentId);
+
+        Gate::authorize('update', $comment);
+
+        $comment->update($request->validated());
+
+        return back();
+    }
+
+    /**
+     * Delete the given comment.
+     */
+    public function destroy(Team $currentTeam, string $identifier, string $commentId): RedirectResponse
+    {
+        $comment = $this->findComment($currentTeam, $identifier, $commentId);
+
+        Gate::authorize('delete', $comment);
+
+        $comment->delete();
+
+        return back();
+    }
+
+    /**
+     * Find a comment on the team's issue with the given identifier.
+     */
+    protected function findComment(Team $team, string $identifier, string $commentId): Comment
+    {
+        return $team->issues()
+            ->identifiedBy($identifier)
+            ->firstOrFail()
+            ->comments()
+            ->findOrFail($commentId);
+    }
+}
