@@ -2,7 +2,9 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { FolderKanban, List, Plus, SquareKanban } from 'lucide-react';
 import { useState } from 'react';
 import { IssueBoard } from '@/components/issue-board';
+import { IssueBoardDisplayMenu } from '@/components/issue-board-display-menu';
 import { IssueList } from '@/components/issue-list';
+import { IssuePeek } from '@/components/issue-peek';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -25,15 +27,21 @@ import { groupIssuesByStatus } from '@/lib/issues';
 import { cn } from '@/lib/utils';
 import { index, show } from '@/routes/issues';
 import { index as projectsIndex } from '@/routes/projects';
-import type { Issue, IssueFilters, IssueView } from '@/types';
+import type {
+    Issue,
+    IssueFilters,
+    IssuePeek as IssuePeekData,
+    IssueView,
+} from '@/types';
 
 type Props = {
     issues: Issue[];
     filters: IssueFilters;
     view: IssueView;
+    peek: IssuePeekData | null;
 };
 
-export default function IssuesIndex({ issues, filters, view }: Props) {
+export default function IssuesIndex({ issues, filters, view, peek }: Props) {
     const page = usePage();
     const { openCreateIssue } = useIssueTracker();
     const team = page.props.currentTeam;
@@ -44,7 +52,10 @@ export default function IssuesIndex({ issues, filters, view }: Props) {
     const teamSlug = team?.slug ?? '';
 
     const urlFor = (
-        changes: Partial<IssueFilters> & { view?: IssueView },
+        changes: Partial<IssueFilters> & {
+            view?: IssueView;
+            peek?: string | null;
+        },
     ): string => {
         const query = { ...filters, view, ...changes };
 
@@ -53,9 +64,25 @@ export default function IssuesIndex({ issues, filters, view }: Props) {
                 project: query.project,
                 assignee: query.assignee,
                 view: query.view === 'board' ? 'board' : null,
+                peek: query.peek ?? null,
             },
         });
     };
+
+    /**
+     * Open or close the board's quick view, keeping it in the URL.
+     */
+    const showPeek = (identifier: string | null) =>
+        router.get(
+            urlFor({ peek: identifier }),
+            {},
+            {
+                only: ['peek'],
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
 
     const listOrder = groupIssuesByStatus(issues).flatMap(
         (group) => group.issues,
@@ -190,6 +217,7 @@ export default function IssuesIndex({ issues, filters, view }: Props) {
                     </DropdownMenu>
 
                     <div className="ml-auto flex items-center gap-1">
+                        {view === 'board' ? <IssueBoardDisplayMenu /> : null}
                         <div className="flex border">
                             <Button
                                 size="icon-xs"
@@ -291,8 +319,11 @@ export default function IssuesIndex({ issues, filters, view }: Props) {
                         {view === 'board' ? (
                             <IssueBoard
                                 issues={issues}
-                                teamSlug={teamSlug}
                                 projectId={project?.id}
+                                openIssueId={peek?.issue.id ?? null}
+                                onOpenIssue={(issue) =>
+                                    showPeek(issue.identifier)
+                                }
                             />
                         ) : (
                             <IssueList
@@ -305,6 +336,12 @@ export default function IssuesIndex({ issues, filters, view }: Props) {
                     </div>
                 )}
             </div>
+
+            <IssuePeek
+                peek={peek}
+                teamSlug={teamSlug}
+                onClose={() => showPeek(null)}
+            />
         </>
     );
 }
