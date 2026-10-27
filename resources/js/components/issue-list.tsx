@@ -71,7 +71,7 @@ export function IssueList({
                             key={issue.id}
                             data-issue-id={issue.id}
                             data-selected={issue.id === selectedIssueId}
-                            className="relative flex h-11 items-center gap-2 border-b px-4 text-sm hover:bg-muted/40 data-[selected=true]:bg-muted"
+                            className="relative flex h-11 scroll-mt-9 items-center gap-2 border-b px-4 text-sm hover:bg-muted/40 data-[selected=true]:bg-muted"
                         >
                             <IssuePriorityPicker
                                 value={issue.priority}

@@ -390,7 +390,7 @@ export function IssueBoard({
                 value={cell}
                 aria-label={label}
                 style={{ width: columnWidth }}
-                className="flex max-h-[calc(100svh-11rem)] shrink-0 flex-col bg-muted/40"
+                className="flex shrink-0 flex-col bg-muted/40"
             >
                 <header className="flex h-10 shrink-0 items-center gap-2 px-3 text-xs font-semibold">
                     <IssueStatusIcon status={status} />
@@ -410,7 +410,7 @@ export function IssueBoard({
                 </header>
                 <KanbanColumnContent
                     value={cell}
-                    className="flex min-h-12 flex-col gap-2 overflow-y-auto px-2 pb-2"
+                    className="flex min-h-12 scroll-fade-y flex-col gap-2 overflow-y-auto px-2 pb-2"
                 >
                     {cards.map(card)}
                 </KanbanColumnContent>
@@ -519,13 +519,13 @@ export function IssueBoard({
             className="flex min-h-0 flex-1 flex-col"
         >
             {display.lanes === 'none' ? (
-                <KanbanBoard className="flex min-h-0 flex-1 gap-3 overflow-x-auto p-4">
+                <KanbanBoard className="flex min-h-0 flex-1 scroll-fade-x gap-3 overflow-x-auto p-4">
                     {issueStatuses.map(({ value, label }) =>
                         statusColumn(value, label),
                     )}
                 </KanbanBoard>
             ) : (
-                <div className="min-h-0 flex-1 overflow-auto">
+                <div className="min-h-0 flex-1 scroll-fade-ends overflow-auto">
                     <KanbanBoard
                         className="grid w-max auto-rows-auto gap-x-2 gap-y-0 px-4 pb-4"
                         style={{

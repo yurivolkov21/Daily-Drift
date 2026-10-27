@@ -313,7 +313,7 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     <div
                         className={cn(
                             'flex min-h-0 flex-1 flex-col',
-                            view === 'list' && 'overflow-y-auto',
+                            view === 'list' && 'scroll-fade-b overflow-y-auto',
                         )}
                     >
                         {view === 'board' ? (

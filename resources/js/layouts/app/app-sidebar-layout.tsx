@@ -13,12 +13,15 @@ export default function AppSidebarLayout({
         <IssueTrackerProvider>
             <AppShell variant="sidebar">
                 <AppSidebar />
-                <AppContent
-                    variant="sidebar"
-                    className="min-w-0 overflow-x-clip"
-                >
-                    <AppSidebarHeader breadcrumbs={breadcrumbs} />
-                    {children}
+                <AppContent variant="sidebar" className="min-w-0">
+                    {/* The page scrolls inside the panel, so its edges can fade over the panel's background. */}
+                    <div
+                        scroll-region=""
+                        className="flex min-h-0 flex-1 scroll-fade-y flex-col overflow-x-clip overflow-y-auto"
+                    >
+                        <AppSidebarHeader breadcrumbs={breadcrumbs} />
+                        {children}
+                    </div>
                 </AppContent>
             </AppShell>
         </IssueTrackerProvider>

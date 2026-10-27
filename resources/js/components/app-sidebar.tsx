@@ -122,7 +122,7 @@ export function AppSidebar() {
                 ) : null}
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="scroll-fade-y">
                 <NavMain items={mainNavItems} />
 
                 {team && projects.length > 0 ? (
