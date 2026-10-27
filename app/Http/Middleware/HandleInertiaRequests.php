@@ -59,7 +59,7 @@ class HandleInertiaRequests extends Middleware
      * Get the projects, labels and members of the team that the issue tracker offers everywhere.
      *
      * @return array{
-     *     projects: Collection<int, array{id: string, key: string, name: string}>,
+     *     projects: Collection<int, array{id: string, key: string, name: string, icon: string, color: string}>,
      *     labels: Collection<int, array{id: string, name: string, color: string}>,
      *     members: Collection<int, array{id: int, name: string, email: string}>
      * }
@@ -71,6 +71,8 @@ class HandleInertiaRequests extends Middleware
                 'id' => $project->id,
                 'key' => $project->key,
                 'name' => $project->name,
+                'icon' => $project->icon,
+                'color' => $project->color,
             ]),
             'labels' => $team->labels()->orderBy('name')->get()->map(fn (Label $label) => [
                 'id' => $label->id,
