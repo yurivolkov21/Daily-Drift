@@ -2,7 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Label;
+use App\Models\Project;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -46,6 +51,37 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'workspace' => fn () => $user?->currentTeam ? $this->workspace($user->currentTeam) : null,
+        ];
+    }
+
+    /**
+     * Get the projects, labels and members of the team that the issue tracker offers everywhere.
+     *
+     * @return array{
+     *     projects: Collection<int, array{id: string, key: string, name: string}>,
+     *     labels: Collection<int, array{id: string, name: string, color: string}>,
+     *     members: Collection<int, array{id: int, name: string, email: string}>
+     * }
+     */
+    protected function workspace(Team $team): array
+    {
+        return [
+            'projects' => $team->projects()->orderBy('name')->get()->map(fn (Project $project) => [
+                'id' => $project->id,
+                'key' => $project->key,
+                'name' => $project->name,
+            ]),
+            'labels' => $team->labels()->orderBy('name')->get()->map(fn (Label $label) => [
+                'id' => $label->id,
+                'name' => $label->name,
+                'color' => $label->color,
+            ]),
+            'members' => $team->members()->orderBy('name')->get()->map(fn (User $member) => [
+                'id' => $member->id,
+                'name' => $member->name,
+                'email' => $member->email,
+            ]),
         ];
     }
 }
