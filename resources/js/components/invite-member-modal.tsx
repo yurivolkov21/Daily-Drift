@@ -1,6 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
+import { SelectMenu } from '@/components/select-menu';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -13,13 +14,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { store as storeInvitation } from '@/routes/teams/invitations';
 import type { RoleOption, Team } from '@/types';
 
@@ -80,31 +74,19 @@ export default function InviteMemberModal({
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="role">Role</Label>
-                                    <Select
-                                        name="role"
+                                    <SelectMenu
+                                        id="role"
+                                        label="Role"
                                         data-test="invite-role"
-                                        items={availableRoles}
+                                        options={availableRoles}
                                         value={inviteRole}
-                                        onValueChange={(value) =>
-                                            setInviteRole(
-                                                value as RoleOption['value'],
-                                            )
-                                        }
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select a role" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {availableRoles.map((role) => (
-                                                <SelectItem
-                                                    key={role.value}
-                                                    value={role.value}
-                                                >
-                                                    {role.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                        onChange={setInviteRole}
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="role"
+                                        value={inviteRole}
+                                    />
                                     <InputError message={errors.role} />
                                 </div>
                             </div>

@@ -71,7 +71,6 @@ export function IssueListDisplayMenu() {
                     options={groupings}
                     value={display.grouping}
                     onChange={(grouping) => updateDisplay({ grouping })}
-                    className="w-full"
                 />
                 <div className="flex items-end gap-2">
                     <div className="min-w-0 flex-1">
@@ -83,12 +82,11 @@ export function IssueListDisplayMenu() {
                             onChange={(ordering) =>
                                 updateDisplay({ ordering, reversed: false })
                             }
-                            className="w-full"
                         />
                     </div>
                     <Button
                         variant="outline"
-                        size="icon-sm"
+                        size="icon"
                         aria-pressed={display.reversed}
                         aria-label="Reverse the order"
                         title="Reverse the order"

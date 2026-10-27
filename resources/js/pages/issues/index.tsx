@@ -7,15 +7,8 @@ import { IssueBoardDisplayMenu } from '@/components/issue-board-display-menu';
 import { IssueList } from '@/components/issue-list';
 import { IssueListDisplayMenu } from '@/components/issue-list-display-menu';
 import { IssuePeek } from '@/components/issue-peek';
+import { SelectMenu } from '@/components/select-menu';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
     Empty,
     EmptyContent,
@@ -186,51 +179,28 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                         </Button>
                     </div>
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger
-                            render={
-                                <Button
-                                    size="xs"
-                                    variant="outline"
-                                    data-test="project-filter"
-                                />
-                            }
-                        >
-                            <FolderKanban />
-                            {project?.key ?? 'All projects'}
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56">
-                            <DropdownMenuGroup>
-                                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                                    Project
-                                </DropdownMenuLabel>
-                                <DropdownMenuItem
-                                    onClick={() =>
-                                        router.visit(urlFor({ project: null }))
-                                    }
-                                >
-                                    All projects
-                                </DropdownMenuItem>
-                                {projects.map((candidate) => (
-                                    <DropdownMenuItem
-                                        key={candidate.id}
-                                        onClick={() =>
-                                            router.visit(
-                                                urlFor({
-                                                    project: candidate.key,
-                                                }),
-                                            )
-                                        }
-                                    >
-                                        <span className="w-9 shrink-0 text-[0.65rem] font-semibold text-muted-foreground">
-                                            {candidate.key}
-                                        </span>
-                                        {candidate.name}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <SelectMenu
+                        size="sm"
+                        label="Project"
+                        data-test="project-filter"
+                        icon={<FolderKanban />}
+                        options={[
+                            { value: '', label: 'All projects' },
+                            ...projects.map((candidate) => ({
+                                value: candidate.key,
+                                label: candidate.name,
+                                icon: (
+                                    <span className="w-8 shrink-0 text-[0.65rem] font-semibold text-muted-foreground">
+                                        {candidate.key}
+                                    </span>
+                                ),
+                            })),
+                        ]}
+                        value={project?.key ?? ''}
+                        onChange={(key) =>
+                            router.visit(urlFor({ project: key || null }))
+                        }
+                    />
 
                     <div className="ml-auto flex items-center gap-1">
                         {view === 'board' ? (

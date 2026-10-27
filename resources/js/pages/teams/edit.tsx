@@ -1,5 +1,5 @@
 import { Form, Head, router } from '@inertiajs/react';
-import { ChevronDown, Mail, UserPlus, X } from 'lucide-react';
+import { Mail, UserPlus, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import CancelInvitationModal from '@/components/cancel-invitation-modal';
 import DeleteTeamModal from '@/components/delete-team-modal';
@@ -7,15 +7,10 @@ import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import InviteMemberModal from '@/components/invite-member-modal';
 import RemoveMemberModal from '@/components/remove-member-modal';
+import { SelectMenu } from '@/components/select-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -198,36 +193,17 @@ export default function TeamEdit({
                                 <div className="flex items-center gap-2">
                                     {member.role !== 'owner' &&
                                     permissions.canUpdateMember ? (
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger
-                                                render={
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        data-test="member-role-trigger"
-                                                    />
-                                                }
-                                            >
-                                                {member.role_label}
-                                                <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent>
-                                                {availableRoles.map((role) => (
-                                                    <DropdownMenuItem
-                                                        key={role.value}
-                                                        data-test="member-role-option"
-                                                        onClick={() =>
-                                                            updateMemberRole(
-                                                                member,
-                                                                role.value,
-                                                            )
-                                                        }
-                                                    >
-                                                        {role.label}
-                                                    </DropdownMenuItem>
-                                                ))}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        <SelectMenu
+                                            size="sm"
+                                            label={`Role of ${member.name}`}
+                                            data-test="member-role-trigger"
+                                            align="end"
+                                            options={availableRoles}
+                                            value={member.role}
+                                            onChange={(role) =>
+                                                updateMemberRole(member, role)
+                                            }
+                                        />
                                     ) : (
                                         <Badge variant="secondary">
                                             {member.role_label}
