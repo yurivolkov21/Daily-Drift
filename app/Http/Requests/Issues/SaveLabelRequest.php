@@ -8,7 +8,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreLabelRequest extends FormRequest
+class SaveLabelRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -20,12 +20,15 @@ class StoreLabelRequest extends FormRequest
         /** @var Team $team */
         $team = $this->route('current_team');
 
+        /** @var Label|null $label */
+        $label = $this->route('label');
+
         return [
             'name' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique(Label::class)->where('team_id', $team->id),
+                Rule::unique(Label::class)->where('team_id', $team->id)->ignore($label?->id),
             ],
             'color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
         ];
