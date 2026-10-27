@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { FolderKanban, List, Plus, SquareKanban } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { IssueBoard } from '@/components/issue-board';
 import { IssueBoardDisplayMenu } from '@/components/issue-board-display-menu';
@@ -21,6 +22,12 @@ import {
     EmptyHeader,
     EmptyTitle,
 } from '@/components/ui/empty';
+import { Kbd } from '@/components/ui/kbd';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useHotkeys } from '@/hooks/use-hotkeys';
 import { useIssueTracker } from '@/hooks/use-issue-tracker';
 import { groupIssuesByStatus } from '@/lib/issues';
@@ -40,6 +47,11 @@ type Props = {
     view: IssueView;
     peek: IssuePeekData | null;
 };
+
+const viewOptions: { value: IssueView; label: string; icon: LucideIcon }[] = [
+    { value: 'list', label: 'List view', icon: List },
+    { value: 'board', label: 'Board view', icon: SquareKanban },
+];
 
 export default function IssuesIndex({ issues, filters, view, peek }: Props) {
     const page = usePage();
@@ -219,38 +231,42 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     <div className="ml-auto flex items-center gap-1">
                         {view === 'board' ? <IssueBoardDisplayMenu /> : null}
                         <div className="flex border">
-                            <Button
-                                size="icon-xs"
-                                variant={
-                                    view === 'list' ? 'secondary' : 'ghost'
-                                }
-                                aria-label="List view"
-                                nativeButton={false}
-                                render={
-                                    <Link
-                                        href={urlFor({ view: 'list' })}
-                                        preserveScroll
-                                    />
-                                }
-                            >
-                                <List />
-                            </Button>
-                            <Button
-                                size="icon-xs"
-                                variant={
-                                    view === 'board' ? 'secondary' : 'ghost'
-                                }
-                                aria-label="Board view"
-                                nativeButton={false}
-                                render={
-                                    <Link
-                                        href={urlFor({ view: 'board' })}
-                                        preserveScroll
-                                    />
-                                }
-                            >
-                                <SquareKanban />
-                            </Button>
+                            {viewOptions.map(
+                                ({ value, label, icon: ViewIcon }) => (
+                                    <Tooltip key={value}>
+                                        <TooltipTrigger
+                                            render={
+                                                <Button
+                                                    size="icon-xs"
+                                                    variant={
+                                                        view === value
+                                                            ? 'secondary'
+                                                            : 'ghost'
+                                                    }
+                                                    aria-label={label}
+                                                    nativeButton={false}
+                                                    render={
+                                                        <Link
+                                                            href={urlFor({
+                                                                view: value,
+                                                            })}
+                                                            preserveScroll
+                                                        />
+                                                    }
+                                                />
+                                            }
+                                        >
+                                            <ViewIcon />
+                                        </TooltipTrigger>
+                                        <TooltipContent side="bottom">
+                                            {label}
+                                            {view !== value ? (
+                                                <Kbd>V</Kbd>
+                                            ) : null}
+                                        </TooltipContent>
+                                    </Tooltip>
+                                ),
+                            )}
                         </div>
                         <Button
                             size="xs"
