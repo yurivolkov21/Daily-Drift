@@ -32,7 +32,12 @@ import {
 } from '@/lib/issues';
 import { cn } from '@/lib/utils';
 import { destroy, index, show } from '@/routes/issues';
-import type { Issue, IssueActivity, IssueComment } from '@/types';
+import type {
+    Issue,
+    IssueActivity,
+    IssueActivityFilter,
+    IssueComment,
+} from '@/types';
 
 type Props = {
     issue: Issue;
@@ -41,6 +46,12 @@ type Props = {
 };
 
 type Picker = 'status' | 'priority' | 'assignee' | 'labels' | 'dueDate';
+
+const activityFilters: { value: IssueActivityFilter; label: string }[] = [
+    { value: 'all', label: 'All' },
+    { value: 'comments', label: 'Comments' },
+    { value: 'history', label: 'History' },
+];
 
 function PropertyRow({
     label,
@@ -70,6 +81,8 @@ export default function IssueShow({ issue, comments, activities }: Props) {
     const [description, setDescription] = useState(issue.description ?? '');
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [activityFilter, setActivityFilter] =
+        useState<IssueActivityFilter>('all');
     const timeline = buildTimeline(comments, activities);
 
     const pickerState = (picker: Picker) => ({
@@ -224,16 +237,44 @@ export default function IssueShow({ issue, comments, activities }: Props) {
                         aria-labelledby="issue-activity-heading"
                         className="mt-6 grid gap-5 border-t pt-6"
                     >
-                        <h2
-                            id="issue-activity-heading"
-                            className="text-xs font-semibold tracking-wider uppercase"
-                        >
-                            Activity
-                        </h2>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h2
+                                id="issue-activity-heading"
+                                className="text-xs font-semibold tracking-wider uppercase"
+                            >
+                                Activity
+                            </h2>
+                            <div
+                                role="group"
+                                aria-label="Show in activity"
+                                className="flex border"
+                            >
+                                {activityFilters.map((option) => (
+                                    <Button
+                                        key={option.value}
+                                        size="xs"
+                                        variant={
+                                            activityFilter === option.value
+                                                ? 'secondary'
+                                                : 'ghost'
+                                        }
+                                        aria-pressed={
+                                            activityFilter === option.value
+                                        }
+                                        onClick={() =>
+                                            setActivityFilter(option.value)
+                                        }
+                                    >
+                                        {option.label}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
 
                         <IssueActivityTimeline
                             entries={timeline}
                             issueIdentifier={issue.identifier}
+                            filter={activityFilter}
                         />
                     </section>
                 </div>

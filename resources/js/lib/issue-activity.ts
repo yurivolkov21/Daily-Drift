@@ -2,10 +2,17 @@ import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { formatDueDate, priorityLabel, statusLabel } from '@/lib/issues';
 import type {
     IssueActivity,
+    IssueActivityFilter,
     IssueComment,
     IssueLabel,
     IssueTimelineEntry,
+    IssueTimelineRow,
 } from '@/types';
+
+/**
+ * How many of a run's latest changes stay visible when the run is folded.
+ */
+const visibleChangesPerRun = 2;
 
 /**
  * Merge comments and recorded changes into one list, oldest first.
@@ -33,6 +40,58 @@ export function buildTimeline(
         (a, b) =>
             a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id),
     );
+}
+
+export function filterTimeline(
+    entries: IssueTimelineEntry[],
+    filter: IssueActivityFilter,
+): IssueTimelineEntry[] {
+    if (filter === 'all') {
+        return entries;
+    }
+
+    const kind = filter === 'comments' ? 'comment' : 'activity';
+
+    return entries.filter((entry) => entry.kind === kind);
+}
+
+/**
+ * Fold every run of back to back changes that would hide at least two of
+ * them behind one row, keeping its latest changes visible. A run is known by
+ * the id of its first change, and runs in `expandedRunIds` stay unfolded.
+ */
+export function foldChangeRuns(
+    entries: IssueTimelineEntry[],
+    expandedRunIds: ReadonlySet<string>,
+): IssueTimelineRow[] {
+    const runs = entries.reduce<IssueTimelineEntry[][]>((grouped, entry) => {
+        const lastRun = grouped.at(-1);
+
+        if (entry.kind === 'activity' && lastRun?.at(-1)?.kind === 'activity') {
+            return [...grouped.slice(0, -1), [...lastRun, entry]];
+        }
+
+        return [...grouped, [entry]];
+    }, []);
+
+    return runs.flatMap<IssueTimelineRow>((run) => {
+        const runId = run[0].id;
+        const hiddenCount = run.length - visibleChangesPerRun;
+
+        if (hiddenCount < 2 || expandedRunIds.has(runId)) {
+            return run;
+        }
+
+        return [
+            {
+                kind: 'earlierChanges',
+                id: `earlier-changes-${runId}`,
+                runId,
+                count: hiddenCount,
+            },
+            ...run.slice(-visibleChangesPerRun),
+        ];
+    });
 }
 
 function labelList(labels: IssueLabel[]): string {
