@@ -229,7 +229,7 @@ export default function IssueShow({
                                 event.currentTarget.blur();
                             }
                         }}
-                        className="min-h-0 border-0 py-0 text-2xl font-semibold md:text-2xl"
+                        className="-mx-2 min-h-0 w-[calc(100%+1rem)] border-transparent bg-transparent px-2 py-1 text-2xl font-semibold hover:border-input hover:bg-muted/50 md:text-2xl"
                     />
 
                     <Textarea
@@ -238,7 +238,7 @@ export default function IssueShow({
                         value={description}
                         onChange={(event) => setDescription(event.target.value)}
                         onBlur={saveDescription}
-                        className="min-h-40 border-0 text-sm leading-relaxed"
+                        className="min-h-40 text-sm leading-relaxed"
                     />
 
                     <IssueSubtasks
