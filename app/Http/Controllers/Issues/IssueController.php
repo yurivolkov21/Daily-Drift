@@ -34,8 +34,13 @@ class IssueController extends Controller
 
         $assignedToMe = $request->query('assignee') === 'me';
 
+        $view = $request->query('view') === 'board' ? 'board' : 'list';
+
         $issues = $currentTeam->issues()
             ->with(['project', 'assignee', 'labels'])
+            ->when($view === 'list', fn (Builder $query) => $query->with([
+                'subtasks' => fn (HasMany $query) => $query->orderBy('position')->orderBy('id'),
+            ]))
             ->withCount([
                 'comments',
                 'subtasks',
@@ -53,7 +58,7 @@ class IssueController extends Controller
                 'project' => $project?->key,
                 'assignee' => $assignedToMe ? 'me' : null,
             ],
-            'view' => $request->query('view') === 'board' ? 'board' : 'list',
+            'view' => $view,
             'peek' => fn () => $request->filled('peek')
                 ? $this->peek($currentTeam, $request->string('peek')->toString())
                 : null,
@@ -90,14 +95,13 @@ class IssueController extends Controller
             'labels',
             'comments' => fn (HasMany $query) => $query->with('author')->oldest()->orderBy('id'),
             'activities' => fn (HasMany $query) => $query->with('actor')->oldest()->orderBy('id'),
-            'subtasks' => fn (HasMany $query) => $query->orderBy('position')->orderBy('id'),
         ]);
 
         return Inertia::render('issues/show', [
             'issue' => IssueResource::make($issue)->resolve(),
             'comments' => CommentResource::collection($issue->comments)->resolve(),
             'activities' => IssueActivityResource::collection($issue->activities)->resolve(),
-            'subtasks' => SubtaskResource::collection($issue->subtasks)->resolve(),
+            'subtasks' => $this->subtasksOf($issue),
         ]);
     }
 
@@ -144,7 +148,6 @@ class IssueController extends Controller
                 'assignee',
                 'creator',
                 'labels',
-                'subtasks' => fn (HasMany $query) => $query->orderBy('position')->orderBy('id'),
             ])
             ->first();
 
@@ -154,8 +157,19 @@ class IssueController extends Controller
 
         return [
             'issue' => IssueResource::make($issue)->resolve(),
-            'subtasks' => SubtaskResource::collection($issue->subtasks)->resolve(),
+            'subtasks' => $this->subtasksOf($issue),
         ];
+    }
+
+    /**
+     * Get the issue's sub-tasks in order, kept apart from the issue itself so
+     * pages that edit them get one copy.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function subtasksOf(Issue $issue): array
+    {
+        return SubtaskResource::collection($issue->subtasks()->orderBy('position')->orderBy('id')->get())->resolve();
     }
 
     /**

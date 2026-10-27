@@ -76,7 +76,8 @@ test('the quick view shows the issue with its sub-tasks', function () {
         ->where('peek.issue.identifier', 'DD-1')
         ->has('peek.subtasks', 2)
         ->where('peek.subtasks.0.title', 'First')
-        ->where('peek.subtasks.0.completed', true),
+        ->where('peek.subtasks.0.completed', true)
+        ->missing('peek.issue.subtasks'),
     );
 });
 
