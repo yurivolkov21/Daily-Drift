@@ -40,6 +40,7 @@ use Illuminate\Support\Str;
  * @property-read Collection<int, Label> $labels
  * @property-read Collection<int, Comment> $comments
  * @property-read Collection<int, IssueActivity> $activities
+ * @property-read Collection<int, Subtask> $subtasks
  */
 #[Fillable(['title', 'description', 'status', 'priority', 'assignee_id', 'due_date'])]
 class Issue extends Model
@@ -122,6 +123,16 @@ class Issue extends Model
     public function activities(): HasMany
     {
         return $this->hasMany(IssueActivity::class);
+    }
+
+    /**
+     * Get the sub-tasks that break the issue down.
+     *
+     * @return HasMany<Subtask, $this>
+     */
+    public function subtasks(): HasMany
+    {
+        return $this->hasMany(Subtask::class);
     }
 
     /**

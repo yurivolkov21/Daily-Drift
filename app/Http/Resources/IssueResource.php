@@ -38,6 +38,8 @@ class IssueResource extends JsonResource
                 'name' => $creator->name,
             ]),
             'labelIds' => $this->whenLoaded('labels', fn () => $this->labels->modelKeys()),
+            'subtasksCount' => $this->whenCounted('subtasks'),
+            'completedSubtasksCount' => $this->whenCounted('completed_subtasks'),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
         ];

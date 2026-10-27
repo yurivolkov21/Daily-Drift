@@ -28,8 +28,16 @@ export type Issue = {
     assignee?: IssueUser | null;
     creator?: IssueUser | null;
     labelIds?: string[];
+    subtasksCount?: number;
+    completedSubtasksCount?: number;
     createdAt: string;
     updatedAt: string;
+};
+
+export type IssueSubtask = {
+    id: string;
+    title: string;
+    completed: boolean;
 };
 
 export type IssueComment = {

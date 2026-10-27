@@ -15,7 +15,7 @@ use Illuminate\Database\Seeder;
 class IssueTrackerSeeder extends Seeder
 {
     /**
-     * Seed a shared "Daily Drift" team with two members, a project, labels and sample issues.
+     * Seed a shared "Daily Drift" team with two members, a project, labels and sample issues with comments and sub-tasks.
      *
      * Both demo accounts use the factory password "password".
      */
@@ -72,6 +72,13 @@ class IssueTrackerSeeder extends Seeder
         $this->comment($palette, $owner, 'Can we also open the palette from the sidebar?');
         $this->comment($palette, $teammate, 'Yes, the Search button in the sidebar opens it.');
         $updateIssue->handle($teammate, $palette, ['status' => IssueStatus::InReview]);
+
+        $palette->subtasks()->createMany([
+            ['title' => 'Open the palette with Ctrl K', 'position' => 1, 'completed_at' => now()],
+            ['title' => 'Go-to shortcuts such as G then I', 'position' => 2, 'completed_at' => now()],
+            ['title' => 'Issue actions in the palette', 'position' => 3, 'completed_at' => now()],
+            ['title' => 'Document the shortcuts', 'position' => 4],
+        ]);
     }
 
     /**
