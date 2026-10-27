@@ -83,7 +83,7 @@ export function ActivityIcon({
 /**
  * Whether the signed in user wrote the comment and may edit or delete it.
  */
-export function useIsOwnComment(comment: IssueComment): boolean {
+function useIsOwnComment(comment: IssueComment): boolean {
     return usePage().props.auth.user.id === comment.author?.id;
 }
 

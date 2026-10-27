@@ -62,7 +62,8 @@ function TimelineComment({
 }
 
 /**
- * Sample A: one vertical timeline built on the ReUI Timeline component.
+ * Comments and changes on one vertical timeline, built on the ReUI Timeline
+ * component.
  */
 export function IssueActivityTimeline({ entries, issueIdentifier }: Props) {
     return (
