@@ -135,7 +135,7 @@ export function IssuePeek({
                             <IssueSubtasks
                                 issueIdentifier={issue.identifier}
                                 subtasks={peek.subtasks}
-                                inPeek
+                                location="peek"
                                 className="mt-0 border-t-0 pt-0"
                             />
                         </div>

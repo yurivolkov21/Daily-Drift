@@ -61,7 +61,7 @@ export function CreateIssueDialog({ open, onOpenChange, defaults }: Props) {
         title: '',
         description: '',
         status: defaults.status ?? 'backlog',
-        priority: 0,
+        priority: defaults.priority ?? 0,
         assignee_id: defaults.assigneeId ?? null,
         due_date: null,
         label_ids: [],

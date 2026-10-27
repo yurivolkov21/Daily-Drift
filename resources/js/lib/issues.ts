@@ -1,4 +1,10 @@
-import { format, isBefore, parseISO, startOfToday } from 'date-fns';
+import {
+    differenceInMinutes,
+    format,
+    isBefore,
+    parseISO,
+    startOfToday,
+} from 'date-fns';
 import type { Issue, IssuePriority, IssueStatus } from '@/types';
 
 export const issueStatuses: { value: IssueStatus; label: string }[] = [
@@ -41,20 +47,6 @@ export const labelColors = [
     '#95a2b3',
 ];
 
-/**
- * Group issues by status in list order, leaving out empty groups.
- */
-export function groupIssuesByStatus(
-    issues: Issue[],
-): { status: IssueStatus; issues: Issue[] }[] {
-    return listStatusOrder
-        .map((status) => ({
-            status,
-            issues: issues.filter((issue) => issue.status === status),
-        }))
-        .filter((group) => group.issues.length > 0);
-}
-
 export function statusLabel(status: IssueStatus): string {
     return issueStatuses.find((option) => option.value === status)?.label ?? '';
 }
@@ -71,6 +63,32 @@ export function isClosedStatus(status: IssueStatus): boolean {
 
 export function formatDueDate(dueDate: string): string {
     return format(parseISO(dueDate), 'MMM d');
+}
+
+/**
+ * A short age such as "5m", "3h" or "2d", or the date once it is a month old.
+ */
+export function formatAge(timestamp: string): string {
+    const date = parseISO(timestamp);
+    const minutes = differenceInMinutes(new Date(), date);
+
+    if (minutes < 1) {
+        return 'now';
+    }
+
+    if (minutes < 60) {
+        return `${minutes}m`;
+    }
+
+    if (minutes < 60 * 24) {
+        return `${Math.floor(minutes / 60)}h`;
+    }
+
+    if (minutes < 60 * 24 * 30) {
+        return `${Math.floor(minutes / (60 * 24))}d`;
+    }
+
+    return format(date, 'MMM d');
 }
 
 export function isOverdue(issue: Pick<Issue, 'dueDate' | 'status'>): boolean {

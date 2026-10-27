@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { IssueBoard } from '@/components/issue-board';
 import { IssueBoardDisplayMenu } from '@/components/issue-board-display-menu';
 import { IssueList } from '@/components/issue-list';
+import { IssueListDisplayMenu } from '@/components/issue-list-display-menu';
 import { IssuePeek } from '@/components/issue-peek';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,7 +31,8 @@ import {
 } from '@/components/ui/tooltip';
 import { useHotkeys } from '@/hooks/use-hotkeys';
 import { useIssueTracker } from '@/hooks/use-issue-tracker';
-import { groupIssuesByStatus } from '@/lib/issues';
+import { useListDisplay } from '@/hooks/use-list-display';
+import { arrangeIssueList } from '@/lib/issue-list';
 import { cn } from '@/lib/utils';
 import { index, show } from '@/routes/issues';
 import { index as projectsIndex } from '@/routes/projects';
@@ -96,8 +98,10 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
             },
         );
 
-    const listOrder = groupIssuesByStatus(issues).flatMap(
-        (group) => group.issues,
+    const [listDisplay] = useListDisplay();
+    const listGroups = arrangeIssueList(issues, listDisplay, projects);
+    const listOrder = listGroups.flatMap((group) =>
+        listDisplay.collapsedGroups.includes(group.key) ? [] : group.issues,
     );
 
     const moveSelection = (offset: number) => {
@@ -229,7 +233,11 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     </DropdownMenu>
 
                     <div className="ml-auto flex items-center gap-1">
-                        {view === 'board' ? <IssueBoardDisplayMenu /> : null}
+                        {view === 'board' ? (
+                            <IssueBoardDisplayMenu />
+                        ) : (
+                            <IssueListDisplayMenu />
+                        )}
                         <div className="flex border">
                             {viewOptions.map(
                                 ({ value, label, icon: ViewIcon }) => (
@@ -329,7 +337,7 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     <div
                         className={cn(
                             'flex min-h-0 flex-1 flex-col',
-                            view === 'list' && 'scroll-fade-b overflow-y-auto',
+                            view === 'list' && 'scroll-fade-ends overflow-auto',
                         )}
                     >
                         {view === 'board' ? (
@@ -343,7 +351,7 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                             />
                         ) : (
                             <IssueList
-                                issues={issues}
+                                groups={listGroups}
                                 teamSlug={teamSlug}
                                 projectId={project?.id}
                                 selectedIssueId={selectedIssueId}
