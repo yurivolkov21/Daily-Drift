@@ -1,8 +1,5 @@
+import { SelectMenu } from '@/components/select-menu';
 import { Button } from '@/components/ui/button';
-import {
-    NativeSelect,
-    NativeSelectOption,
-} from '@/components/ui/native-select';
 import { toggled } from '@/lib/display-store';
 
 type Option<T> = { value: T; label: string };
@@ -51,39 +48,25 @@ export function DisplaySelect<T extends string>({
     options,
     value,
     onChange,
-    className,
 }: {
     id: string;
     label: string;
     options: Option<T>[];
     value: T;
     onChange: (value: T) => void;
-    className?: string;
 }) {
     return (
-        <div className="grid gap-1">
+        <div className="grid gap-1.5">
             <label htmlFor={id} className="text-xs text-muted-foreground">
                 {label}
             </label>
-            <NativeSelect
+            <SelectMenu
                 id={id}
-                size="sm"
+                label={label}
+                options={options}
                 value={value}
-                onChange={(event) =>
-                    onChange(
-                        options.find(
-                            (option) => option.value === event.target.value,
-                        )?.value ?? value,
-                    )
-                }
-                className={className}
-            >
-                {options.map((option) => (
-                    <NativeSelectOption key={option.value} value={option.value}>
-                        {option.label}
-                    </NativeSelectOption>
-                ))}
-            </NativeSelect>
+                onChange={onChange}
+            />
         </div>
     );
 }

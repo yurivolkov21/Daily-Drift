@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
     Command,
     CommandEmpty,
@@ -13,6 +13,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 export type PropertyOption<TValue> = {
     value: TValue;
@@ -30,6 +31,8 @@ type Props<TValue> = {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     align?: 'start' | 'center' | 'end';
+    searchable?: boolean;
+    contentClassName?: string;
     renderExtra?: (search: string, clearSearch: () => void) => ReactNode;
 };
 
@@ -56,6 +59,8 @@ export function PropertyPicker<TValue extends string | number | null>({
     open: controlledOpen,
     onOpenChange,
     align = 'start',
+    searchable = true,
+    contentClassName,
     renderExtra,
 }: Props<TValue>) {
     const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -63,6 +68,7 @@ export function PropertyPicker<TValue extends string | number | null>({
     const open = controlledOpen ?? uncontrolledOpen;
     const setOpen = onOpenChange ?? setUncontrolledOpen;
     const [wasOpen, setWasOpen] = useState(open);
+    const listRef = useRef<HTMLDivElement>(null);
 
     // Clear the search when reopening rather than closing, so the list does
     // not jump while the popover fades out.
@@ -77,14 +83,25 @@ export function PropertyPicker<TValue extends string | number | null>({
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger render={trigger} />
-            <PopoverContent align={align} className="w-60 gap-0 p-0">
-                <Command filter={filterByLabel}>
-                    <CommandInput
-                        autoFocus
-                        placeholder={placeholder}
-                        value={search}
-                        onValueChange={setSearch}
-                    />
+            <PopoverContent
+                align={align}
+                className={cn('w-60 gap-0 p-0', contentClassName)}
+                initialFocus={searchable ? undefined : listRef}
+            >
+                <Command
+                    ref={listRef}
+                    filter={filterByLabel}
+                    tabIndex={searchable ? undefined : -1}
+                    className="outline-none"
+                >
+                    {searchable ? (
+                        <CommandInput
+                            autoFocus
+                            placeholder={placeholder}
+                            value={search}
+                            onValueChange={setSearch}
+                        />
+                    ) : null}
                     <CommandList>
                         <CommandEmpty>No results.</CommandEmpty>
                         <CommandGroup>
