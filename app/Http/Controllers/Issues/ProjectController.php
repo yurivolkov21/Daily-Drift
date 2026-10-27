@@ -6,7 +6,6 @@ use App\Enums\TeamPermission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\SaveProjectRequest;
 use App\Models\Issue;
-use App\Models\Label;
 use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +17,7 @@ use Inertia\Response;
 class ProjectController extends Controller
 {
     /**
-     * Display the team's projects and labels.
+     * Display the team's projects.
      */
     public function index(Request $request, Team $currentTeam): Response
     {
@@ -33,11 +32,6 @@ class ProjectController extends Controller
             ->distinct()
             ->get(['project_id', 'assignee_id'])
             ->groupBy('project_id');
-
-        $labels = $currentTeam->labels()
-            ->withCount('issues')
-            ->orderBy('name')
-            ->get();
 
         return Inertia::render('projects/index', [
             'projects' => $projects->map(fn (Project $project) => [
@@ -55,12 +49,6 @@ class ProjectController extends Controller
                 'completedIssuesCount' => $project->completed_issues_count,
                 'canceledIssuesCount' => $project->canceled_issues_count,
                 'assigneeIds' => $assigneeIds->get($project->id, collect())->pluck('assignee_id')->sort()->values(),
-            ]),
-            'labels' => $labels->map(fn (Label $label) => [
-                'id' => $label->id,
-                'name' => $label->name,
-                'color' => $label->color,
-                'issuesCount' => $label->issues_count,
             ]),
             'canDeleteProjects' => $request->user()->hasTeamPermission($currentTeam, TeamPermission::DeleteProject),
         ]);

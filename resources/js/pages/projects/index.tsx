@@ -1,31 +1,20 @@
-import { Form, Head, Link, router, usePage } from '@inertiajs/react';
-import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
-import { IssueLabel } from '@/components/issue-label-chips';
 import { ProjectFormDialog } from '@/components/project-form-dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { labelColors } from '@/lib/issues';
-import { cn } from '@/lib/utils';
 import { index as issuesIndex } from '@/routes/issues';
-import { destroy as destroyLabel, store as storeLabel } from '@/routes/labels';
 import { destroy, index } from '@/routes/projects';
-import type { IssueLabelSummary, ProjectSummary } from '@/types';
+import type { ProjectSummary } from '@/types';
 
 type Props = {
     projects: ProjectSummary[];
-    labels: IssueLabelSummary[];
     canDeleteProjects: boolean;
 };
 
-export default function ProjectsIndex({
-    projects,
-    labels,
-    canDeleteProjects,
-}: Props) {
+export default function ProjectsIndex({ projects, canDeleteProjects }: Props) {
     const teamSlug = usePage().props.currentTeam?.slug ?? '';
     const [formSession, setFormSession] = useState(0);
     const [formOpen, setFormOpen] = useState(false);
@@ -35,10 +24,6 @@ export default function ProjectsIndex({
     const [deletedProject, setDeletedProject] = useState<ProjectSummary | null>(
         null,
     );
-    const [deletedLabel, setDeletedLabel] = useState<IssueLabelSummary | null>(
-        null,
-    );
-    const [labelColor, setLabelColor] = useState(labelColors[0]);
 
     const openProjectForm = (project: ProjectSummary | null) => {
         setEditedProject(project);
@@ -128,101 +113,6 @@ export default function ProjectsIndex({
                         </div>
                     )}
                 </section>
-
-                <section className="grid max-w-xl gap-4">
-                    <Heading
-                        variant="small"
-                        title="Labels"
-                        description="Labels are shared by every project in the team."
-                    />
-
-                    <Form
-                        {...storeLabel.form(teamSlug)}
-                        options={{ preserveScroll: true }}
-                        resetOnSuccess={['name']}
-                        className="grid gap-2"
-                    >
-                        {({ errors, processing }) => (
-                            <>
-                                <div className="flex items-end gap-2">
-                                    <Input
-                                        name="name"
-                                        aria-label="Label name"
-                                        data-test="label-name"
-                                        placeholder="New label"
-                                        required
-                                    />
-                                    <input
-                                        type="hidden"
-                                        name="color"
-                                        value={labelColor}
-                                    />
-                                    <Button
-                                        type="submit"
-                                        size="sm"
-                                        disabled={processing}
-                                    >
-                                        Add
-                                    </Button>
-                                </div>
-                                <div
-                                    className="flex gap-1.5"
-                                    role="radiogroup"
-                                    aria-label="Label color"
-                                >
-                                    {labelColors.map((color) => (
-                                        <button
-                                            key={color}
-                                            type="button"
-                                            role="radio"
-                                            aria-checked={labelColor === color}
-                                            aria-label={color}
-                                            className={cn(
-                                                'size-5 rounded-full ring-offset-2 ring-offset-background',
-                                                labelColor === color &&
-                                                    'ring-2 ring-foreground',
-                                            )}
-                                            style={{ backgroundColor: color }}
-                                            onClick={() => setLabelColor(color)}
-                                        />
-                                    ))}
-                                </div>
-                                <InputError message={errors.name} />
-                                <InputError message={errors.color} />
-                            </>
-                        )}
-                    </Form>
-
-                    {labels.length > 0 ? (
-                        <div className="divide-y border">
-                            {labels.map((label) => (
-                                <div
-                                    key={label.id}
-                                    data-test="label-row"
-                                    className="flex items-center gap-3 px-4 py-2 text-sm"
-                                >
-                                    <span className="min-w-0 flex-1">
-                                        <IssueLabel
-                                            name={label.name}
-                                            color={label.color}
-                                        />
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                        {label.issuesCount} issues
-                                    </span>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-xs"
-                                        aria-label={`Delete label ${label.name}`}
-                                        onClick={() => setDeletedLabel(label)}
-                                    >
-                                        <X />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    ) : null}
-                </section>
             </div>
 
             <ProjectFormDialog
@@ -246,25 +136,6 @@ export default function ProjectsIndex({
                             {
                                 preserveScroll: true,
                                 onSuccess: () => setDeletedProject(null),
-                            },
-                        );
-                    }
-                }}
-            />
-
-            <ConfirmDialog
-                open={deletedLabel !== null}
-                onOpenChange={(open) => !open && setDeletedLabel(null)}
-                title={`Delete label ${deletedLabel?.name ?? ''}?`}
-                description="The label will be removed from every issue that uses it."
-                confirmLabel="Delete label"
-                onConfirm={() => {
-                    if (deletedLabel) {
-                        router.delete(
-                            destroyLabel.url([teamSlug, deletedLabel.id]),
-                            {
-                                preserveScroll: true,
-                                onSuccess: () => setDeletedLabel(null),
                             },
                         );
                     }

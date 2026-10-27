@@ -44,6 +44,7 @@ Route::prefix('{current_team}')
         Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
         Route::post('labels', [LabelController::class, 'store'])->name('labels.store');
+        Route::patch('labels/{label}', [LabelController::class, 'update'])->name('labels.update');
         Route::delete('labels/{label}', [LabelController::class, 'destroy'])->name('labels.destroy');
     });
 
