@@ -71,6 +71,16 @@ export type IssueTimelineEntry =
           activity: IssueActivity;
       };
 
+/**
+ * A timeline entry, or one row that stands in for the earlier changes of a
+ * long run of back to back changes.
+ */
+export type IssueTimelineRow =
+    | IssueTimelineEntry
+    | { kind: 'earlierChanges'; id: string; runId: string; count: number };
+
+export type IssueActivityFilter = 'all' | 'comments' | 'history';
+
 export type IssueFilters = {
     project: string | null;
     assignee: 'me' | null;

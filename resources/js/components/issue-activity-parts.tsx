@@ -89,7 +89,7 @@ function useIsOwnComment(comment: IssueComment): boolean {
 
 export function CommentText({ body }: { body: string }) {
     return (
-        <p className="text-sm leading-relaxed break-words whitespace-pre-wrap text-foreground">
+        <p className="text-sm leading-relaxed wrap-break-word whitespace-pre-wrap text-foreground">
             {body}
         </p>
     );
