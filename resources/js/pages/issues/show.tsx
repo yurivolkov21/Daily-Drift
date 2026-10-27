@@ -16,6 +16,7 @@ import {
 } from '@/components/issue-pickers';
 import { IssuePriorityIcon } from '@/components/issue-priority-icon';
 import { IssueStatusIcon } from '@/components/issue-status-icon';
+import { IssueSubtasks } from '@/components/issue-subtasks';
 import { MemberAvatar } from '@/components/member-avatar';
 import { PropertyButton } from '@/components/property-button';
 import { Button } from '@/components/ui/button';
@@ -37,12 +38,14 @@ import type {
     IssueActivity,
     IssueActivityFilter,
     IssueComment,
+    IssueSubtask,
 } from '@/types';
 
 type Props = {
     issue: Issue;
     comments: IssueComment[];
     activities: IssueActivity[];
+    subtasks: IssueSubtask[];
 };
 
 type Picker = 'status' | 'priority' | 'assignee' | 'labels' | 'dueDate';
@@ -68,7 +71,12 @@ function PropertyRow({
     );
 }
 
-export default function IssueShow({ issue, comments, activities }: Props) {
+export default function IssueShow({
+    issue,
+    comments,
+    activities,
+    subtasks,
+}: Props) {
     const page = usePage();
     const updateIssue = useUpdateIssue();
     const teamSlug = page.props.currentTeam?.slug ?? '';
@@ -231,6 +239,11 @@ export default function IssueShow({ issue, comments, activities }: Props) {
                         onChange={(event) => setDescription(event.target.value)}
                         onBlur={saveDescription}
                         className="min-h-40 border-0 text-sm leading-relaxed"
+                    />
+
+                    <IssueSubtasks
+                        issueIdentifier={issue.identifier}
+                        subtasks={subtasks}
                     />
 
                     <section

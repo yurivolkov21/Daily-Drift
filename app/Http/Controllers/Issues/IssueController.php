@@ -10,6 +10,7 @@ use App\Http\Requests\Issues\UpdateIssueRequest;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\IssueActivityResource;
 use App\Http\Resources\IssueResource;
+use App\Http\Resources\SubtaskResource;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Team;
@@ -35,6 +36,10 @@ class IssueController extends Controller
 
         $issues = $currentTeam->issues()
             ->with(['project', 'assignee', 'labels'])
+            ->withCount([
+                'subtasks',
+                'subtasks as completed_subtasks_count' => fn (Builder $query) => $query->whereNotNull('completed_at'),
+            ])
             ->when($project, fn (Builder $query, Project $project) => $query->whereBelongsTo($project))
             ->when($assignedToMe, fn (Builder $query) => $query->whereBelongsTo($request->user(), 'assignee'))
             ->orderByDesc('issues.priority')
@@ -81,12 +86,14 @@ class IssueController extends Controller
             'labels',
             'comments' => fn (HasMany $query) => $query->with('author')->oldest()->orderBy('id'),
             'activities' => fn (HasMany $query) => $query->with('actor')->oldest()->orderBy('id'),
+            'subtasks' => fn (HasMany $query) => $query->orderBy('position')->orderBy('id'),
         ]);
 
         return Inertia::render('issues/show', [
             'issue' => IssueResource::make($issue)->resolve(),
             'comments' => CommentResource::collection($issue->comments)->resolve(),
             'activities' => IssueActivityResource::collection($issue->activities)->resolve(),
+            'subtasks' => SubtaskResource::collection($issue->subtasks)->resolve(),
         ]);
     }
 

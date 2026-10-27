@@ -6,6 +6,7 @@ use App\Http\Controllers\Issues\IssueController;
 use App\Http\Controllers\Issues\IssueSearchController;
 use App\Http\Controllers\Issues\LabelController;
 use App\Http\Controllers\Issues\ProjectController;
+use App\Http\Controllers\Issues\SubtaskController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use App\Models\Issue;
@@ -31,6 +32,10 @@ Route::prefix('{current_team}')
             Route::post('issues/{issue}/comments', [CommentController::class, 'store'])->name('issues.comments.store');
             Route::patch('issues/{issue}/comments/{comment}', [CommentController::class, 'update'])->name('issues.comments.update');
             Route::delete('issues/{issue}/comments/{comment}', [CommentController::class, 'destroy'])->name('issues.comments.destroy');
+
+            Route::post('issues/{issue}/subtasks', [SubtaskController::class, 'store'])->name('issues.subtasks.store');
+            Route::patch('issues/{issue}/subtasks/{subtask}', [SubtaskController::class, 'update'])->name('issues.subtasks.update');
+            Route::delete('issues/{issue}/subtasks/{subtask}', [SubtaskController::class, 'destroy'])->name('issues.subtasks.destroy');
         });
 
         Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
