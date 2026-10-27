@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Issues\CommentController;
 use App\Http\Controllers\Issues\IssueController;
 use App\Http\Controllers\Issues\IssueSearchController;
 use App\Http\Controllers\Issues\LabelController;
@@ -22,13 +23,15 @@ Route::prefix('{current_team}')
         Route::post('issues', [IssueController::class, 'store'])->name('issues.store');
         Route::get('issues/search', IssueSearchController::class)->name('issues.search');
 
-        Route::controller(IssueController::class)
-            ->where(['issue' => Issue::IDENTIFIER_PATTERN])
-            ->group(function () {
-                Route::get('issues/{issue}', 'show')->name('issues.show');
-                Route::patch('issues/{issue}', 'update')->name('issues.update');
-                Route::delete('issues/{issue}', 'destroy')->name('issues.destroy');
-            });
+        Route::where(['issue' => Issue::IDENTIFIER_PATTERN])->group(function () {
+            Route::get('issues/{issue}', [IssueController::class, 'show'])->name('issues.show');
+            Route::patch('issues/{issue}', [IssueController::class, 'update'])->name('issues.update');
+            Route::delete('issues/{issue}', [IssueController::class, 'destroy'])->name('issues.destroy');
+
+            Route::post('issues/{issue}/comments', [CommentController::class, 'store'])->name('issues.comments.store');
+            Route::patch('issues/{issue}/comments/{comment}', [CommentController::class, 'update'])->name('issues.comments.update');
+            Route::delete('issues/{issue}/comments/{comment}', [CommentController::class, 'destroy'])->name('issues.comments.destroy');
+        });
 
         Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
         Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');

@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Actions\Issues\CreateIssue;
+use App\Actions\Issues\UpdateIssue;
 use App\Actions\Teams\CreateTeam;
 use App\Enums\IssuePriority;
 use App\Enums\IssueStatus;
 use App\Enums\TeamRole;
+use App\Models\Issue;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -17,7 +19,7 @@ class IssueTrackerSeeder extends Seeder
      *
      * Both demo accounts use the factory password "password".
      */
-    public function run(CreateTeam $createTeam, CreateIssue $createIssue): void
+    public function run(CreateTeam $createTeam, CreateIssue $createIssue, UpdateIssue $updateIssue): void
     {
         $owner = User::factory()->create([
             'name' => 'Demo Owner',
@@ -64,5 +66,21 @@ class IssueTrackerSeeder extends Seeder
                 'assignee_id' => $assignee?->id,
             ], $labels->only($labelNames)->map->id->values()->all());
         }
+
+        $palette = $project->issues()->where('title', 'Command palette and keyboard shortcuts')->sole();
+
+        $this->comment($palette, $owner, 'Can we also open the palette from the sidebar?');
+        $this->comment($palette, $teammate, 'Yes, the Search button in the sidebar opens it.');
+        $updateIssue->handle($teammate, $palette, ['status' => IssueStatus::InReview]);
+    }
+
+    /**
+     * Add a comment to the issue as the given user.
+     */
+    protected function comment(Issue $issue, User $author, string $body): void
+    {
+        $comment = $issue->comments()->make(['body' => $body]);
+        $comment->author()->associate($author);
+        $comment->save();
     }
 }
