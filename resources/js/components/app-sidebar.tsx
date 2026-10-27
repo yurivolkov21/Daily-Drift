@@ -12,6 +12,7 @@ import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
+import { ProjectGlyph } from '@/components/project-icon';
 import { TeamSwitcher } from '@/components/team-switcher';
 import { Kbd } from '@/components/ui/kbd';
 import {
@@ -146,11 +147,12 @@ export function AppSidebar() {
                                             />
                                         }
                                     >
-                                        <span className="w-8 shrink-0 text-[0.65rem] font-semibold text-muted-foreground">
-                                            {project.key}
-                                        </span>
+                                        <ProjectGlyph project={project} />
                                         <span className="truncate">
                                             {project.name}
+                                        </span>
+                                        <span className="ml-auto shrink-0 text-[0.65rem] font-semibold text-muted-foreground">
+                                            {project.key}
                                         </span>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>

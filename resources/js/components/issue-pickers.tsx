@@ -239,7 +239,8 @@ export function IssueDueDatePicker({
     open: controlledOpen,
     onOpenChange,
     children,
-}: PickerProps<string | null>) {
+    clearLabel = 'Clear due date',
+}: PickerProps<string | null> & { clearLabel?: string }) {
     const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
     const open = controlledOpen ?? uncontrolledOpen;
     const setOpen = onOpenChange ?? setUncontrolledOpen;
@@ -268,7 +269,7 @@ export function IssueDueDatePicker({
                                 setOpen(false);
                             }}
                         >
-                            Clear due date
+                            {clearLabel}
                         </Button>
                     </div>
                 ) : null}
