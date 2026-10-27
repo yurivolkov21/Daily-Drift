@@ -62,7 +62,7 @@ export function IssuePeek({
                             </SheetTitle>
                         </SheetHeader>
 
-                        <div className="grid flex-1 content-start gap-6 overflow-y-auto p-4">
+                        <div className="grid flex-1 scroll-fade-y content-start gap-6 overflow-y-auto p-4">
                             <dl className="grid grid-cols-[6rem_1fr] items-center gap-x-3 gap-y-2.5 text-xs">
                                 <dt className="text-muted-foreground">
                                     Status
