@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect } from 'react';
-import type { IssueStatus } from '@/types';
+import type { IssuePriority, IssueStatus } from '@/types';
 
 export type CreateIssueDefaults = {
     projectId?: string;
     status?: IssueStatus;
     assigneeId?: number | null;
+    priority?: IssuePriority;
 };
 
 export type PaletteAction = {

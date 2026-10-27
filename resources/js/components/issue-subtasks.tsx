@@ -9,35 +9,66 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { destroy, store, update } from '@/routes/issues/subtasks';
-import type { IssuePeek, IssueSubtask } from '@/types';
+import type { Issue, IssuePeek, IssueSubtask } from '@/types';
 
 type SubtaskPageProps = {
     subtasks?: IssueSubtask[];
     peek?: IssuePeek | null;
+    issues?: Issue[];
 };
+
+/**
+ * Where the sub-tasks being edited live: on the issue page, in the board's
+ * quick view, or in a row of the issue list.
+ */
+export type SubtaskLocation = 'page' | 'peek' | 'list';
 
 type SubtaskTarget = {
     teamSlug: string;
     issueIdentifier: string;
-    inPeek: boolean;
+    location: SubtaskLocation;
 };
 
 /**
- * Apply a change to the sub-tasks on the page, which live in the board's
- * quick view or on the issue page.
+ * Apply a change to the sub-tasks on the page, wherever they live. In the
+ * issue list the row's progress counts change with them.
  */
 function changeSubtasks(
     target: SubtaskTarget,
     change: (subtasks: IssueSubtask[]) => IssueSubtask[],
 ) {
-    return (props: SubtaskPageProps): SubtaskPageProps =>
-        target.inPeek
-            ? {
-                  peek: props.peek
-                      ? { ...props.peek, subtasks: change(props.peek.subtasks) }
-                      : props.peek,
-              }
-            : { subtasks: change(props.subtasks ?? []) };
+    return (props: SubtaskPageProps): SubtaskPageProps => {
+        if (target.location === 'peek') {
+            return {
+                peek: props.peek
+                    ? { ...props.peek, subtasks: change(props.peek.subtasks) }
+                    : props.peek,
+            };
+        }
+
+        if (target.location === 'list') {
+            return {
+                issues: props.issues?.map((issue) => {
+                    if (issue.identifier !== target.issueIdentifier) {
+                        return issue;
+                    }
+
+                    const subtasks = change(issue.subtasks ?? []);
+
+                    return {
+                        ...issue,
+                        subtasks,
+                        subtasksCount: subtasks.length,
+                        completedSubtasksCount: subtasks.filter(
+                            (subtask) => subtask.completed,
+                        ).length,
+                    };
+                }),
+            };
+        }
+
+        return { subtasks: change(props.subtasks ?? []) };
+    };
 }
 
 const requestOptions = {
@@ -201,24 +232,57 @@ function SubtaskComposer({ target }: { target: SubtaskTarget }) {
 }
 
 /**
- * The issue's sub-task checklist; ticking them fills the progress bar.
+ * The sub-task rows and the field that adds one, without a heading.
  */
-export function IssueSubtasks({
+export function SubtaskChecklist({
     issueIdentifier,
     subtasks,
-    inPeek = false,
+    location,
     className,
 }: {
     issueIdentifier: string;
     subtasks: IssueSubtask[];
-    inPeek?: boolean;
+    location: SubtaskLocation;
     className?: string;
 }) {
     const target = {
         teamSlug: usePage().props.currentTeam?.slug ?? '',
         issueIdentifier,
-        inPeek,
+        location,
     };
+
+    return (
+        <div className={cn('grid gap-3', className)}>
+            {subtasks.length > 0 && (
+                <ul className="grid">
+                    {subtasks.map((subtask) => (
+                        <SubtaskRow
+                            key={subtask.id}
+                            subtask={subtask}
+                            target={target}
+                        />
+                    ))}
+                </ul>
+            )}
+            <SubtaskComposer target={target} />
+        </div>
+    );
+}
+
+/**
+ * The issue's sub-task checklist; ticking them fills the progress bar.
+ */
+export function IssueSubtasks({
+    issueIdentifier,
+    subtasks,
+    location = 'page',
+    className,
+}: {
+    issueIdentifier: string;
+    subtasks: IssueSubtask[];
+    location?: SubtaskLocation;
+    className?: string;
+}) {
     const completed = subtasks.filter((subtask) => subtask.completed).length;
 
     return (
@@ -239,18 +303,11 @@ export function IssueSubtasks({
                     className="max-w-60 flex-1"
                 />
             </div>
-            {subtasks.length > 0 && (
-                <ul className="grid">
-                    {subtasks.map((subtask) => (
-                        <SubtaskRow
-                            key={subtask.id}
-                            subtask={subtask}
-                            target={target}
-                        />
-                    ))}
-                </ul>
-            )}
-            <SubtaskComposer target={target} />
+            <SubtaskChecklist
+                issueIdentifier={issueIdentifier}
+                subtasks={subtasks}
+                location={location}
+            />
         </section>
     );
 }

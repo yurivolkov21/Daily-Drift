@@ -32,6 +32,7 @@ export type Issue = {
     commentsCount?: number;
     subtasksCount?: number;
     completedSubtasksCount?: number;
+    subtasks?: IssueSubtask[];
     createdAt: string;
     updatedAt: string;
 };
