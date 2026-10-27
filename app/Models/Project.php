@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\IssueStatus;
+use App\Enums\ProjectStatus;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -20,14 +21,22 @@ use Illuminate\Support\Facades\DB;
  * @property string $name
  * @property string $key
  * @property string|null $description
+ * @property string $icon
+ * @property string $color
+ * @property ProjectStatus $status
+ * @property int|null $lead_id
+ * @property Carbon|null $target_date
  * @property int $last_issue_number
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Team $team
+ * @property-read User|null $lead
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, Issue> $openIssues
+ * @property-read Collection<int, Issue> $completedIssues
+ * @property-read Collection<int, Issue> $canceledIssues
  */
-#[Fillable(['name', 'key', 'description'])]
+#[Fillable(['name', 'key', 'description', 'icon', 'color', 'status', 'lead_id', 'target_date'])]
 class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */
@@ -41,6 +50,16 @@ class Project extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    /**
+     * Get the member who leads the project.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function lead(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'lead_id');
     }
 
     /**
@@ -64,6 +83,26 @@ class Project extends Model
     }
 
     /**
+     * Get the issues in this project that are done.
+     *
+     * @return HasMany<Issue, $this>
+     */
+    public function completedIssues(): HasMany
+    {
+        return $this->issues()->where('status', IssueStatus::Done);
+    }
+
+    /**
+     * Get the issues in this project that were canceled.
+     *
+     * @return HasMany<Issue, $this>
+     */
+    public function canceledIssues(): HasMany
+    {
+        return $this->issues()->where('status', IssueStatus::Canceled);
+    }
+
+    /**
      * Reserve the next issue number in this project.
      *
      * The increment runs first so the row stays locked until the surrounding
@@ -76,5 +115,18 @@ class Project extends Model
 
             return (int) static::query()->whereKey($this->getKey())->value('last_issue_number');
         });
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => ProjectStatus::class,
+            'target_date' => 'date',
+        ];
     }
 }

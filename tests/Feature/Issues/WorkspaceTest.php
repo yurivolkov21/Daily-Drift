@@ -11,7 +11,7 @@ test('pages share the current team\'s projects, labels and members', function ()
     $team = $user->currentTeam;
     $teammate = User::factory()->create(['name' => 'Grace']);
     $team->members()->attach($teammate, ['role' => TeamRole::Member->value]);
-    $project = Project::factory()->for($team)->create(['key' => 'DD', 'name' => 'Daily Drift']);
+    $project = Project::factory()->for($team)->create(['key' => 'DD', 'name' => 'Daily Drift', 'icon' => 'rocket', 'color' => '#5e6ad2']);
     $label = Label::factory()->for($team)->create(['name' => 'Bug', 'color' => '#eb5757']);
     Project::factory()->create();
     Label::factory()->create();
@@ -22,7 +22,7 @@ test('pages share the current team\'s projects, labels and members', function ()
 
     $response->assertInertia(fn (Assert $page) => $page
         ->where('workspace.projects', [
-            ['id' => $project->id, 'key' => 'DD', 'name' => 'Daily Drift'],
+            ['id' => $project->id, 'key' => 'DD', 'name' => 'Daily Drift', 'icon' => 'rocket', 'color' => '#5e6ad2'],
         ])
         ->where('workspace.labels', [
             ['id' => $label->id, 'name' => 'Bug', 'color' => '#eb5757'],

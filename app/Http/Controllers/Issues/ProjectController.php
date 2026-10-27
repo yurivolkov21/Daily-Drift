@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Issues;
 use App\Enums\TeamPermission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\SaveProjectRequest;
+use App\Models\Issue;
 use App\Models\Label;
 use App\Models\Project;
 use App\Models\Team;
@@ -22,9 +23,16 @@ class ProjectController extends Controller
     public function index(Request $request, Team $currentTeam): Response
     {
         $projects = $currentTeam->projects()
-            ->withCount(['issues', 'openIssues'])
+            ->withCount(['issues', 'openIssues', 'completedIssues', 'canceledIssues'])
             ->orderBy('name')
             ->get();
+
+        $assigneeIds = Issue::query()
+            ->whereIn('project_id', $projects->modelKeys())
+            ->whereNotNull('assignee_id')
+            ->distinct()
+            ->get(['project_id', 'assignee_id'])
+            ->groupBy('project_id');
 
         $labels = $currentTeam->labels()
             ->withCount('issues')
@@ -37,8 +45,16 @@ class ProjectController extends Controller
                 'key' => $project->key,
                 'name' => $project->name,
                 'description' => $project->description,
+                'icon' => $project->icon,
+                'color' => $project->color,
+                'status' => $project->status->value,
+                'leadId' => $project->lead_id,
+                'targetDate' => $project->target_date?->toDateString(),
                 'issuesCount' => $project->issues_count,
                 'openIssuesCount' => $project->open_issues_count,
+                'completedIssuesCount' => $project->completed_issues_count,
+                'canceledIssuesCount' => $project->canceled_issues_count,
+                'assigneeIds' => $assigneeIds->get($project->id, collect())->pluck('assignee_id')->sort()->values(),
             ]),
             'labels' => $labels->map(fn (Label $label) => [
                 'id' => $label->id,

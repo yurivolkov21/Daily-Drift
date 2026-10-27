@@ -7,6 +7,7 @@ use App\Actions\Issues\UpdateIssue;
 use App\Actions\Teams\CreateTeam;
 use App\Enums\IssuePriority;
 use App\Enums\IssueStatus;
+use App\Enums\ProjectStatus;
 use App\Enums\TeamRole;
 use App\Models\Issue;
 use App\Models\User;
@@ -39,6 +40,10 @@ class IssueTrackerSeeder extends Seeder
             'name' => 'Daily Drift',
             'key' => 'DD',
             'description' => 'The Linear-style issue tracker itself.',
+            'icon' => 'rocket',
+            'color' => '#5e6ad2',
+            'status' => ProjectStatus::InProgress,
+            'lead_id' => $owner->id,
         ]);
 
         $labels = collect([
