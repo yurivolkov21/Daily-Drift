@@ -28,6 +28,7 @@ class IssueResource extends JsonResource
             'status' => $this->status->value,
             'priority' => $this->priority->value,
             'dueDate' => $this->due_date?->toDateString(),
+            'boardPosition' => $this->board_position,
             'projectId' => $this->project_id,
             'assignee' => $this->whenLoaded('assignee', fn (User $assignee) => [
                 'id' => $assignee->id,
@@ -38,6 +39,7 @@ class IssueResource extends JsonResource
                 'name' => $creator->name,
             ]),
             'labelIds' => $this->whenLoaded('labels', fn () => $this->labels->modelKeys()),
+            'commentsCount' => $this->whenCounted('comments'),
             'subtasksCount' => $this->whenCounted('subtasks'),
             'completedSubtasksCount' => $this->whenCounted('completed_subtasks'),
             'createdAt' => $this->created_at?->toISOString(),

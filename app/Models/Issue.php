@@ -31,6 +31,7 @@ use Illuminate\Support\Str;
  * @property int|null $assignee_id
  * @property int|null $creator_id
  * @property Carbon|null $due_date
+ * @property float|null $board_position
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read string $identifier
@@ -42,7 +43,7 @@ use Illuminate\Support\Str;
  * @property-read Collection<int, IssueActivity> $activities
  * @property-read Collection<int, Subtask> $subtasks
  */
-#[Fillable(['title', 'description', 'status', 'priority', 'assignee_id', 'due_date'])]
+#[Fillable(['title', 'description', 'status', 'priority', 'assignee_id', 'due_date', 'board_position'])]
 class Issue extends Model
 {
     /** @use HasFactory<IssueFactory> */
@@ -55,6 +56,8 @@ class Issue extends Model
 
     /**
      * Bootstrap the model and its traits.
+     *
+     * A new issue takes the next number in its project and the top place on the team's board.
      */
     protected static function boot(): void
     {
@@ -62,6 +65,7 @@ class Issue extends Model
 
         static::creating(function (Issue $issue) {
             $issue->number ??= $issue->project->reserveIssueNumber();
+            $issue->board_position ??= (float) ($issue->project->team->issues()->min('board_position') ?? 1) - 1;
         });
     }
 
@@ -187,6 +191,7 @@ class Issue extends Model
             'status' => IssueStatus::class,
             'priority' => IssuePriority::class,
             'due_date' => 'date',
+            'board_position' => 'float',
         ];
     }
 }

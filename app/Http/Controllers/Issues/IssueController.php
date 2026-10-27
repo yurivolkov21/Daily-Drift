@@ -37,6 +37,7 @@ class IssueController extends Controller
         $issues = $currentTeam->issues()
             ->with(['project', 'assignee', 'labels'])
             ->withCount([
+                'comments',
                 'subtasks',
                 'subtasks as completed_subtasks_count' => fn (Builder $query) => $query->whereNotNull('completed_at'),
             ])
@@ -53,6 +54,9 @@ class IssueController extends Controller
                 'assignee' => $assignedToMe ? 'me' : null,
             ],
             'view' => $request->query('view') === 'board' ? 'board' : 'list',
+            'peek' => fn () => $request->filled('peek')
+                ? $this->peek($currentTeam, $request->string('peek')->toString())
+                : null,
         ]);
     }
 
@@ -124,6 +128,34 @@ class IssueController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Issue :identifier deleted.', ['identifier' => $issue->identifier])]);
 
         return to_route('issues.index', ['current_team' => $currentTeam->slug]);
+    }
+
+    /**
+     * Get the issue opened in the board's quick view, with its sub-tasks.
+     *
+     * @return array{issue: array<string, mixed>, subtasks: array<int, array<string, mixed>>}|null
+     */
+    protected function peek(Team $team, string $identifier): ?array
+    {
+        $issue = $team->issues()
+            ->identifiedBy($identifier)
+            ->with([
+                'project',
+                'assignee',
+                'creator',
+                'labels',
+                'subtasks' => fn (HasMany $query) => $query->orderBy('position')->orderBy('id'),
+            ])
+            ->first();
+
+        if ($issue === null) {
+            return null;
+        }
+
+        return [
+            'issue' => IssueResource::make($issue)->resolve(),
+            'subtasks' => SubtaskResource::collection($issue->subtasks)->resolve(),
+        ];
     }
 
     /**
