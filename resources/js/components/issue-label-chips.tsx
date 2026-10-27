@@ -1,8 +1,31 @@
 import { usePage } from '@inertiajs/react';
+import { labelTextColor } from '@/lib/issues';
 import { cn } from '@/lib/utils';
 
 const chip =
-    'inline-flex h-5 shrink-0 items-center gap-1.5 border px-1.5 text-[0.7rem] text-muted-foreground';
+    'inline-flex h-5 max-w-full shrink-0 items-center rounded-[4px] px-2 text-[0.7rem] font-semibold tracking-normal normal-case';
+
+/**
+ * One label as a solid chip in its own color.
+ */
+export function IssueLabel({
+    name,
+    color,
+    className,
+}: {
+    name: string;
+    color: string;
+    className?: string;
+}) {
+    return (
+        <span
+            className={cn(chip, className)}
+            style={{ backgroundColor: color, color: labelTextColor(color) }}
+        >
+            <span className="truncate">{name}</span>
+        </span>
+    );
+}
 
 /**
  * The issue's labels as chips; with a maximum, the rest fold into "+2".
@@ -30,17 +53,15 @@ export function IssueLabelChips({
     return (
         <div className={cn('flex flex-wrap items-center gap-1', className)}>
             {shown.map((label) => (
-                <span key={label.id} className={chip}>
-                    <span
-                        className="size-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: label.color }}
-                    />
-                    {label.name}
-                </span>
+                <IssueLabel
+                    key={label.id}
+                    name={label.name}
+                    color={label.color}
+                />
             ))}
             {folded.length > 0 ? (
                 <span
-                    className={chip}
+                    className={cn(chip, 'bg-muted text-muted-foreground')}
                     title={folded.map((label) => label.name).join(', ')}
                 >
                     +{folded.length}

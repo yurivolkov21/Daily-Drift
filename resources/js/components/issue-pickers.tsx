@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns';
 import { Plus, UserRound } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { useState } from 'react';
+import { IssueLabel } from '@/components/issue-label-chips';
 import { IssuePriorityIcon } from '@/components/issue-priority-icon';
 import { IssueStatusIcon } from '@/components/issue-status-icon';
 import { MemberAvatar } from '@/components/member-avatar';
@@ -191,12 +192,7 @@ export function IssueLabelPicker({
             options={labels.map((label) => ({
                 value: label.id,
                 label: label.name,
-                icon: (
-                    <span
-                        className="size-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: label.color }}
-                    />
-                ),
+                display: <IssueLabel name={label.name} color={label.color} />,
             }))}
             selected={value}
             onSelect={toggle}

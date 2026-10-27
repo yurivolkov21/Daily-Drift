@@ -61,6 +61,19 @@ export function isClosedStatus(status: IssueStatus): boolean {
     return status === 'done' || status === 'canceled';
 }
 
+/**
+ * Near black or white, whichever reads better on a label's color.
+ */
+export function labelTextColor(color: string): string {
+    const [red, green, blue] = [1, 3, 5].map(
+        (start) => parseInt(color.slice(start, start + 2), 16) / 255,
+    );
+
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue > 0.6
+        ? '#1a1a1a'
+        : '#ffffff';
+}
+
 export function formatDueDate(dueDate: string): string {
     return format(parseISO(dueDate), 'MMM d');
 }
