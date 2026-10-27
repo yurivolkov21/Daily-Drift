@@ -15,6 +15,7 @@ class UpdateIssueRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * Every attribute is optional so a single property can be changed at a time.
+     * The board position orders the issue within its board column.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -23,9 +24,12 @@ class UpdateIssueRequest extends FormRequest
         /** @var Team $team */
         $team = $this->route('current_team');
 
-        return collect($this->issueRules($team))
-            ->map(fn (array $rules) => ['sometimes', ...$rules])
-            ->all();
+        return [
+            ...collect($this->issueRules($team))
+                ->map(fn (array $rules) => ['sometimes', ...$rules])
+                ->all(),
+            'board_position' => ['sometimes', 'numeric'],
+        ];
     }
 
     /**

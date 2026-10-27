@@ -11,6 +11,7 @@ export type IssueChanges = {
     assignee_id?: number | null;
     due_date?: string | null;
     label_ids?: string[];
+    board_position?: number;
 };
 
 type IssuePageProps = {
@@ -54,6 +55,7 @@ export function useUpdateIssue(): (
                     ? issue.dueDate
                     : changes.due_date,
             labelIds: changes.label_ids ?? issue.labelIds,
+            boardPosition: changes.board_position ?? issue.boardPosition,
             assignee: assignee
                 ? { id: assignee.id, name: assignee.name }
                 : null,

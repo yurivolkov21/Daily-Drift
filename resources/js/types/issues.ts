@@ -24,10 +24,12 @@ export type Issue = {
     status: IssueStatus;
     priority: IssuePriority;
     dueDate: string | null;
+    boardPosition: number | null;
     projectId: string;
     assignee?: IssueUser | null;
     creator?: IssueUser | null;
     labelIds?: string[];
+    commentsCount?: number;
     subtasksCount?: number;
     completedSubtasksCount?: number;
     createdAt: string;
@@ -38,6 +40,14 @@ export type IssueSubtask = {
     id: string;
     title: string;
     completed: boolean;
+};
+
+/**
+ * The issue opened in the board's quick view.
+ */
+export type IssuePeek = {
+    issue: Issue;
+    subtasks: IssueSubtask[];
 };
 
 export type IssueComment = {

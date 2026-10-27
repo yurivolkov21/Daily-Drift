@@ -9,16 +9,36 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { destroy, store, update } from '@/routes/issues/subtasks';
-import type { IssueSubtask } from '@/types';
+import type { IssuePeek, IssueSubtask } from '@/types';
 
 type SubtaskPageProps = {
-    subtasks: IssueSubtask[];
+    subtasks?: IssueSubtask[];
+    peek?: IssuePeek | null;
 };
 
 type SubtaskTarget = {
     teamSlug: string;
     issueIdentifier: string;
+    inPeek: boolean;
 };
+
+/**
+ * Apply a change to the sub-tasks on the page, which live in the board's
+ * quick view or on the issue page.
+ */
+function changeSubtasks(
+    target: SubtaskTarget,
+    change: (subtasks: IssueSubtask[]) => IssueSubtask[],
+) {
+    return (props: SubtaskPageProps): SubtaskPageProps =>
+        target.inPeek
+            ? {
+                  peek: props.peek
+                      ? { ...props.peek, subtasks: change(props.peek.subtasks) }
+                      : props.peek,
+              }
+            : { subtasks: change(props.subtasks ?? []) };
+}
 
 const requestOptions = {
     preserveScroll: true,
@@ -47,13 +67,15 @@ function SubtaskRow({
 
     const save = (changes: Partial<IssueSubtask>) => {
         router
-            .optimistic<SubtaskPageProps>((props) => ({
-                subtasks: props.subtasks.map((candidate) =>
-                    candidate.id === subtask.id
-                        ? { ...candidate, ...changes }
-                        : candidate,
+            .optimistic<SubtaskPageProps>(
+                changeSubtasks(target, (subtasks) =>
+                    subtasks.map((candidate) =>
+                        candidate.id === subtask.id
+                            ? { ...candidate, ...changes }
+                            : candidate,
+                    ),
                 ),
-            }))
+            )
             .patch(url, changes, requestOptions);
     };
 
@@ -73,11 +95,11 @@ function SubtaskRow({
 
     const remove = () => {
         router
-            .optimistic<SubtaskPageProps>((props) => ({
-                subtasks: props.subtasks.filter(
-                    (candidate) => candidate.id !== subtask.id,
+            .optimistic<SubtaskPageProps>(
+                changeSubtasks(target, (subtasks) =>
+                    subtasks.filter((candidate) => candidate.id !== subtask.id),
                 ),
-            }))
+            )
             .delete(
                 destroy.url([
                     target.teamSlug,
@@ -184,20 +206,25 @@ function SubtaskComposer({ target }: { target: SubtaskTarget }) {
 export function IssueSubtasks({
     issueIdentifier,
     subtasks,
+    inPeek = false,
+    className,
 }: {
     issueIdentifier: string;
     subtasks: IssueSubtask[];
+    inPeek?: boolean;
+    className?: string;
 }) {
     const target = {
         teamSlug: usePage().props.currentTeam?.slug ?? '',
         issueIdentifier,
+        inPeek,
     };
     const completed = subtasks.filter((subtask) => subtask.completed).length;
 
     return (
         <section
             aria-labelledby="issue-subtasks-heading"
-            className="mt-6 grid gap-3 border-t pt-6"
+            className={cn('mt-6 grid gap-3 border-t pt-6', className)}
         >
             <div className="flex items-center gap-4">
                 <h2
