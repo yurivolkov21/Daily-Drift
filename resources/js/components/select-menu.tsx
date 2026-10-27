@@ -14,7 +14,7 @@ const triggerSizes = {
  * tick on the current choice. Lists of more than six choices get a search
  * box.
  */
-export function SelectMenu<TValue extends string | number>({
+export function SelectMenu<TValue extends string | number | null>({
     label,
     value,
     options,

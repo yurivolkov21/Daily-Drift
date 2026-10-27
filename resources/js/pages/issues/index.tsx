@@ -7,6 +7,7 @@ import { IssueBoardDisplayMenu } from '@/components/issue-board-display-menu';
 import { IssueList } from '@/components/issue-list';
 import { IssueListDisplayMenu } from '@/components/issue-list-display-menu';
 import { IssuePeek } from '@/components/issue-peek';
+import { ProjectGlyph } from '@/components/project-icon';
 import { SelectMenu } from '@/components/select-menu';
 import { Button } from '@/components/ui/button';
 import {
@@ -189,11 +190,7 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                             ...projects.map((candidate) => ({
                                 value: candidate.key,
                                 label: candidate.name,
-                                icon: (
-                                    <span className="w-8 shrink-0 text-[0.65rem] font-semibold text-muted-foreground">
-                                        {candidate.key}
-                                    </span>
-                                ),
+                                icon: <ProjectGlyph project={candidate} />,
                             })),
                         ]}
                         value={project?.key ?? ''}

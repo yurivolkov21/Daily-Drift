@@ -109,12 +109,27 @@ export type Project = {
     id: string;
     key: string;
     name: string;
+    icon: string;
+    color: string;
 };
+
+export type ProjectStatus =
+    | 'planned'
+    | 'in_progress'
+    | 'paused'
+    | 'completed'
+    | 'canceled';
 
 export type ProjectSummary = Project & {
     description: string | null;
+    status: ProjectStatus;
+    leadId: number | null;
+    targetDate: string | null;
     issuesCount: number;
     openIssuesCount: number;
+    completedIssuesCount: number;
+    canceledIssuesCount: number;
+    assigneeIds: number[];
 };
 
 export type IssueLabel = {
