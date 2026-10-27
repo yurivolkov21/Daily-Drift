@@ -185,6 +185,7 @@ export function ProjectStatusBadge({ project }: { project: ProjectSummary }) {
  */
 export function ProjectLeadButton({ project }: { project: ProjectSummary }) {
     const updateProject = useUpdateProject();
+    const leadOptions = useLeadOptions();
     const lead = useMember(project.leadId);
 
     return (
@@ -205,7 +206,7 @@ export function ProjectLeadButton({ project }: { project: ProjectSummary }) {
                     )}
                 </button>
             }
-            options={useLeadOptions()}
+            options={leadOptions}
             selected={[project.leadId]}
             onSelect={(leadId) => updateProject(project, { lead_id: leadId })}
             placeholder="Find a member..."
