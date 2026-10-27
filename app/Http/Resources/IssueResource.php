@@ -42,6 +42,7 @@ class IssueResource extends JsonResource
             'commentsCount' => $this->whenCounted('comments'),
             'subtasksCount' => $this->whenCounted('subtasks'),
             'completedSubtasksCount' => $this->whenCounted('completed_subtasks'),
+            'subtasks' => $this->whenLoaded('subtasks', fn () => SubtaskResource::collection($this->subtasks)->resolve()),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
         ];

@@ -167,7 +167,8 @@ test('the issue page lists sub-tasks in order', function () {
         ->where('subtasks.0.title', 'First')
         ->where('subtasks.0.completed', true)
         ->where('subtasks.1.title', 'Second')
-        ->where('subtasks.1.completed', false),
+        ->where('subtasks.1.completed', false)
+        ->missing('issue.subtasks'),
     );
 });
 
@@ -184,5 +185,39 @@ test('the issue list shows how many sub-tasks are done', function () {
     $response->assertInertia(fn (Assert $page) => $page
         ->where('issues.0.subtasksCount', 3)
         ->where('issues.0.completedSubtasksCount', 1),
+    );
+});
+
+test('the issue list includes each issue\'s sub-tasks in order', function () {
+    $user = User::factory()->create();
+    $issue = Issue::factory()->for(Project::factory()->for($user->currentTeam))->create();
+    Subtask::factory()->for($issue)->create(['title' => 'Second', 'position' => 2]);
+    Subtask::factory()->for($issue)->completed()->create(['title' => 'First', 'position' => 1]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', $user->currentTeam));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->has('issues.0.subtasks', 2)
+        ->where('issues.0.subtasks.0.title', 'First')
+        ->where('issues.0.subtasks.0.completed', true)
+        ->where('issues.0.subtasks.1.title', 'Second')
+        ->where('issues.0.subtasks.1.completed', false),
+    );
+});
+
+test('the board leaves sub-tasks out of its issues', function () {
+    $user = User::factory()->create();
+    $issue = Issue::factory()->for(Project::factory()->for($user->currentTeam))->create();
+    Subtask::factory()->for($issue)->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', [$user->currentTeam, 'view' => 'board']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('issues.0.subtasksCount', 1)
+        ->missing('issues.0.subtasks'),
     );
 });
