@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -25,6 +26,9 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, TeamInvitation> $invitations
  * @property-read Collection<int, Membership> $memberships
  * @property-read Collection<int, User> $members
+ * @property-read Collection<int, Project> $projects
+ * @property-read Collection<int, Issue> $issues
+ * @property-read Collection<int, Label> $labels
  */
 #[Fillable(['name', 'slug', 'is_personal'])]
 class Team extends Model
@@ -93,6 +97,36 @@ class Team extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(TeamInvitation::class);
+    }
+
+    /**
+     * Get all projects for this team.
+     *
+     * @return HasMany<Project, $this>
+     */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    /**
+     * Get all issues across this team's projects.
+     *
+     * @return HasManyThrough<Issue, Project, $this>
+     */
+    public function issues(): HasManyThrough
+    {
+        return $this->hasManyThrough(Issue::class, Project::class);
+    }
+
+    /**
+     * Get all labels for this team.
+     *
+     * @return HasMany<Label, $this>
+     */
+    public function labels(): HasMany
+    {
+        return $this->hasMany(Label::class);
     }
 
     /**
