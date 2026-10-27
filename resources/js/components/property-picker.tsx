@@ -19,6 +19,7 @@ export type PropertyOption<TValue> = {
     value: TValue;
     label: string;
     icon?: ReactNode;
+    display?: ReactNode;
 };
 
 type Props<TValue> = {
@@ -121,10 +122,14 @@ export function PropertyPicker<TValue extends string | number | null>({
                                         }
                                     }}
                                 >
-                                    {option.icon}
-                                    <span className="truncate">
-                                        {option.label}
-                                    </span>
+                                    {option.display ?? (
+                                        <>
+                                            {option.icon}
+                                            <span className="truncate">
+                                                {option.label}
+                                            </span>
+                                        </>
+                                    )}
                                 </CommandItem>
                             ))}
                         </CommandGroup>

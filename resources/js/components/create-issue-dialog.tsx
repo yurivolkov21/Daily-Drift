@@ -10,6 +10,7 @@ import {
     IssueProjectPicker,
     IssueStatusPicker,
 } from '@/components/issue-pickers';
+import { IssueLabelChips } from '@/components/issue-label-chips';
 import { IssuePriorityIcon } from '@/components/issue-priority-icon';
 import { IssueStatusIcon } from '@/components/issue-status-icon';
 import { MemberAvatar } from '@/components/member-avatar';
@@ -231,11 +232,15 @@ export function CreateIssueDialog({ open, onOpenChange, defaults }: Props) {
                             >
                                 <PropertyButton>
                                     <Tag />
-                                    {selectedLabels.length === 0
-                                        ? 'Labels'
-                                        : selectedLabels
-                                              .map(({ name }) => name)
-                                              .join(', ')}
+                                    {selectedLabels.length === 0 ? (
+                                        'Labels'
+                                    ) : (
+                                        <IssueLabelChips
+                                            labelIds={form.data.label_ids}
+                                            max={2}
+                                            className="flex-nowrap"
+                                        />
+                                    )}
                                 </PropertyButton>
                             </IssueLabelPicker>
 

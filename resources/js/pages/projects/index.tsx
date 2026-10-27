@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { IssueLabel } from '@/components/issue-label-chips';
 import { ProjectFormDialog } from '@/components/project-form-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -200,13 +201,12 @@ export default function ProjectsIndex({
                                     data-test="label-row"
                                     className="flex items-center gap-3 px-4 py-2 text-sm"
                                 >
-                                    <span
-                                        className="size-2.5 shrink-0 rounded-full"
-                                        style={{
-                                            backgroundColor: label.color,
-                                        }}
-                                    />
-                                    <span className="flex-1">{label.name}</span>
+                                    <span className="min-w-0 flex-1">
+                                        <IssueLabel
+                                            name={label.name}
+                                            color={label.color}
+                                        />
+                                    </span>
                                     <span className="text-xs text-muted-foreground">
                                         {label.issuesCount} issues
                                     </span>
