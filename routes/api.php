@@ -11,12 +11,13 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API for scripts and Claude Code hooks
+| API for scripts and AI coding tools
 |--------------------------------------------------------------------------
 |
 | Every request carries a personal access token, which acts as its owner on
 | the token's team. A read token may only look; a write token may also
-| create and change issues and add comments. Nothing here deletes.
+| create and change issues, add comments and report work through the
+| events that any tool's hooks send. Nothing here deletes.
 |
 */
 
