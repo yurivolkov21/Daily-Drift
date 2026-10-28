@@ -94,8 +94,9 @@ test('deliveries to a webhook that does not exist get 404', function () {
     $response->assertNotFound();
 });
 
-test('the ping sent when the webhook is added is acknowledged', function () {
-    [$webhook] = teamWithIssues();
+test('the ping sent when the webhook is added is acknowledged and announced to the team', function () {
+    Event::fake([WorkspaceChanged::class]);
+    [$webhook, $team] = teamWithIssues();
 
     $this->freezeSecond();
 
@@ -104,6 +105,11 @@ test('the ping sent when the webhook is added is acknowledged', function () {
     $response->assertNoContent();
 
     expect($webhook->fresh()->last_delivery_at?->toISOString())->toBe(now()->toISOString());
+
+    Event::assertDispatched(
+        WorkspaceChanged::class,
+        fn (WorkspaceChanged $event) => $event->teamId === $team->id && $event->subject === 'github',
+    );
 });
 
 test('a pull request links to the issue its branch names', function () {

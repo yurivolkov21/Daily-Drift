@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Webhooks;
 
 use App\Actions\Github\LinkCommits;
 use App\Actions\Github\LinkPullRequest;
+use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Models\GithubWebhook;
 use Illuminate\Http\Request;
@@ -14,9 +15,9 @@ class GithubWebhookController extends Controller
 {
     /**
      * Receive a delivery from GitHub and link what it names to the team's
-     * issues. Only "push" and "pull_request" events link anything; others,
-     * such as the "ping" sent when the webhook is added, are acknowledged.
-     * The answer never carries anything for the sender to run.
+     * issues. Only "push" and "pull_request" events link anything; other
+     * events are only acknowledged. The answer never carries anything for
+     * the sender to run.
      */
     public function __invoke(Request $request, GithubWebhook $webhook, LinkCommits $linkCommits, LinkPullRequest $linkPullRequest): Response
     {
@@ -33,6 +34,8 @@ class GithubWebhookController extends Controller
         match ($request->header('X-GitHub-Event')) {
             'push' => $linkCommits->handle($webhook->team, $payload),
             'pull_request' => $linkPullRequest->handle($webhook->team, $payload),
+            // The team's settings page shows the first delivery as it lands.
+            'ping' => broadcast(new WorkspaceChanged($webhook->team_id, 'github', 'updated')),
             default => null,
         };
 

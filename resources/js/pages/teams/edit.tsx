@@ -8,6 +8,7 @@ import InputError from '@/components/input-error';
 import InviteMemberModal from '@/components/invite-member-modal';
 import RemoveMemberModal from '@/components/remove-member-modal';
 import { SelectMenu } from '@/components/select-menu';
+import { TeamGithubSection } from '@/components/team-github-section';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { edit, index, update } from '@/routes/teams';
 import { update as updateMember } from '@/routes/teams/members';
 import type {
+    GithubWebhookSettings,
     RoleOption,
     Team,
     TeamInvitation,
@@ -36,6 +38,7 @@ type Props = {
     invitations: TeamInvitation[];
     permissions: TeamPermissions;
     availableRoles: RoleOption[];
+    github: GithubWebhookSettings | null;
 };
 
 export default function TeamEdit({
@@ -44,6 +47,7 @@ export default function TeamEdit({
     invitations,
     permissions,
     availableRoles,
+    github,
 }: Props) {
     const getInitials = useInitials();
 
@@ -300,6 +304,10 @@ export default function TeamEdit({
                             ))}
                         </div>
                     </div>
+                ) : null}
+
+                {permissions.canUpdateTeam ? (
+                    <TeamGithubSection team={team} github={github} />
                 ) : null}
 
                 {permissions.canDeleteTeam && !team.isPersonal ? (
