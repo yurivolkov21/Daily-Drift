@@ -7,6 +7,7 @@ use App\Http\Controllers\Issues\IssueSearchController;
 use App\Http\Controllers\Issues\LabelController;
 use App\Http\Controllers\Issues\ProjectController;
 use App\Http\Controllers\Issues\SubtaskController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use App\Models\Issue;
@@ -51,6 +52,10 @@ Route::prefix('{current_team}')
 Route::middleware(['auth'])->group(function () {
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
     Route::delete('invitations/{invitation}', [TeamInvitationController::class, 'decline'])->name('invitations.decline');
+
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::patch('notifications/{notification}', [NotificationController::class, 'update'])->name('notifications.update');
 });
 
 require __DIR__.'/settings.php';

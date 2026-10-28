@@ -7,6 +7,7 @@ use App\Events\WorkspaceChanged;
 use App\Models\Issue;
 use App\Models\Label;
 use App\Models\User;
+use App\Notifications\IssueAssigned;
 use BackedEnum;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +58,12 @@ class UpdateIssue
 
             if ($labelIds !== null) {
                 $this->syncLabels($actor, $issue, $labelIds);
+            }
+
+            $newAssignee = $originals->has('assignee_id') ? $issue->load('assignee')->assignee : null;
+
+            if ($newAssignee !== null && $newAssignee->isNot($actor)) {
+                $newAssignee->notify(new IssueAssigned($issue, $actor));
             }
 
             broadcast(WorkspaceChanged::forIssue($issue, 'issue', 'updated'))->toOthers();
