@@ -1,5 +1,6 @@
+import { router } from '@inertiajs/react';
 import { Ellipsis } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     ActivityIcon,
     CommentComposer,
@@ -49,9 +50,37 @@ function TimelineComment({
     issueIdentifier: string;
 }) {
     const [editing, setEditing] = useState(false);
+    const [flash, setFlash] = useState(0);
+
+    // A notification links to #comment-<id>: bring that comment into view and
+    // light it up once the page is there.
+    useEffect(() => {
+        const highlightIfLinked = () => {
+            if (window.location.hash === `#comment-${comment.id}`) {
+                document
+                    .getElementById(`comment-${comment.id}`)
+                    ?.scrollIntoView({ block: 'center' });
+                setFlash((count) => count + 1);
+            }
+        };
+
+        highlightIfLinked();
+
+        return router.on('navigate', highlightIfLinked);
+    }, [comment.id]);
 
     return (
-        <div className="grid gap-2 border bg-background p-3">
+        <div
+            id={`comment-${comment.id}`}
+            className="relative grid scroll-mt-4 gap-2 border bg-background p-3"
+        >
+            {flash > 0 ? (
+                <span
+                    key={flash}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 motion-safe:animate-highlight"
+                />
+            ) : null}
             <div className="flex items-center gap-2 text-xs">
                 <span className="font-medium text-foreground">
                     {comment.author?.name ?? 'Former member'}
