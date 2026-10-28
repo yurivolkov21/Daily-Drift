@@ -8,10 +8,13 @@ use App\Enums\ProjectStatus;
 use App\Enums\TeamRole;
 use App\Http\Controllers\DashboardController;
 use App\Models\Comment;
+use App\Models\GithubWebhook;
 use App\Models\Issue;
+use App\Models\IssueLink;
 use App\Models\Project;
 use App\Models\Team;
 use App\Models\TeamInvitation;
+use App\Models\ToolEvent;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -283,6 +286,61 @@ test('the activity feed shows the team\'s latest changes and comments, newest fi
         ->where('activity.1.comment.author.name', 'Ada Lovelace')
         ->where('activity.2.activity.type', 'created'),
     );
+});
+
+test('the development card shows the team\'s latest pull requests, commits and tool reports, newest first', function () {
+    $user = User::factory()->create(['name' => 'Ada Lovelace']);
+    $issue = Issue::factory()
+        ->for(Project::factory()->for($user->currentTeam)->create(['key' => 'DD']))
+        ->create(['title' => 'Ship the API']);
+    $pullRequest = IssueLink::factory()->for($issue)->create(['updated_at' => now()->subMinutes(30)]);
+    $event = ToolEvent::factory()->for($user->currentTeam)->for($user)->for($issue)->create([
+        'tool' => 'codex',
+        'event' => 'session_started',
+        'branch' => 'dd-1-ship-the-api',
+        'created_at' => now()->subMinutes(10),
+    ]);
+    $commit = IssueLink::factory()->commit()->for($issue)->create(['updated_at' => now()->subHour()]);
+    IssueLink::factory()->create();
+    ToolEvent::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard', $user->currentTeam));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->has('development', 3)
+        ->where('development.0.kind', 'tool')
+        ->where('development.0.id', $event->id)
+        ->where('development.0.tool', 'codex')
+        ->where('development.0.event', 'session_started')
+        ->where('development.0.branch', 'dd-1-ship-the-api')
+        ->where('development.0.user', 'Ada Lovelace')
+        ->where('development.0.issue', ['identifier' => 'DD-1', 'title' => 'Ship the API'])
+        ->where('development.1.kind', 'link')
+        ->where('development.1.id', $pullRequest->id)
+        ->where('development.1.link.type', 'pull_request')
+        ->where('development.2.id', $commit->id),
+    );
+});
+
+test('the dashboard says whether github is connected and who may connect it', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    GithubWebhook::factory()->for($team)->create();
+
+    $this
+        ->actingAs($owner)
+        ->get(route('dashboard', $team))
+        ->assertInertia(fn (Assert $page) => $page->where('github', ['connected' => true, 'canConnect' => true]));
+
+    $this
+        ->actingAs($member)
+        ->get(route('dashboard', $team))
+        ->assertInertia(fn (Assert $page) => $page->where('github', ['connected' => true, 'canConnect' => false]));
 });
 
 test('the activity feed keeps only the latest entries', function () {
