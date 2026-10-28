@@ -129,28 +129,31 @@ export function TeamGithubSection({
                         </span>
                     </div>
 
-                    <ol className="grid gap-5 p-4 text-sm [counter-reset:step]">
-                        <Step>
-                            On GitHub, open the repository&apos;s{' '}
-                            <b className="font-medium">Settings › Webhooks</b>{' '}
-                            and press <b className="font-medium">Add webhook</b>
-                            .
-                        </Step>
-                        <Step>
-                            <span>Fill in the form with these:</span>
+                    <ol className="grid gap-4 p-4 text-sm [counter-reset:step]">
+                        <Step
+                            title={
+                                <>
+                                    On GitHub, open the repository&apos;s{' '}
+                                    <Key>Settings › Webhooks</Key> and press{' '}
+                                    <Key>Add webhook</Key>.
+                                </>
+                            }
+                        />
+                        <Step
+                            title={
+                                <>
+                                    Paste the <Key>Payload URL</Key>, set{' '}
+                                    <Key>Content type</Key> to{' '}
+                                    <Key>application/json</Key>, and paste the{' '}
+                                    <Key>Secret</Key>.
+                                </>
+                            }
+                        >
                             <CopyField
                                 id="github-payload-url"
                                 label="Payload URL"
                                 value={github.url}
                             />
-                            <div className="grid gap-2">
-                                <span className="text-xs font-semibold tracking-wide uppercase">
-                                    Content type
-                                </span>
-                                <code className="w-fit border bg-muted/50 px-2 py-1 font-mono text-xs">
-                                    application/json
-                                </code>
-                            </div>
                             <CopyField
                                 id="github-secret"
                                 label="Secret"
@@ -158,13 +161,17 @@ export function TeamGithubSection({
                                 secret
                             />
                         </Step>
-                        <Step>
-                            Under <b className="font-medium">Which events</b>,
-                            pick &quot;Let me select individual events&quot;,
-                            tick <b className="font-medium">Pull requests</b>{' '}
-                            and <b className="font-medium">Pushes</b>, then
-                            press <b className="font-medium">Add webhook</b>.
-                        </Step>
+                        <Step
+                            title={
+                                <>
+                                    Under <Key>Which events</Key>, pick{' '}
+                                    <Key>Let me select individual events</Key>,
+                                    tick <Key>Pull requests</Key> and{' '}
+                                    <Key>Pushes</Key>, then press{' '}
+                                    <Key>Add webhook</Key>.
+                                </>
+                            }
+                        />
                     </ol>
 
                     <p className="flex gap-2 border-t px-4 py-3 text-xs leading-relaxed text-muted-foreground">
@@ -193,12 +200,27 @@ export function TeamGithubSection({
     );
 }
 
-function Step({ children }: { children: ReactNode }) {
+/**
+ * A numbered step: one running sentence, then the fields it needs, if any.
+ */
+function Step({ title, children }: { title: ReactNode; children?: ReactNode }) {
     return (
-        <li className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3 [counter-increment:step]">
+        <li className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3 gap-y-3 [counter-increment:step]">
             <span className="flex size-5 items-center justify-center border text-xs tabular-nums before:content-[counter(step)]" />
-            <div className="grid min-w-0 gap-3 leading-relaxed">{children}</div>
+            <p className="min-w-0 leading-relaxed">{title}</p>
+            {children ? (
+                <div className="col-start-2 grid min-w-0 gap-3">{children}</div>
+            ) : null}
         </li>
+    );
+}
+
+/**
+ * A word to look for on GitHub's form, in bold within the sentence.
+ */
+function Key({ children }: { children: ReactNode }) {
+    return (
+        <strong className="font-semibold text-foreground">{children}</strong>
     );
 }
 
