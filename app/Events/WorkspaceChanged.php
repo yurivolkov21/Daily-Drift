@@ -27,7 +27,7 @@ class WorkspaceChanged implements ShouldBroadcastNow, ShouldDispatchAfterCommit,
     /**
      * Create a new event instance.
      *
-     * @param  'issue'|'comment'|'subtask'|'link'|'project'|'label'  $subject
+     * @param  'issue'|'comment'|'subtask'|'link'|'project'|'label'|'github'  $subject
      * @param  'created'|'updated'|'deleted'  $action
      */
     public function __construct(

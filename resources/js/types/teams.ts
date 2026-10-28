@@ -1,5 +1,14 @@
 export type TeamRole = 'owner' | 'admin' | 'member';
 
+/**
+ * The team's GitHub webhook, as its owners and admins see it.
+ */
+export type GithubWebhookSettings = {
+    url: string;
+    secret: string;
+    lastDeliveryAt: string | null;
+};
+
 export type Team = {
     id: number;
     name: string;
