@@ -7,12 +7,15 @@ use App\Enums\IssueActivityType;
 use App\Enums\IssueStatus;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\IssueActivityResource;
+use App\Http\Resources\IssueLinkResource;
 use App\Http\Resources\IssueResource;
 use App\Models\Comment;
 use App\Models\Issue;
 use App\Models\IssueActivity;
+use App\Models\IssueLink;
 use App\Models\Team;
 use App\Models\TeamInvitation;
+use App\Models\ToolEvent;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,6 +32,11 @@ class DashboardController extends Controller
      * How many of the team's latest changes and comments the activity feed shows.
      */
     public const int ACTIVITY_LIMIT = 15;
+
+    /**
+     * How many entries the Development card shows.
+     */
+    public const int DEVELOPMENT_LIMIT = 8;
 
     /**
      * Show the team at a glance: the user's open issues, what is late or due
@@ -48,9 +56,63 @@ class DashboardController extends Controller
             'dueIssues' => fn () => $this->dueIssues($currentTeam),
             'completions' => fn () => $this->completions($currentTeam),
             'activity' => fn () => $this->activity($currentTeam),
+            'development' => fn () => $this->development($currentTeam),
             'projects' => fn () => $this->projectSummaries($currentTeam),
             'canInviteMembers' => $user->can('inviteMember', $currentTeam),
+            'github' => [
+                'connected' => $currentTeam->githubWebhook()->exists(),
+                'canConnect' => $user->can('update', $currentTeam),
+            ],
         ]);
+    }
+
+    /**
+     * Get the team's latest work from GitHub and from coding tools, newest
+     * first: the pull requests and commits linked to its issues, and what
+     * tools such as Claude Code or Codex reported through the API.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function development(Team $team): array
+    {
+        $links = IssueLink::query()
+            ->whereRelation('issue.project', 'team_id', $team->id)
+            ->with('issue.project')
+            ->latest('updated_at')
+            ->orderByDesc('id')
+            ->limit(self::DEVELOPMENT_LIMIT)
+            ->get()
+            ->map(fn (IssueLink $link) => [
+                'kind' => 'link',
+                'id' => $link->id,
+                'at' => $link->updated_at?->toISOString(),
+                'issue' => $this->issueReference($link->issue),
+                'link' => IssueLinkResource::make($link)->resolve(),
+            ]);
+
+        $events = ToolEvent::query()
+            ->whereBelongsTo($team)
+            ->with(['user', 'issue.project'])
+            ->latest()
+            ->orderByDesc('id')
+            ->limit(self::DEVELOPMENT_LIMIT)
+            ->get()
+            ->map(fn (ToolEvent $event) => [
+                'kind' => 'tool',
+                'id' => $event->id,
+                'at' => $event->created_at?->toISOString(),
+                'issue' => $event->issue === null ? null : $this->issueReference($event->issue),
+                'tool' => $event->tool,
+                'event' => $event->event,
+                'branch' => $event->branch,
+                'user' => $event->user?->name,
+            ]);
+
+        return $links->concat($events)
+            ->sortBy([['at', 'desc'], ['id', 'desc']])
+            ->take(self::DEVELOPMENT_LIMIT)
+            ->values()
+            ->all();
     }
 
     /**

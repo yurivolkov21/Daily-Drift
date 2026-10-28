@@ -12,12 +12,12 @@ import {
 import { useState } from 'react';
 import { ActivityFeed } from '@/components/dashboard-activity';
 import { WeekAgenda } from '@/components/dashboard-agenda';
+import { DevelopmentCard } from '@/components/dashboard-development';
 import { DashboardIssueTable } from '@/components/dashboard-issue-table';
 import {
     DashboardGreeting,
     DashboardWidget,
     GetStarted,
-    LocalActivityPreview,
     StatStrip,
     WidgetEmpty,
     WidgetLink,
@@ -44,11 +44,14 @@ import {
 import { isOverdue } from '@/lib/issues';
 import { isProjectClosed, projectStatusOrder } from '@/lib/projects';
 import { dashboard, inbox } from '@/routes';
+import { index as apiTokensIndex } from '@/routes/api-tokens';
 import { index as issuesIndex } from '@/routes/issues';
 import { index as projectsIndex } from '@/routes/projects';
 import { edit as editTeam } from '@/routes/teams';
 import type {
     DashboardActivityEntry,
+    DashboardDevelopmentEntry,
+    DashboardGithub,
     DashboardInvitation,
     Issue,
     IssueCompletion,
@@ -61,8 +64,10 @@ type Props = {
     dueIssues: Issue[];
     completions: IssueCompletion[];
     activity: DashboardActivityEntry[];
+    development: DashboardDevelopmentEntry[];
     projects: ProjectSummary[];
     canInviteMembers: boolean;
+    github: DashboardGithub;
 };
 
 /**
@@ -76,8 +81,10 @@ export default function Dashboard({
     dueIssues,
     completions,
     activity,
+    development,
     projects,
     canInviteMembers,
+    github,
 }: Props) {
     const page = usePage();
     const { openCreateIssue } = useIssueTracker();
@@ -256,9 +263,20 @@ export default function Dashboard({
         {
             id: 'github',
             title: 'Connect GitHub',
-            hint: 'Link commits and pull requests to issues.',
-            done: false,
-            soon: true,
+            hint: github.canConnect
+                ? 'Link commits and pull requests to issues.'
+                : 'An owner or admin of the team can connect it.',
+            done: github.connected,
+            action: github.canConnect ? (
+                <Button
+                    size="xs"
+                    variant="outline"
+                    nativeButton={false}
+                    render={<Link href={editTeam.url(teamSlug)} />}
+                >
+                    Connect
+                </Button>
+            ) : undefined,
         },
     ];
 
@@ -493,7 +511,41 @@ export default function Dashboard({
                                 />
                             </DashboardWidget>
 
-                            <LocalActivityPreview className="@4xl/dashboard:col-span-12" />
+                            <DevelopmentCard
+                                entries={development}
+                                teamSlug={teamSlug}
+                                className="@4xl/dashboard:col-span-12"
+                                emptyHint={
+                                    <>
+                                        Nothing yet.{' '}
+                                        {github.connected ? (
+                                            'Name a branch, pull request or commit after an issue, like DD-12.'
+                                        ) : (
+                                            <>
+                                                Connect GitHub in the{' '}
+                                                <Link
+                                                    href={editTeam.url(
+                                                        teamSlug,
+                                                    )}
+                                                    className="text-foreground underline underline-offset-4"
+                                                >
+                                                    team&apos;s settings
+                                                </Link>
+                                                .
+                                            </>
+                                        )}{' '}
+                                        AI coding tools show up once they have
+                                        an{' '}
+                                        <Link
+                                            href={apiTokensIndex.url()}
+                                            className="text-foreground underline underline-offset-4"
+                                        >
+                                            API token
+                                        </Link>
+                                        .
+                                    </>
+                                }
+                            />
                         </div>
                     </div>
                 </div>

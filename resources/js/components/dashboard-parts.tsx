@@ -1,19 +1,9 @@
 import { Link } from '@inertiajs/react';
-import {
-    ArrowRight,
-    ArrowUpRight,
-    Bot,
-    Check,
-    GitCommitHorizontal,
-    Hammer,
-    MonitorDot,
-    StickyNote,
-} from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Fragment, useId } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { IconTile } from '@/components/ui/icon-tile';
 import {
     Tooltip,
     TooltipContent,
@@ -366,77 +356,6 @@ export function DashboardGreeting({
                 )}
             </p>
         </div>
-    );
-}
-
-const localActivities: { icon: LucideIcon; title: string; text: string }[] = [
-    {
-        icon: Bot,
-        title: 'Claude Code sessions',
-        text: 'Which issue an agent works on, and when it stops.',
-    },
-    {
-        icon: Hammer,
-        title: 'Builds and tests',
-        text: 'Each run: passed or failed, and how long it took.',
-    },
-    {
-        icon: GitCommitHorizontal,
-        title: 'Commits and branches',
-        text: 'A commit that names DD-12 links itself to the issue.',
-    },
-    {
-        icon: StickyNote,
-        title: 'Notes',
-        text: 'Local notes that mention an issue, next to it.',
-    },
-];
-
-/**
- * Keeps a place for what runs on your machine, which comes with the GitHub
- * links and API tokens for Claude Code hooks.
- */
-export function LocalActivityPreview({ className }: { className?: string }) {
-    return (
-        <section
-            className={cn(
-                'flex flex-col gap-4 border border-dashed p-5',
-                className,
-            )}
-        >
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <MonitorDot className="size-4 text-muted-foreground" />
-                <h2 className="font-heading text-xs font-semibold tracking-wider uppercase">
-                    Local activity
-                </h2>
-                <span className="border px-1.5 py-0.5 text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">
-                    Soon
-                </span>
-                <p className="basis-full text-xs text-muted-foreground @xl/dashboard:ml-auto @xl/dashboard:basis-auto">
-                    Comes with GitHub links and API tokens for Claude Code
-                    hooks.
-                </p>
-            </div>
-            <ul className="grid gap-4 @2xl/dashboard:grid-cols-2 @5xl/dashboard:grid-cols-4">
-                {localActivities.map((item) => (
-                    <li key={item.title} className="flex min-w-0 gap-3">
-                        <IconTile
-                            variant="frame"
-                            size="sm"
-                            className="text-muted-foreground"
-                        >
-                            <item.icon />
-                        </IconTile>
-                        <div className="flex min-w-0 flex-col gap-0.5">
-                            <p className="text-sm font-medium">{item.title}</p>
-                            <p className="text-xs leading-relaxed text-muted-foreground">
-                                {item.text}
-                            </p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </section>
     );
 }
 
