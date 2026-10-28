@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -29,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, Project> $projects
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, Label> $labels
+ * @property-read GithubWebhook|null $githubWebhook
  */
 #[Fillable(['name', 'slug', 'is_personal'])]
 class Team extends Model
@@ -117,6 +119,16 @@ class Team extends Model
     public function issues(): HasManyThrough
     {
         return $this->hasManyThrough(Issue::class, Project::class);
+    }
+
+    /**
+     * Get the webhook the team's GitHub repositories send their events to.
+     *
+     * @return HasOne<GithubWebhook, $this>
+     */
+    public function githubWebhook(): HasOne
+    {
+        return $this->hasOne(GithubWebhook::class);
     }
 
     /**

@@ -83,7 +83,25 @@ class TeamController extends Controller
                 ]),
             'permissions' => $user->toTeamPermissions($team),
             'availableRoles' => TeamRole::assignable(),
+            'github' => $user->can('update', $team) ? $this->githubWebhook($team) : null,
         ]);
+    }
+
+    /**
+     * Describe the team's GitHub webhook for the people who manage it: the
+     * payload URL and secret to enter on GitHub, and when it was last used.
+     *
+     * @return array{url: string, secret: string, lastDeliveryAt: string|null}|null
+     */
+    protected function githubWebhook(Team $team): ?array
+    {
+        $webhook = $team->githubWebhook;
+
+        return $webhook === null ? null : [
+            'url' => route('webhooks.github', $webhook),
+            'secret' => $webhook->secret,
+            'lastDeliveryAt' => $webhook->last_delivery_at?->toISOString(),
+        ];
     }
 
     /**
@@ -164,6 +182,7 @@ class TeamController extends Controller
             $team->invitations()->delete();
             $team->memberships()->delete();
             PersonalAccessToken::query()->whereBelongsTo($team)->delete();
+            $team->githubWebhook()->delete();
             $team->delete();
         });
 

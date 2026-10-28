@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\IssueController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Webhooks\GithubWebhookController;
 use App\Models\Issue;
 use Illuminate\Support\Facades\Route;
 
@@ -37,3 +38,15 @@ Route::prefix('v1')
             Route::post('issues/{issue}/comments', [CommentController::class, 'store'])->name('issues.comments.store');
         });
     });
+
+/*
+|--------------------------------------------------------------------------
+| GitHub webhook
+|--------------------------------------------------------------------------
+|
+| A team's repositories post their push and pull request events here. Each
+| delivery is signed with the team's webhook secret instead of a token.
+|
+*/
+
+Route::post('webhooks/github/{webhook}', GithubWebhookController::class)->name('webhooks.github');
