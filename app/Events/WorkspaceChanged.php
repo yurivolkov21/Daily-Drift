@@ -6,7 +6,8 @@ use App\Models\Issue;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldRescue;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 
@@ -14,8 +15,12 @@ use Illuminate\Foundation\Events\Dispatchable;
  * Tells the team's open pages that something changed, so they reload what
  * they show. It carries no data of its own: pages fetch it again through the
  * normal, authorized requests.
+ *
+ * It goes out as soon as the change is saved instead of waiting for the queue,
+ * so other pages update at once. If Reverb cannot be reached, the failure is
+ * reported and the change itself still succeeds.
  */
-class WorkspaceChanged implements ShouldBroadcast, ShouldDispatchAfterCommit
+class WorkspaceChanged implements ShouldBroadcastNow, ShouldDispatchAfterCommit, ShouldRescue
 {
     use Dispatchable, InteractsWithSockets;
 

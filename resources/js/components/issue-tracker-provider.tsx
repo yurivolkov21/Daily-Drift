@@ -4,6 +4,10 @@ import { useRef, useState } from 'react';
 import { CommandPalette } from '@/components/command-palette';
 import { CreateIssueDialog } from '@/components/create-issue-dialog';
 import { KeyboardShortcutsDialog } from '@/components/keyboard-shortcuts-dialog';
+import {
+    realtimeEnabled,
+    WorkspaceUpdates,
+} from '@/components/workspace-updates';
 import { useHotkeys } from '@/hooks/use-hotkeys';
 import { IssueTrackerContext } from '@/hooks/use-issue-tracker';
 import type {
@@ -15,7 +19,8 @@ import { index as issuesIndex } from '@/routes/issues';
 import { index as projectsIndex } from '@/routes/projects';
 
 /**
- * Provide the issue tracker's global dialogs and keyboard shortcuts.
+ * Provide the issue tracker's global dialogs, keyboard shortcuts and live
+ * updates.
  */
 export function IssueTrackerProvider({ children }: { children: ReactNode }) {
     const team = usePage().props.currentTeam;
@@ -121,6 +126,12 @@ export function IssueTrackerProvider({ children }: { children: ReactNode }) {
                         open={shortcutsOpen}
                         onOpenChange={setShortcutsOpen}
                     />
+                    {realtimeEnabled ? (
+                        <WorkspaceUpdates
+                            teamId={team.id}
+                            teamSlug={team.slug}
+                        />
+                    ) : null}
                 </>
             ) : null}
         </IssueTrackerContext>
