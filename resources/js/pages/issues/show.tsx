@@ -1,11 +1,19 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { CalendarDays, Copy, Tag, Trash2, UserRound } from 'lucide-react';
+import {
+    CalendarDays,
+    Copy,
+    GitBranch,
+    Tag,
+    Trash2,
+    UserRound,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { IssueActivityTimeline } from '@/components/issue-activity-timeline';
+import { IssueDevelopment } from '@/components/issue-development';
 import { IssueLabelChips } from '@/components/issue-label-chips';
 import {
     IssueAssigneePicker,
@@ -26,6 +34,7 @@ import { usePaletteActions } from '@/hooks/use-issue-tracker';
 import { useUpdateIssue } from '@/hooks/use-update-issue';
 import { buildTimeline } from '@/lib/issue-activity';
 import {
+    branchName,
     formatDueDate,
     isOverdue,
     priorityLabel,
@@ -38,6 +47,7 @@ import type {
     IssueActivity,
     IssueActivityFilter,
     IssueComment,
+    IssueLink,
     IssueSubtask,
 } from '@/types';
 
@@ -46,6 +56,7 @@ type Props = {
     comments: IssueComment[];
     activities: IssueActivity[];
     subtasks: IssueSubtask[];
+    links: IssueLink[];
 };
 
 type Picker = 'status' | 'priority' | 'assignee' | 'labels' | 'dueDate';
@@ -76,6 +87,7 @@ export default function IssueShow({
     comments,
     activities,
     subtasks,
+    links,
 }: Props) {
     const page = usePage();
     const updateIssue = useUpdateIssue();
@@ -124,6 +136,13 @@ export default function IssueShow({
     const copyIdentifier = () => {
         void navigator.clipboard.writeText(issue.identifier);
         toast.success(`Copied ${issue.identifier}`);
+    };
+
+    const copyBranchName = () => {
+        const branch = branchName(issue.identifier, issue.title);
+
+        void navigator.clipboard.writeText(branch);
+        toast.success(`Copied ${branch}`);
     };
 
     const deleteIssue = () => {
@@ -192,6 +211,12 @@ export default function IssueShow({
             onSelect: copyIdentifier,
         },
         {
+            id: 'copy-branch-name',
+            label: 'Copy git branch name',
+            icon: <GitBranch />,
+            onSelect: copyBranchName,
+        },
+        {
             id: 'delete',
             label: 'Delete issue...',
             icon: <Trash2 />,
@@ -244,6 +269,12 @@ export default function IssueShow({
                     <IssueSubtasks
                         issueIdentifier={issue.identifier}
                         subtasks={subtasks}
+                    />
+
+                    <IssueDevelopment
+                        identifier={issue.identifier}
+                        title={issue.title}
+                        links={links}
                     />
 
                     <section

@@ -2,8 +2,10 @@
 
 use App\Enums\IssuePriority;
 use App\Enums\IssueStatus;
+use App\Enums\PullRequestState;
 use App\Enums\TeamRole;
 use App\Models\Issue;
+use App\Models\IssueLink;
 use App\Models\Label;
 use App\Models\Project;
 use App\Models\Team;
@@ -247,6 +249,29 @@ test('an issue can be viewed by its identifier', function () {
         ->where('issue.identifier', 'DD-1')
         ->where('issue.title', 'Write the docs')
         ->where('issue.creator.name', $user->name),
+    );
+});
+
+test('the issue page lists the pull requests and commits that name the issue, newest first', function () {
+    $user = User::factory()->create();
+    $issue = Issue::factory()->for(Project::factory()->for($user->currentTeam)->create(['key' => 'DD']))->create();
+    $commit = IssueLink::factory()->commit()->for($issue)->create(['updated_at' => now()->subHour()]);
+    $pullRequest = IssueLink::factory()->for($issue)->create(['state' => PullRequestState::Merged, 'updated_at' => now()]);
+    IssueLink::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.show', [$user->currentTeam, 'DD-1']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->has('links', 2)
+        ->where('links.0.id', $pullRequest->id)
+        ->where('links.0.type', 'pull_request')
+        ->where('links.0.state', 'merged')
+        ->where('links.0.externalId', $pullRequest->external_id)
+        ->where('links.1.id', $commit->id)
+        ->where('links.1.type', 'commit')
+        ->where('links.1.state', null),
     );
 });
 

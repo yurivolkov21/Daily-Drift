@@ -129,3 +129,24 @@ export function suggestProjectKey(name: string): string {
 
     return key.replace(/^[0-9]+/, '').slice(0, 5);
 }
+
+/**
+ * A git branch name that links work to the issue, such as
+ * "dd-12-fix-the-login-redirect-loop" for DD-12. Accents are dropped, so a
+ * Vietnamese title gives "dd-12-sua-loi-dang-nhap".
+ */
+export function branchName(identifier: string, title: string): string {
+    const slug = title
+        .toLowerCase()
+        .replace(/đ/g, 'd')
+        .normalize('NFKD')
+        .replace(/\p{M}/gu, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40)
+        .replace(/-+$/, '');
+
+    return slug
+        ? `${identifier.toLowerCase()}-${slug}`
+        : identifier.toLowerCase();
+}
