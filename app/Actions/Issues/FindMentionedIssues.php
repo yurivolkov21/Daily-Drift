@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Github;
+namespace App\Actions\Issues;
 
 use App\Models\Issue;
 use App\Models\Team;
@@ -10,15 +10,16 @@ use Illuminate\Support\Str;
 class FindMentionedIssues
 {
     /**
-     * The most identifiers looked up per delivery, so a huge message cannot
-     * cost a query for every number in it.
+     * The most identifiers looked up at once, so a huge message cannot cost
+     * a query for every number in it.
      */
     protected const int LIMIT = 10;
 
     /**
      * Find the team's issues that the texts name, such as "DD-12" in a commit
      * message or "dd-12-fix-login" as a branch. Names of other teams' issues,
-     * or of no issue at all, are skipped.
+     * or of no issue at all, are skipped. GitHub deliveries and the events of
+     * coding tools both use it.
      *
      * @return Collection<int, Issue>
      */
