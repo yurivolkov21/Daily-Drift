@@ -94,7 +94,10 @@ export function foldChangeRuns(
     });
 }
 
-function labelList(labels: IssueLabel[]): string {
+/**
+ * Name labels in a sentence: "the Bug label", "the Bug and Feature labels".
+ */
+export function labelList(labels: IssueLabel[]): string {
     const names = labels.map(({ name }) => name);
     const list =
         names.length > 1

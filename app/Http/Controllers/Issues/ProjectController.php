@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Issues;
 
+use App\Concerns\PresentsProjectSummaries;
 use App\Enums\TeamPermission;
 use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\SaveProjectRequest;
-use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
@@ -17,40 +17,15 @@ use Inertia\Response;
 
 class ProjectController extends Controller
 {
+    use PresentsProjectSummaries;
+
     /**
      * Display the team's projects.
      */
     public function index(Request $request, Team $currentTeam): Response
     {
-        $projects = $currentTeam->projects()
-            ->withCount(['issues', 'openIssues', 'completedIssues', 'canceledIssues'])
-            ->orderBy('name')
-            ->get();
-
-        $assigneeIds = Issue::query()
-            ->whereIn('project_id', $projects->modelKeys())
-            ->whereNotNull('assignee_id')
-            ->distinct()
-            ->get(['project_id', 'assignee_id'])
-            ->groupBy('project_id');
-
         return Inertia::render('projects/index', [
-            'projects' => $projects->map(fn (Project $project) => [
-                'id' => $project->id,
-                'key' => $project->key,
-                'name' => $project->name,
-                'description' => $project->description,
-                'icon' => $project->icon,
-                'color' => $project->color,
-                'status' => $project->status->value,
-                'leadId' => $project->lead_id,
-                'targetDate' => $project->target_date?->toDateString(),
-                'issuesCount' => $project->issues_count,
-                'openIssuesCount' => $project->open_issues_count,
-                'completedIssuesCount' => $project->completed_issues_count,
-                'canceledIssuesCount' => $project->canceled_issues_count,
-                'assigneeIds' => $assigneeIds->get($project->id, collect())->pluck('assignee_id')->sort()->values(),
-            ]),
+            'projects' => $this->projectSummaries($currentTeam),
             'canDeleteProjects' => $request->user()->hasTeamPermission($currentTeam, TeamPermission::DeleteProject),
         ]);
     }
