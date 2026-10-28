@@ -1,6 +1,13 @@
-import { http, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useEcho } from '@laravel/echo-react';
-import { Bell, BellOff, CheckCheck, Mail, MailOpen } from 'lucide-react';
+import {
+    Bell,
+    BellOff,
+    CheckCheck,
+    Inbox as InboxIcon,
+    Mail,
+    MailOpen,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,12 +29,16 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { realtimeEnabled } from '@/components/workspace-updates';
+import { Kbd } from '@/components/ui/kbd';
 import {
     formatShortAge,
     notificationUrl,
     notificationVerbs,
+    sendJson,
+    setUnreadCount,
 } from '@/lib/notifications';
 import { cn } from '@/lib/utils';
+import { inbox } from '@/routes';
 import { index, readAll, update } from '@/routes/notifications';
 import type { AppNotification } from '@/types';
 
@@ -36,28 +47,6 @@ import type { AppNotification } from '@/types';
  * lists the rest.
  */
 const BELL_LIMIT = 8;
-
-/**
- * Send a JSON request through Inertia's client, so it carries the CSRF token
- * and this tab's socket id like the app's other requests.
- */
-async function sendJson<T>(
-    method: 'get' | 'patch' | 'post',
-    url: string,
-    data?: Record<string, unknown>,
-): Promise<T | null> {
-    const response = await http.getClient().request({
-        method,
-        url,
-        data,
-        headers: { Accept: 'application/json' },
-    });
-
-    return response.data === '' ? null : (JSON.parse(response.data) as T);
-}
-
-const setUnreadCount = (count: number | ((current: number) => number)) =>
-    router.replaceProp('unreadNotificationsCount', count);
 
 /**
  * The bell in the page header: the unread count, and the newest
@@ -86,9 +75,7 @@ export function NotificationBell() {
 
     const load = useCallback(() => {
         sendJson<{ data: AppNotification[] }>('get', index.url())
-            .then((body) =>
-                setNotifications(body?.data.slice(0, BELL_LIMIT) ?? []),
-            )
+            .then((body) => setNotifications(body?.data ?? []))
             .catch(() => setNotifications((current) => current ?? []));
     }, []);
 
@@ -237,22 +224,53 @@ export function NotificationBell() {
                     </Empty>
                 ) : (
                     <ul className="max-h-[min(24rem,60vh)] scroll-fade-y overflow-y-auto py-1">
-                        {notifications.map((notification) => (
-                            <NotificationRow
-                                key={notification.id}
-                                notification={notification}
-                                teamSlug={teamSlug}
-                                onOpen={() => openNotification(notification)}
-                                onToggleRead={() =>
-                                    void setRead(
-                                        notification,
-                                        notification.readAt === null,
-                                    )
-                                }
-                            />
-                        ))}
+                        {notifications
+                            .slice(0, BELL_LIMIT)
+                            .map((notification) => (
+                                <NotificationRow
+                                    key={notification.id}
+                                    notification={notification}
+                                    teamSlug={teamSlug}
+                                    onOpen={() =>
+                                        openNotification(notification)
+                                    }
+                                    onToggleRead={() =>
+                                        void setRead(
+                                            notification,
+                                            notification.readAt === null,
+                                        )
+                                    }
+                                />
+                            ))}
                     </ul>
                 )}
+                <div className="border-t p-1">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between px-3"
+                        nativeButton={false}
+                        render={
+                            <Link
+                                href={inbox()}
+                                onClick={() => setOpen(false)}
+                            />
+                        }
+                    >
+                        <span className="flex items-center gap-2">
+                            <InboxIcon />
+                            Open Inbox
+                            {notifications !== null &&
+                            notifications.length > BELL_LIMIT
+                                ? ` · ${notifications.length - BELL_LIMIT} more`
+                                : null}
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <Kbd>G</Kbd>
+                            <Kbd>N</Kbd>
+                        </span>
+                    </Button>
+                </div>
             </PopoverContent>
             {realtimeEnabled ? (
                 <LiveNotificationCount

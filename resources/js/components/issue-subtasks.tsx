@@ -15,13 +15,14 @@ type SubtaskPageProps = {
     subtasks?: IssueSubtask[];
     peek?: IssuePeek | null;
     issues?: Issue[];
+    preview?: { subtasks: IssueSubtask[] } | null;
 };
 
 /**
  * Where the sub-tasks being edited live: on the issue page, in the board's
- * quick view, or in a row of the issue list.
+ * quick view, in a row of the issue list, or in the inbox's preview.
  */
-export type SubtaskLocation = 'page' | 'peek' | 'list';
+export type SubtaskLocation = 'page' | 'peek' | 'list' | 'preview';
 
 type SubtaskTarget = {
     teamSlug: string;
@@ -43,6 +44,17 @@ function changeSubtasks(
                 peek: props.peek
                     ? { ...props.peek, subtasks: change(props.peek.subtasks) }
                     : props.peek,
+            };
+        }
+
+        if (target.location === 'preview') {
+            return {
+                preview: props.preview
+                    ? {
+                          ...props.preview,
+                          subtasks: change(props.preview.subtasks),
+                      }
+                    : props.preview,
             };
         }
 

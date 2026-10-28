@@ -1,6 +1,35 @@
+import { http, router } from '@inertiajs/react';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 import { show } from '@/routes/issues';
 import type { AppNotification, NotificationType } from '@/types';
+
+/**
+ * Send a JSON request through Inertia's client, so it carries the CSRF token
+ * and this tab's socket id like the app's other requests.
+ */
+export async function sendJson<T>(
+    method: 'get' | 'patch' | 'post',
+    url: string,
+    data?: Record<string, unknown>,
+): Promise<T | null> {
+    const response = await http.getClient().request({
+        method,
+        url,
+        data,
+        headers: { Accept: 'application/json' },
+    });
+
+    return response.data === '' ? null : (JSON.parse(response.data) as T);
+}
+
+/**
+ * Change the unread count every page shares, without asking the server.
+ */
+export function setUnreadCount(
+    count: number | ((current: number) => number),
+): void {
+    router.replaceProp('unreadNotificationsCount', count);
+}
 
 export const notificationVerbs: Record<NotificationType, string> = {
     'issue-assigned': 'assigned you',

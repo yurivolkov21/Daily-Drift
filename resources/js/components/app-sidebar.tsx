@@ -3,6 +3,7 @@ import {
     BookOpen,
     FolderGit2,
     FolderKanban,
+    Inbox,
     LayoutGrid,
     ListTodo,
     Search,
@@ -27,7 +28,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useIssueTracker } from '@/hooks/use-issue-tracker';
-import { dashboard } from '@/routes';
+import { dashboard, inbox } from '@/routes';
 import { index as issuesIndex } from '@/routes/issues';
 import { index as projectsIndex } from '@/routes/projects';
 import type { NavItem } from '@/types';
@@ -43,6 +44,12 @@ export function AppSidebar() {
     );
 
     const mainNavItems: NavItem[] = [
+        {
+            title: 'Inbox',
+            href: inbox(),
+            icon: Inbox,
+            badge: page.props.unreadNotificationsCount,
+        },
         {
             title: 'Dashboard',
             href: dashboardUrl,

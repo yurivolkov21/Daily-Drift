@@ -14,7 +14,7 @@ import type {
     CreateIssueDefaults,
     PaletteAction,
 } from '@/hooks/use-issue-tracker';
-import { dashboard } from '@/routes';
+import { dashboard, inbox } from '@/routes';
 import { index as issuesIndex } from '@/routes/issues';
 import { index as projectsIndex } from '@/routes/projects';
 
@@ -89,6 +89,10 @@ export function IssueTrackerProvider({ children }: { children: ReactNode }) {
                   {
                       keys: 'g d',
                       handler: () => router.visit(dashboard.url(team.slug)),
+                  },
+                  {
+                      keys: 'g n',
+                      handler: () => router.visit(inbox.url()),
                   },
               ]
             : [],

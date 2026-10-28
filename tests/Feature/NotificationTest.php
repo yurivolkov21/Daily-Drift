@@ -338,3 +338,67 @@ test('the live update goes to the person\'s own channel with their unread count'
         ->and($event->broadcastAs())->toBe('notifications.changed')
         ->and($event->broadcastWith())->toBe(['unreadCount' => 2]);
 });
+
+test('the inbox lists the person\'s notifications', function () {
+    $user = User::factory()->create();
+    notificationFor($user, now()->subMinute());
+    $newest = notificationFor($user);
+    notificationFor(User::factory()->create());
+
+    $this->actingAs($user)
+        ->get(route('inbox'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('inbox')
+            ->has('notifications', 2)
+            ->where('notifications.0.id', $newest->id)
+            ->where('selectedId', null)
+            ->where('preview', null),
+        );
+});
+
+test('the inbox shows the issue of the selected notification', function () {
+    $user = User::factory()->create();
+    $teammate = teammateOf($user, 'Ada Lovelace');
+    $team = $user->currentTeam;
+    Issue::factory()->for(Project::factory()->for($team)->create(['key' => 'DD']))->create(['title' => 'Fix the login page']);
+    $this->actingAs($teammate)->post(route('issues.comments.store', [$team, 'DD-1']), [
+        'body' => mentionOf($user).' can you take a look?',
+    ]);
+    $notification = $user->notifications()->sole();
+
+    $this->actingAs($user)
+        ->get(route('inbox', ['notification' => $notification->id]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('inbox')
+            ->where('selectedId', $notification->id)
+            ->where('preview.issue.identifier', 'DD-1')
+            ->where('preview.issue.title', 'Fix the login page')
+            ->has('preview.comments', 1)
+            ->has('preview.activities')
+            ->has('preview.subtasks'),
+        );
+});
+
+test('the inbox previews only the person\'s own notifications about their current team', function () {
+    $user = User::factory()->create();
+    $someoneElses = notificationFor(User::factory()->create());
+    $otherTeam = User::factory()->create()->currentTeam;
+    $user->teams()->attach($otherTeam, ['role' => TeamRole::Member->value]);
+    Issue::factory()->for(Project::factory()->for($otherTeam)->create(['key' => 'OSS']))->create();
+    $fromOtherTeam = $user->notifications()->create([
+        'id' => Str::uuid()->toString(),
+        'type' => 'issue-assigned',
+        'data' => ['team' => ['slug' => $otherTeam->slug, 'name' => $otherTeam->name], 'issue' => ['identifier' => 'OSS-1', 'title' => 'Release notes']],
+    ]);
+    $this->actingAs($user);
+
+    $this->get(route('inbox', ['notification' => $someoneElses->id]))
+        ->assertInertia(fn (Assert $page) => $page->where('preview', null));
+
+    $this->get(route('inbox', ['notification' => $fromOtherTeam->id]))
+        ->assertInertia(fn (Assert $page) => $page->where('preview', null));
+});
+
+test('guests are sent to log in before the inbox', function () {
+    $this->get(route('inbox'))->assertRedirect(route('login'));
+});
