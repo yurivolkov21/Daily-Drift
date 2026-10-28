@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\PersonalAccessToken;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Foundation\Console\ServeCommand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureApiTokens();
+        $this->configureDevelopmentServer();
     }
 
     /**
@@ -68,5 +70,19 @@ class AppServiceProvider extends ServiceProvider
                 ->uncompromised()
             : null,
         );
+    }
+
+    /**
+     * Let `php artisan serve` keep the temporary files directory on Windows.
+     *
+     * The command hands the PHP server only a few environment variables. Without TEMP and TMP,
+     * PHP on Windows looks for temporary files in C:\Windows, so it drops request bodies over
+     * 16 KB, such as GitHub's pull request deliveries, with "POST data can't be buffered".
+     */
+    protected function configureDevelopmentServer(): void
+    {
+        if (app()->runningConsoleCommand('serve')) {
+            ServeCommand::$passthroughVariables = [...ServeCommand::$passthroughVariables, 'TEMP', 'TMP'];
+        }
     }
 }
