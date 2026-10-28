@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Issues\LabelController;
+use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Teams\TeamController;
@@ -27,6 +28,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')
         ->name('user-password.update');
+
+    Route::get('settings/api-tokens', [ApiTokenController::class, 'index'])
+        ->middleware(RequirePassword::class)
+        ->name('api-tokens.index');
+
+    Route::post('settings/api-tokens', [ApiTokenController::class, 'store'])
+        ->middleware(RequirePassword::class)
+        ->name('api-tokens.store');
+
+    Route::delete('settings/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
 

@@ -22,6 +22,24 @@ export type Passkey = {
     last_used_at_diff: string | null;
 };
 
+export type ApiToken = {
+    id: number;
+    name: string;
+    team: { id: number; name: string };
+    abilities: string[];
+    lastUsedAt: string | null;
+    expiresAt: string | null;
+    createdAt: string | null;
+};
+
+/**
+ * A token just created, flashed once with its plain-text value.
+ */
+export type NewApiToken = {
+    id: number;
+    plainTextToken: string;
+};
+
 export type TwoFactorSetupData = {
     svg: string;
     url: string;
