@@ -7,11 +7,12 @@ import {
     Tag,
     UserRound,
 } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import InputError from '@/components/input-error';
 import { IssuePriorityIcon } from '@/components/issue-priority-icon';
 import { IssueStatusIcon } from '@/components/issue-status-icon';
+import { MentionTextarea } from '@/components/mention-textarea';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -19,8 +20,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Textarea } from '@/components/ui/textarea';
 import { formatFullTime, formatRelativeTime } from '@/lib/issue-activity';
+import type { Mention } from '@/lib/mentions';
+import { readMentions, splitMentions, writeMentions } from '@/lib/mentions';
 import { cn } from '@/lib/utils';
 import { destroy, store, update } from '@/routes/issues/comments';
 import type { IssueActivity, IssueComment } from '@/types';
@@ -87,12 +89,50 @@ function useIsOwnComment(comment: IssueComment): boolean {
     return usePage().props.auth.user.id === comment.author?.id;
 }
 
+/**
+ * A comment's text, with the people it mentions as chips. A mention of the
+ * reader stands out more.
+ */
 export function CommentText({ body }: { body: string }) {
+    const userId = usePage().props.auth.user.id;
+
     return (
         <p className="text-sm leading-relaxed wrap-break-word whitespace-pre-wrap text-foreground">
-            {body}
+            {splitMentions(body).map((part, index) =>
+                typeof part === 'string' ? (
+                    <Fragment key={index}>{part}</Fragment>
+                ) : (
+                    <span
+                        key={index}
+                        className={cn(
+                            'px-0.5 font-medium',
+                            part.id === userId
+                                ? 'bg-primary/40'
+                                : 'bg-primary/15',
+                        )}
+                    >
+                        @{part.name}
+                    </span>
+                ),
+            )}
         </p>
     );
+}
+
+/**
+ * Keep the people a comment box mentions, once each.
+ */
+function useMentions(initial: Mention[] = []) {
+    const [mentions, setMentions] = useState(initial);
+
+    const addMention = (mention: Mention) =>
+        setMentions((list) =>
+            list.some(({ id }) => id === mention.id)
+                ? list
+                : [...list, mention],
+        );
+
+    return { mentions, addMention, clearMentions: () => setMentions([]) };
 }
 
 export function CommentComposer({
@@ -104,16 +144,24 @@ export function CommentComposer({
 }) {
     const teamSlug = usePage().props.currentTeam?.slug ?? '';
     const form = useForm({ body: '' });
+    const { mentions, addMention, clearMentions } = useMentions();
 
     const submit = () => {
         if (form.data.body.trim() === '' || form.processing) {
             return;
         }
 
+        form.transform((data) => ({
+            ...data,
+            body: writeMentions(data.body, mentions),
+        }));
         form.post(store.url([teamSlug, issueIdentifier]), {
             preserveScroll: true,
             preserveState: true,
-            onSuccess: () => form.reset(),
+            onSuccess: () => {
+                form.reset();
+                clearMentions();
+            },
         });
     };
 
@@ -125,11 +173,12 @@ export function CommentComposer({
                 submit();
             }}
         >
-            <Textarea
+            <MentionTextarea
                 aria-label="Leave a comment"
-                placeholder="Leave a comment..."
+                placeholder="Leave a comment... Type @ to mention someone."
                 value={form.data.body}
-                onChange={(event) => form.setData('body', event.target.value)}
+                onValueChange={(body) => form.setData('body', body)}
+                onMention={addMention}
                 onKeyDown={(event) => {
                     if (
                         event.key === 'Enter' &&
@@ -144,7 +193,7 @@ export function CommentComposer({
             <InputError message={form.errors.body} />
             <div className="flex items-center justify-end gap-3">
                 <span className="hidden text-xs text-muted-foreground sm:inline">
-                    Ctrl+Enter to send
+                    @ to mention · Ctrl+Enter to send
                 </span>
                 <Button
                     type="submit"
@@ -169,9 +218,15 @@ export function CommentEditor({
     onDone: () => void;
 }) {
     const teamSlug = usePage().props.currentTeam?.slug ?? '';
-    const form = useForm({ body: comment.body });
+    const [initial] = useState(() => readMentions(comment.body));
+    const form = useForm({ body: initial.text });
+    const { mentions, addMention } = useMentions(initial.mentions);
 
     const save = () => {
+        form.transform((data) => ({
+            ...data,
+            body: writeMentions(data.body, mentions),
+        }));
         form.patch(update.url([teamSlug, issueIdentifier, comment.id]), {
             preserveScroll: true,
             preserveState: true,
@@ -181,11 +236,12 @@ export function CommentEditor({
 
     return (
         <div className="grid gap-2">
-            <Textarea
+            <MentionTextarea
                 autoFocus
                 aria-label="Edit comment"
                 value={form.data.body}
-                onChange={(event) => form.setData('body', event.target.value)}
+                onValueChange={(body) => form.setData('body', body)}
+                onMention={addMention}
                 onKeyDown={(event) => {
                     if (event.key === 'Escape') {
                         onDone();
