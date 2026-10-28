@@ -14,10 +14,14 @@ export default function AppSidebarLayout({
             <AppShell variant="sidebar">
                 <AppSidebar />
                 <AppContent variant="sidebar" className="min-w-0">
-                    {/* The page scrolls inside the panel, so its edges can fade over the panel's background. */}
+                    {/*
+                     * The page scrolls inside the panel, so its edges can fade over the panel's background.
+                     * It is also the containing block of what pages position absolutely, such as screen
+                     * reader text: otherwise that would sit below the panel and let the window scroll too.
+                     */}
                     <div
                         scroll-region=""
-                        className="flex min-h-0 flex-1 scroll-fade-y flex-col overflow-x-clip overflow-y-auto"
+                        className="relative flex min-h-0 flex-1 scroll-fade-y flex-col overflow-x-clip overflow-y-auto"
                     >
                         <AppSidebarHeader breadcrumbs={breadcrumbs} />
                         {children}
