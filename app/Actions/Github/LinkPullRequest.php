@@ -2,6 +2,7 @@
 
 namespace App\Actions\Github;
 
+use App\Actions\Issues\FindMentionedIssues;
 use App\Enums\IssueLinkType;
 use App\Enums\PullRequestState;
 use App\Events\WorkspaceChanged;

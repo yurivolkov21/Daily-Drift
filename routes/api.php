@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\IssueController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ToolEventController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Webhooks\GithubWebhookController;
 use App\Models\Issue;
@@ -36,6 +37,7 @@ Route::prefix('v1')
             Route::post('issues', [IssueController::class, 'store'])->name('issues.store');
             Route::patch('issues/{issue}', [IssueController::class, 'update'])->name('issues.update');
             Route::post('issues/{issue}/comments', [CommentController::class, 'store'])->name('issues.comments.store');
+            Route::post('events', ToolEventController::class)->name('events.store');
         });
     });
 
