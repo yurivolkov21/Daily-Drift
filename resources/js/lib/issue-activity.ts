@@ -3,6 +3,7 @@ import { formatDueDate, priorityLabel, statusLabel } from '@/lib/issues';
 import type {
     IssueActivity,
     IssueActivityFilter,
+    IssueChangeSource,
     IssueComment,
     IssueLabel,
     IssueTimelineEntry,
@@ -110,6 +111,27 @@ export function labelList(labels: IssueLabel[]): string {
 /**
  * Describe a change as the end of a sentence that starts with who made it.
  */
+/**
+ * The pull request that made the change, when GitHub made it.
+ */
+export function activitySource(
+    activity: IssueActivity,
+): IssueChangeSource | null {
+    return activity.properties !== null && 'via' in activity.properties
+        ? (activity.properties.via ?? null)
+        : null;
+}
+
+/**
+ * Who made the change: a person, or GitHub for a pull request's change.
+ */
+export function activityActorName(activity: IssueActivity): string {
+    return (
+        activity.actor?.name ??
+        (activitySource(activity) ? 'GitHub' : 'Someone')
+    );
+}
+
 export function describeActivity(activity: IssueActivity): string {
     switch (activity.type) {
         case 'created':

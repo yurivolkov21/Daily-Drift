@@ -23,12 +23,13 @@ use Illuminate\Support\Carbon;
  * @property string $title
  * @property string $url
  * @property PullRequestState|null $state
+ * @property bool $closes Whether the pull request's branch or title names the issue, so merging it finishes the issue.
  * @property string|null $author
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Issue $issue
  */
-#[Fillable(['type', 'repository', 'external_id', 'title', 'url', 'state', 'author'])]
+#[Fillable(['type', 'repository', 'external_id', 'title', 'url', 'state', 'closes', 'author'])]
 class IssueLink extends Model
 {
     /** @use HasFactory<IssueLinkFactory> */
@@ -54,6 +55,7 @@ class IssueLink extends Model
         return [
             'type' => IssueLinkType::class,
             'state' => PullRequestState::class,
+            'closes' => 'boolean',
         ];
     }
 }

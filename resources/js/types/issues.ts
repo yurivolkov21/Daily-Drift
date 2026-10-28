@@ -78,9 +78,19 @@ export type IssueComment = {
     updatedAt: string;
 };
 
+/**
+ * The pull request that made a change for GitHub, when no person did.
+ */
+export type IssueChangeSource = {
+    pull_request: number;
+    repository: string;
+    url: string;
+};
+
 type Change<T> = {
     from: T;
     to: T;
+    via?: IssueChangeSource;
 };
 
 export type IssueActivity = {

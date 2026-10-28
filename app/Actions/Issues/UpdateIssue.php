@@ -31,12 +31,14 @@ class UpdateIssue
     /**
      * Update the issue and record each change in its history.
      *
+     * @param  User|null  $actor  The person who made the change, or null when an integration did.
      * @param  array<string, mixed>  $attributes
      * @param  array<int, string>|null  $labelIds  The issue's complete set of labels, or null to keep the current ones.
+     * @param  array{pull_request: int, repository: string, url: string}|null  $via  What made the change for an integration, kept with each change.
      */
-    public function handle(User $actor, Issue $issue, array $attributes, ?array $labelIds = null): Issue
+    public function handle(?User $actor, Issue $issue, array $attributes, ?array $labelIds = null, ?array $via = null): Issue
     {
-        return DB::transaction(function () use ($actor, $issue, $attributes, $labelIds) {
+        return DB::transaction(function () use ($actor, $issue, $attributes, $labelIds, $via) {
             $issue->fill($attributes);
 
             $originals = collect($issue->getDirty())
@@ -48,11 +50,9 @@ class UpdateIssue
                 $type = self::TRACKED_ATTRIBUTES[$attribute] ?? null;
 
                 if ($type !== null) {
-                    $issue->recordActivity($type, $actor, $this->changeProperties(
-                        $type,
-                        $original,
-                        $issue->getAttribute($attribute),
-                    ));
+                    $properties = $this->changeProperties($type, $original, $issue->getAttribute($attribute));
+
+                    $issue->recordActivity($type, $actor, $via === null ? $properties : [...($properties ?? []), 'via' => $via]);
                 }
             }
 
@@ -62,7 +62,7 @@ class UpdateIssue
 
             $newAssignee = $originals->has('assignee_id') ? $issue->load('assignee')->assignee : null;
 
-            if ($newAssignee !== null && $newAssignee->isNot($actor)) {
+            if ($newAssignee !== null && $actor !== null && $newAssignee->isNot($actor)) {
                 $newAssignee->notify(new IssueAssigned($issue, $actor));
             }
 
@@ -97,7 +97,7 @@ class UpdateIssue
      *
      * @param  array<int, string>  $labelIds
      */
-    protected function syncLabels(User $actor, Issue $issue, array $labelIds): void
+    protected function syncLabels(?User $actor, Issue $issue, array $labelIds): void
     {
         $result = $issue->labels()->sync($labelIds);
 

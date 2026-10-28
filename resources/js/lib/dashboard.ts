@@ -9,7 +9,7 @@ import {
     startOfWeek,
     subWeeks,
 } from 'date-fns';
-import { labelList } from '@/lib/issue-activity';
+import { activityActorName, labelList } from '@/lib/issue-activity';
 import {
     formatDueDate,
     isClosedStatus,
@@ -219,7 +219,7 @@ export function feedDay(timestamp: string): string {
 export function feedActor(entry: DashboardActivityEntry): string {
     return entry.kind === 'comment'
         ? (entry.comment.author?.name ?? 'Former member')
-        : (entry.activity.actor?.name ?? 'Someone');
+        : activityActorName(entry.activity);
 }
 
 /**
