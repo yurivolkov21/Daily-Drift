@@ -42,6 +42,7 @@ use Illuminate\Support\Str;
  * @property-read Collection<int, Comment> $comments
  * @property-read Collection<int, IssueActivity> $activities
  * @property-read Collection<int, Subtask> $subtasks
+ * @property-read Collection<int, IssueLink> $links
  */
 #[Fillable(['title', 'description', 'status', 'priority', 'assignee_id', 'due_date', 'board_position'])]
 class Issue extends Model
@@ -137,6 +138,16 @@ class Issue extends Model
     public function subtasks(): HasMany
     {
         return $this->hasMany(Subtask::class);
+    }
+
+    /**
+     * Get the pull requests and commits on GitHub that name the issue.
+     *
+     * @return HasMany<IssueLink, $this>
+     */
+    public function links(): HasMany
+    {
+        return $this->hasMany(IssueLink::class);
     }
 
     /**
