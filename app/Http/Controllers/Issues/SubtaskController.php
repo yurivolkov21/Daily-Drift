@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Issues;
 
+use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\StoreSubtaskRequest;
 use App\Http\Requests\Issues\UpdateSubtaskRequest;
@@ -23,6 +24,8 @@ class SubtaskController extends Controller
             'position' => (int) $issue->subtasks()->max('position') + 1,
         ]);
 
+        broadcast(WorkspaceChanged::forIssue($issue, 'subtask', 'created'))->toOthers();
+
         return back();
     }
 
@@ -43,6 +46,8 @@ class SubtaskController extends Controller
 
         $subtask->save();
 
+        broadcast(WorkspaceChanged::forIssue($subtask->issue, 'subtask', 'updated'))->toOthers();
+
         return back();
     }
 
@@ -51,7 +56,11 @@ class SubtaskController extends Controller
      */
     public function destroy(Team $currentTeam, string $identifier, string $subtaskId): RedirectResponse
     {
-        $this->findSubtask($currentTeam, $identifier, $subtaskId)->delete();
+        $subtask = $this->findSubtask($currentTeam, $identifier, $subtaskId);
+
+        $subtask->delete();
+
+        broadcast(WorkspaceChanged::forIssue($subtask->issue, 'subtask', 'deleted'))->toOthers();
 
         return back();
     }

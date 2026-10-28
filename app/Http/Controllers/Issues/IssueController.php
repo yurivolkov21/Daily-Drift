@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Issues;
 
 use App\Actions\Issues\CreateIssue;
 use App\Actions\Issues\UpdateIssue;
+use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\StoreIssueRequest;
 use App\Http\Requests\Issues\UpdateIssueRequest;
@@ -128,6 +129,8 @@ class IssueController extends Controller
         $issue = $this->findIssue($currentTeam, $identifier);
 
         $issue->delete();
+
+        broadcast(WorkspaceChanged::forIssue($issue, 'issue', 'deleted'))->toOthers();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Issue :identifier deleted.', ['identifier' => $issue->identifier])]);
 

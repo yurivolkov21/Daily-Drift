@@ -3,6 +3,7 @@
 namespace App\Actions\Issues;
 
 use App\Enums\IssueActivityType;
+use App\Events\WorkspaceChanged;
 use App\Models\Issue;
 use App\Models\Label;
 use App\Models\User;
@@ -57,6 +58,8 @@ class UpdateIssue
             if ($labelIds !== null) {
                 $this->syncLabels($actor, $issue, $labelIds);
             }
+
+            broadcast(WorkspaceChanged::forIssue($issue, 'issue', 'updated'))->toOthers();
 
             return $issue;
         });

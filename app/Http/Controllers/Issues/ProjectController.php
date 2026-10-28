@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Issues;
 
 use App\Enums\TeamPermission;
+use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\SaveProjectRequest;
 use App\Models\Issue;
@@ -61,6 +62,8 @@ class ProjectController extends Controller
     {
         $project = $currentTeam->projects()->create($request->validated());
 
+        broadcast(new WorkspaceChanged($currentTeam->id, 'project', 'created'))->toOthers();
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Project :name created.', ['name' => $project->name])]);
 
         return back();
@@ -72,6 +75,8 @@ class ProjectController extends Controller
     public function update(SaveProjectRequest $request, Team $currentTeam, Project $project): RedirectResponse
     {
         $project->update($request->validated());
+
+        broadcast(new WorkspaceChanged($currentTeam->id, 'project', 'updated'))->toOthers();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Project updated.')]);
 
@@ -86,6 +91,8 @@ class ProjectController extends Controller
         Gate::authorize('delete', $project);
 
         $project->delete();
+
+        broadcast(new WorkspaceChanged($currentTeam->id, 'project', 'deleted'))->toOthers();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Project :name deleted.', ['name' => $project->name])]);
 

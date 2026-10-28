@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Issues;
 
+use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\SaveCommentRequest;
 use App\Models\Comment;
@@ -22,6 +23,8 @@ class CommentController extends Controller
         $comment->author()->associate($request->user());
         $comment->save();
 
+        broadcast(WorkspaceChanged::forIssue($issue, 'comment', 'created'))->toOthers();
+
         return back();
     }
 
@@ -36,6 +39,8 @@ class CommentController extends Controller
 
         $comment->update($request->validated());
 
+        broadcast(WorkspaceChanged::forIssue($comment->issue, 'comment', 'updated'))->toOthers();
+
         return back();
     }
 
@@ -49,6 +54,8 @@ class CommentController extends Controller
         Gate::authorize('delete', $comment);
 
         $comment->delete();
+
+        broadcast(WorkspaceChanged::forIssue($comment->issue, 'comment', 'deleted'))->toOthers();
 
         return back();
     }
