@@ -60,6 +60,23 @@ test('guests may not listen to a team\'s channel', function () {
     ])->assertForbidden();
 });
 
+test('people may listen to their own notifications channel only', function () {
+    authorizeChannelsWithReverb();
+    $user = User::factory()->create();
+    $someoneElse = User::factory()->create();
+    $this->actingAs($user);
+
+    $this->post('/broadcasting/auth', [
+        'socket_id' => '1234.5678',
+        'channel_name' => 'private-user.'.$user->id,
+    ])->assertOk();
+
+    $this->post('/broadcasting/auth', [
+        'socket_id' => '1234.5678',
+        'channel_name' => 'private-user.'.$someoneElse->id,
+    ])->assertForbidden();
+});
+
 test('a change is saved even when Reverb cannot be reached', function () {
     Exceptions::fake();
     Broadcast::extend('unreachable', fn () => new class extends NullBroadcaster

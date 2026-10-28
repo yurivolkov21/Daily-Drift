@@ -3,6 +3,7 @@
 use App\Enums\IssuePriority;
 use App\Enums\IssueStatus;
 use App\Enums\TeamRole;
+use App\Events\NotificationsChanged;
 use App\Models\Comment;
 use App\Models\Issue;
 use App\Models\Project;
@@ -11,6 +12,9 @@ use App\Notifications\IssueAssigned;
 use App\Notifications\MentionedInComment;
 use Carbon\CarbonInterface;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\Events\NotificationSent;
+use Illuminate\Notifications\Notification as BaseNotification;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -280,4 +284,57 @@ test('pages share how many notifications are unread', function () {
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page->where('unreadNotificationsCount', 2));
+});
+
+test('people are told live when a notification arrives for them', function () {
+    Event::fake([NotificationsChanged::class]);
+    $user = User::factory()->create();
+    $assignee = teammateOf($user);
+    Issue::factory()->for(Project::factory()->for($user->currentTeam)->create(['key' => 'DD']))->create();
+
+    $this->actingAs($user)->patch(route('issues.update', [$user->currentTeam, 'DD-1']), [
+        'assignee_id' => $assignee->id,
+    ]);
+
+    Event::assertDispatchedTimes(NotificationsChanged::class, 1);
+    Event::assertDispatched(NotificationsChanged::class, fn (NotificationsChanged $event) => $event->user->is($assignee));
+});
+
+test('notifications sent by email are not announced', function () {
+    Event::fake([NotificationsChanged::class]);
+
+    event(new NotificationSent(User::factory()->create(), new class extends BaseNotification {}, 'mail'));
+
+    Event::assertNotDispatched(NotificationsChanged::class);
+});
+
+test('reading notifications updates the person\'s other tabs', function (string $action) {
+    Event::fake([NotificationsChanged::class]);
+    $user = User::factory()->create();
+    $notification = notificationFor($user);
+    $this->actingAs($user)->withHeader('X-Socket-ID', '1234.5678');
+
+    match ($action) {
+        'read' => $this->patchJson(route('notifications.update', $notification->id), ['read' => true]),
+        'unread' => $this->patchJson(route('notifications.update', $notification->id), ['read' => false]),
+        'read all' => $this->postJson(route('notifications.read-all')),
+    };
+
+    Event::assertDispatched(
+        NotificationsChanged::class,
+        fn (NotificationsChanged $event) => $event->user->is($user) && $event->socket === '1234.5678',
+    );
+})->with(['read', 'unread', 'read all']);
+
+test('the live update goes to the person\'s own channel with their unread count', function () {
+    $user = User::factory()->create();
+    notificationFor($user);
+    notificationFor($user);
+    notificationFor($user, readAt: now());
+
+    $event = new NotificationsChanged($user);
+
+    expect($event->broadcastOn()[0]->name)->toBe('private-user.'.$user->id)
+        ->and($event->broadcastAs())->toBe('notifications.changed')
+        ->and($event->broadcastWith())->toBe(['unreadCount' => 2]);
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NotificationsChanged;
 use App\Http\Requests\UpdateNotificationRequest;
 use App\Http\Resources\NotificationResource;
 use Illuminate\Http\Request;
@@ -33,6 +34,8 @@ class NotificationController extends Controller
             $notification->markAsUnread();
         }
 
+        broadcast(new NotificationsChanged($request->user()))->toOthers();
+
         return response()->noContent();
     }
 
@@ -42,6 +45,8 @@ class NotificationController extends Controller
     public function readAll(Request $request): Response
     {
         $request->user()->unreadNotifications()->update(['read_at' => now()]);
+
+        broadcast(new NotificationsChanged($request->user()))->toOthers();
 
         return response()->noContent();
     }
