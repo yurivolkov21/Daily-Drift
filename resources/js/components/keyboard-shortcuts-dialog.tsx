@@ -18,6 +18,7 @@ const shortcutGroups: { title: string; shortcuts: [string[], string][] }[] = [
             [['G', 'B'], 'Go to board'],
             [['G', 'P'], 'Go to projects'],
             [['G', 'D'], 'Go to dashboard'],
+            [['G', 'N'], 'Go to inbox'],
             [['?'], 'Show keyboard shortcuts'],
         ],
     },

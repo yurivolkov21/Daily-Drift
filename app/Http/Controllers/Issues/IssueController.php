@@ -4,14 +4,12 @@ namespace App\Http\Controllers\Issues;
 
 use App\Actions\Issues\CreateIssue;
 use App\Actions\Issues\UpdateIssue;
+use App\Concerns\PresentsIssueDetails;
 use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\StoreIssueRequest;
 use App\Http\Requests\Issues\UpdateIssueRequest;
-use App\Http\Resources\CommentResource;
-use App\Http\Resources\IssueActivityResource;
 use App\Http\Resources\IssueResource;
-use App\Http\Resources\SubtaskResource;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Team;
@@ -24,6 +22,8 @@ use Inertia\Response;
 
 class IssueController extends Controller
 {
+    use PresentsIssueDetails;
+
     /**
      * Display the team's issues as a list or a board.
      */
@@ -90,20 +90,7 @@ class IssueController extends Controller
      */
     public function show(Team $currentTeam, string $identifier): Response
     {
-        $issue = $this->findIssue($currentTeam, $identifier)->load([
-            'assignee',
-            'creator',
-            'labels',
-            'comments' => fn (HasMany $query) => $query->with('author')->oldest()->orderBy('id'),
-            'activities' => fn (HasMany $query) => $query->with('actor')->oldest()->orderBy('id'),
-        ]);
-
-        return Inertia::render('issues/show', [
-            'issue' => IssueResource::make($issue)->resolve(),
-            'comments' => CommentResource::collection($issue->comments)->resolve(),
-            'activities' => IssueActivityResource::collection($issue->activities)->resolve(),
-            'subtasks' => $this->subtasksOf($issue),
-        ]);
+        return Inertia::render('issues/show', $this->issueDetails($this->findIssue($currentTeam, $identifier)));
     }
 
     /**
@@ -162,17 +149,6 @@ class IssueController extends Controller
             'issue' => IssueResource::make($issue)->resolve(),
             'subtasks' => $this->subtasksOf($issue),
         ];
-    }
-
-    /**
-     * Get the issue's sub-tasks in order, kept apart from the issue itself so
-     * pages that edit them get one copy.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    protected function subtasksOf(Issue $issue): array
-    {
-        return SubtaskResource::collection($issue->subtasks()->orderBy('position')->orderBy('id')->get())->resolve();
     }
 
     /**
