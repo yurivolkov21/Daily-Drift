@@ -3,6 +3,7 @@
 namespace App\Actions\Issues;
 
 use App\Enums\IssueActivityType;
+use App\Events\WorkspaceChanged;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\User;
@@ -28,6 +29,8 @@ class CreateIssue
             $issue->labels()->sync($labelIds);
 
             $issue->recordActivity(IssueActivityType::Created, $creator);
+
+            broadcast(WorkspaceChanged::forIssue($issue, 'issue', 'created'))->toOthers();
 
             return $issue;
         });

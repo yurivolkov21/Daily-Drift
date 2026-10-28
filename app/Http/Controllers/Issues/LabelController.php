@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Issues;
 
+use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\SaveLabelRequest;
 use App\Models\Label;
@@ -45,6 +46,8 @@ class LabelController extends Controller
     {
         $label = $currentTeam->labels()->create($request->validated());
 
+        broadcast(new WorkspaceChanged($currentTeam->id, 'label', 'created'))->toOthers();
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Label :name created.', ['name' => $label->name])]);
 
         return back();
@@ -57,6 +60,8 @@ class LabelController extends Controller
     {
         $label->update($request->validated());
 
+        broadcast(new WorkspaceChanged($currentTeam->id, 'label', 'updated'))->toOthers();
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Label :name updated.', ['name' => $label->name])]);
 
         return back();
@@ -68,6 +73,8 @@ class LabelController extends Controller
     public function destroy(Team $currentTeam, Label $label): RedirectResponse
     {
         $label->delete();
+
+        broadcast(new WorkspaceChanged($currentTeam->id, 'label', 'deleted'))->toOthers();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Label :name deleted.', ['name' => $label->name])]);
 
