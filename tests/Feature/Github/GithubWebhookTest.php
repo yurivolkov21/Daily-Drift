@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\IssueActivityType;
 use App\Enums\IssueLinkType;
+use App\Enums\IssueStatus;
 use App\Enums\PullRequestState;
 use App\Events\WorkspaceChanged;
 use App\Models\GithubWebhook;
@@ -209,3 +211,69 @@ test('linking announces the change to the issue\'s team', function () {
             && $event->issueIdentifier === 'DD-12',
     );
 });
+
+/**
+ * Give the team's only issue the status a test starts from.
+ */
+function issueWithStatus(IssueStatus $status): Issue
+{
+    $issue = Issue::query()->sole();
+    $issue->update(['status' => $status]);
+
+    return $issue;
+}
+
+test('opening a pull request moves the issue it works on to in progress', function (IssueStatus $status) {
+    [$webhook] = teamWithIssues('DD-12');
+    $issue = issueWithStatus($status);
+
+    deliverGithubEvent($webhook, 'pull_request', pullRequestEvent())->assertNoContent();
+
+    expect($issue->fresh()->status)->toBe(IssueStatus::InProgress);
+})->with([
+    IssueStatus::Backlog,
+    IssueStatus::Todo,
+]);
+
+test('merging a pull request moves the issue it works on to done, as github', function () {
+    [$webhook] = teamWithIssues('DD-12');
+    $issue = issueWithStatus(IssueStatus::InReview);
+
+    deliverGithubEvent($webhook, 'pull_request', pullRequestEvent(['state' => 'closed', 'merged' => true], 'closed'))
+        ->assertNoContent();
+
+    expect($issue->fresh()->status)->toBe(IssueStatus::Done);
+
+    $activity = $issue->activities()->where('type', IssueActivityType::StatusChanged)->sole();
+
+    expect($activity->user_id)->toBeNull()
+        ->and($activity->properties)->toBe([
+            'from' => 'in_review',
+            'to' => 'done',
+            'via' => [
+                'pull_request' => 42,
+                'repository' => 'yurivolkov21/Daily-Drift',
+                'url' => 'https://github.com/yurivolkov21/Daily-Drift/pull/42',
+            ],
+        ]);
+});
+
+test('pull requests leave an issue alone when they would move it backwards or only mention it', function (IssueStatus $status, array $pullRequest, string $action) {
+    [$webhook] = teamWithIssues('DD-12');
+    $issue = issueWithStatus($status);
+
+    deliverGithubEvent($webhook, 'pull_request', pullRequestEvent($pullRequest, $action))->assertNoContent();
+
+    expect($issue->fresh()->status)->toBe($status)
+        ->and($issue->activities()->where('type', IssueActivityType::StatusChanged)->exists())->toBeFalse();
+})->with([
+    'opened while in review' => [IssueStatus::InReview, [], 'opened'],
+    'merged after it was canceled' => [IssueStatus::Canceled, ['state' => 'closed', 'merged' => true], 'closed'],
+    'a draft' => [IssueStatus::Todo, ['draft' => true], 'opened'],
+    'closed without merging' => [IssueStatus::Todo, ['state' => 'closed', 'merged' => false], 'closed'],
+    'merged, named only in the description' => [
+        IssueStatus::Todo,
+        ['state' => 'closed', 'merged' => true, 'head' => ['ref' => 'session-cookie'], 'title' => 'Share the cookie', 'body' => 'Related to DD-12.'],
+        'closed',
+    ],
+]);

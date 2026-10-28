@@ -30,6 +30,7 @@ class IssueLinkFactory extends Factory
             'title' => fake()->sentence(4),
             'url' => "https://github.com/yurivolkov21/Daily-Drift/pull/{$number}",
             'state' => PullRequestState::Open,
+            'closes' => true,
             'author' => fake()->userName(),
         ];
     }
@@ -47,6 +48,7 @@ class IssueLinkFactory extends Factory
                 'external_id' => $sha,
                 'url' => "https://github.com/{$attributes['repository']}/commit/{$sha}",
                 'state' => null,
+                'closes' => false,
             ];
         });
     }

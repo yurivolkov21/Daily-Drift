@@ -26,6 +26,7 @@ class IssueLinkResource extends JsonResource
             'title' => $this->title,
             'url' => $this->url,
             'state' => $this->state?->value,
+            'closes' => $this->closes,
             'author' => $this->author,
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),

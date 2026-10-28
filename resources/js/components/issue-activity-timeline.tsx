@@ -19,11 +19,14 @@ import {
     TimelineSeparator,
 } from '@/components/ui/timeline';
 import {
+    activityActorName,
+    activitySource,
     describeActivity,
     filterTimeline,
     foldChangeRuns,
 } from '@/lib/issue-activity';
 import type {
+    IssueActivity,
     IssueActivityFilter,
     IssueComment,
     IssueTimelineEntry,
@@ -107,6 +110,32 @@ function TimelineComment({
     );
 }
 
+/**
+ * The pull request behind a change GitHub made, linked to it.
+ */
+function ActivitySourceLink({ activity }: { activity: IssueActivity }) {
+    const source = activitySource(activity);
+
+    if (source === null) {
+        return null;
+    }
+
+    return (
+        <>
+            {' '}
+            for{' '}
+            <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+            >
+                #{source.pull_request}
+            </a>
+        </>
+    );
+}
+
 function RowIndicator({ row }: { row: IssueTimelineRow }) {
     if (row.kind === 'comment') {
         return (
@@ -176,10 +205,13 @@ export function IssueActivityTimeline({
                                 ) : row.kind === 'activity' ? (
                                     <p className="text-sm">
                                         <span className="font-medium text-foreground">
-                                            {row.activity.actor?.name ??
-                                                'Someone'}
+                                            {activityActorName(row.activity)}
                                         </span>{' '}
-                                        {describeActivity(row.activity)} ·{' '}
+                                        {describeActivity(row.activity)}
+                                        <ActivitySourceLink
+                                            activity={row.activity}
+                                        />{' '}
+                                        ·{' '}
                                         <RelativeTime
                                             value={row.activity.createdAt}
                                         />
