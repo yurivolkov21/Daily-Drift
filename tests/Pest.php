@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\TokenAbility;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +50,15 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Create an API token for the user, on their current team unless another is
+ * given, and return the plain-text value a script would send.
+ *
+ * @param  array<int, TokenAbility>  $abilities
+ */
+function apiToken(User $user, array $abilities = [TokenAbility::Read, TokenAbility::Write], ?Team $team = null): string
+{
+    return $user->createTeamToken($team ?? $user->currentTeam, 'Claude Code', $abilities)->plainTextToken;
 }

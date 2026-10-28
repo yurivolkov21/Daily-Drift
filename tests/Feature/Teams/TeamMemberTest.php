@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TeamRole;
+use App\Enums\TokenAbility;
 use App\Models\Team;
 use App\Models\User;
 
@@ -126,4 +127,21 @@ test('removed member current team is set to personal team', function () {
         ->delete(route('teams.members.destroy', [$team, $member]));
 
     expect($member->fresh()->current_team_id)->toEqual($personalTeam->id);
+});
+
+test('removing a member revokes their api tokens for the team', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $token = $member->createTeamToken($team, 'Claude Code', [TokenAbility::Read]);
+
+    $this
+        ->actingAs($owner)
+        ->delete(route('teams.members.destroy', [$team, $member]));
+
+    $this->assertModelMissing($token->accessToken);
 });

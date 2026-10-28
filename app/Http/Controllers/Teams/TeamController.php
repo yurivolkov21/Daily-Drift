@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teams\DeleteTeamRequest;
 use App\Http\Requests\Teams\SaveTeamRequest;
 use App\Models\Membership;
+use App\Models\PersonalAccessToken;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -134,6 +135,8 @@ class TeamController extends Controller
             ->where('user_id', $user->id)
             ->delete();
 
+        $user->tokens()->whereBelongsTo($team)->delete();
+
         if ($fallbackTeam) {
             $user->switchTeam($fallbackTeam);
         }
@@ -160,6 +163,7 @@ class TeamController extends Controller
 
             $team->invitations()->delete();
             $team->memberships()->delete();
+            PersonalAccessToken::query()->whereBelongsTo($team)->delete();
             $team->delete();
         });
 
