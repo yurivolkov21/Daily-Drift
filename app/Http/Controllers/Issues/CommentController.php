@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Issues;
 
+use App\Actions\Issues\AddComment;
 use App\Actions\Issues\NotifyMentionedMembers;
 use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
@@ -16,17 +17,11 @@ class CommentController extends Controller
     /**
      * Add a comment to the given issue.
      */
-    public function store(SaveCommentRequest $request, Team $currentTeam, string $identifier, NotifyMentionedMembers $notifyMentionedMembers): RedirectResponse
+    public function store(SaveCommentRequest $request, Team $currentTeam, string $identifier, AddComment $addComment): RedirectResponse
     {
         $issue = $currentTeam->issues()->identifiedBy($identifier)->firstOrFail();
 
-        $comment = $issue->comments()->make($request->validated());
-        $comment->author()->associate($request->user());
-        $comment->save();
-
-        $notifyMentionedMembers->handle($comment, $request->user());
-
-        broadcast(WorkspaceChanged::forIssue($issue, 'comment', 'created'))->toOthers();
+        $addComment->handle($request->user(), $issue, $request->safe()->string('body')->toString());
 
         return back();
     }

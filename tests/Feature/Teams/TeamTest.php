@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TeamRole;
+use App\Enums\TokenAbility;
 use App\Models\Team;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -239,6 +240,25 @@ test('members can leave non personal teams', function () {
     expect($member->fresh()->belongsToTeam($team))->toBeFalse();
 });
 
+test('leaving a team revokes the member\'s api tokens for that team only', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $teamToken = $member->createTeamToken($team, 'Claude Code', [TokenAbility::Read]);
+    $personalTeamToken = $member->createTeamToken($member->personalTeam(), 'Claude Code', [TokenAbility::Read]);
+
+    $this
+        ->actingAs($member)
+        ->delete(route('teams.leave', $team));
+
+    $this->assertModelMissing($teamToken->accessToken);
+    $this->assertModelExists($personalTeamToken->accessToken);
+});
+
 test('leaving current team switches to alphabetically first remaining team', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create(['name' => 'Mike']);
@@ -324,6 +344,27 @@ test('deleting team switches other affected users to their personal team', funct
     $response->assertRedirect();
 
     expect($member->fresh()->current_team_id)->toEqual($member->personalTeam()->id);
+});
+
+test('deleting a team revokes every api token for it', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+
+    $team = Team::factory()->create();
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $ownerToken = $owner->createTeamToken($team, 'Claude Code', [TokenAbility::Read]);
+    $memberToken = $member->createTeamToken($team, 'Claude Code', [TokenAbility::Read]);
+
+    $this
+        ->actingAs($owner)
+        ->delete(route('teams.destroy', $team), [
+            'name' => $team->name,
+        ]);
+
+    $this->assertModelMissing($ownerToken->accessToken);
+    $this->assertModelMissing($memberToken->accessToken);
 });
 
 test('personal teams cannot be deleted', function () {
