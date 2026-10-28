@@ -43,6 +43,25 @@ export type IssueSubtask = {
     completed: boolean;
 };
 
+export type PullRequestState = 'draft' | 'open' | 'merged' | 'closed';
+
+/**
+ * A pull request or commit on GitHub that names the issue. The external id
+ * is the pull request's number or the commit's SHA.
+ */
+export type IssueLink = {
+    id: string;
+    type: 'pull_request' | 'commit';
+    repository: string;
+    externalId: string;
+    title: string;
+    url: string;
+    state: PullRequestState | null;
+    author: string | null;
+    createdAt: string | null;
+    updatedAt: string | null;
+};
+
 /**
  * The issue opened in the board's quick view.
  */

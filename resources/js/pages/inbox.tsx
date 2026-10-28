@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { IssueActivityTimeline } from '@/components/issue-activity-timeline';
+import { IssueDevelopment } from '@/components/issue-development';
 import { IssuePriorityIcon } from '@/components/issue-priority-icon';
 import { IssueStatusIcon } from '@/components/issue-status-icon';
 import { IssueSubtasks } from '@/components/issue-subtasks';
@@ -51,6 +52,7 @@ import type {
     Issue,
     IssueActivity,
     IssueComment,
+    IssueLink,
     IssueSubtask,
 } from '@/types';
 
@@ -59,6 +61,7 @@ type Preview = {
     comments: IssueComment[];
     activities: IssueActivity[];
     subtasks: IssueSubtask[];
+    links: IssueLink[];
 };
 
 type Props = {
@@ -537,6 +540,12 @@ function InboxPreview({
                             issueIdentifier={issue.identifier}
                             subtasks={preview.subtasks}
                             location="preview"
+                        />
+
+                        <IssueDevelopment
+                            identifier={issue.identifier}
+                            title={issue.title}
+                            links={preview.links}
                         />
 
                         <section

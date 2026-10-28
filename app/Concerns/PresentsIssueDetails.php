@@ -4,6 +4,7 @@ namespace App\Concerns;
 
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\IssueActivityResource;
+use App\Http\Resources\IssueLinkResource;
 use App\Http\Resources\IssueResource;
 use App\Http\Resources\SubtaskResource;
 use App\Models\Issue;
@@ -13,9 +14,9 @@ trait PresentsIssueDetails
 {
     /**
      * Get the issue with everything its page shows: its properties, comments,
-     * history and sub-tasks.
+     * history, sub-tasks, and the pull requests and commits that name it.
      *
-     * @return array{issue: array<string, mixed>, comments: array<int|string, mixed>, activities: array<int|string, mixed>, subtasks: array<int, array<string, mixed>>}
+     * @return array{issue: array<string, mixed>, comments: array<int|string, mixed>, activities: array<int|string, mixed>, subtasks: array<int, array<string, mixed>>, links: array<int|string, mixed>}
      */
     protected function issueDetails(Issue $issue): array
     {
@@ -25,6 +26,7 @@ trait PresentsIssueDetails
             'labels',
             'comments' => fn (HasMany $query) => $query->with('author')->oldest()->orderBy('id'),
             'activities' => fn (HasMany $query) => $query->with('actor')->oldest()->orderBy('id'),
+            'links' => fn (HasMany $query) => $query->latest('updated_at')->orderByDesc('id'),
         ]);
 
         return [
@@ -32,6 +34,7 @@ trait PresentsIssueDetails
             'comments' => CommentResource::collection($issue->comments)->resolve(),
             'activities' => IssueActivityResource::collection($issue->activities)->resolve(),
             'subtasks' => $this->subtasksOf($issue),
+            'links' => IssueLinkResource::collection($issue->links)->resolve(),
         ];
     }
 
