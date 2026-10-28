@@ -17,6 +17,7 @@ declare module '@inertiajs/core' {
             currentTeam: Team | null;
             teams: Team[];
             workspace: Workspace | null;
+            unreadNotificationsCount: number;
             [key: string]: unknown;
         };
     }

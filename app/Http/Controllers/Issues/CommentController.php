@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Issues;
 
+use App\Actions\Issues\NotifyMentionedMembers;
 use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\SaveCommentRequest;
@@ -15,13 +16,15 @@ class CommentController extends Controller
     /**
      * Add a comment to the given issue.
      */
-    public function store(SaveCommentRequest $request, Team $currentTeam, string $identifier): RedirectResponse
+    public function store(SaveCommentRequest $request, Team $currentTeam, string $identifier, NotifyMentionedMembers $notifyMentionedMembers): RedirectResponse
     {
         $issue = $currentTeam->issues()->identifiedBy($identifier)->firstOrFail();
 
         $comment = $issue->comments()->make($request->validated());
         $comment->author()->associate($request->user());
         $comment->save();
+
+        $notifyMentionedMembers->handle($comment, $request->user());
 
         broadcast(WorkspaceChanged::forIssue($issue, 'comment', 'created'))->toOthers();
 
@@ -31,13 +34,17 @@ class CommentController extends Controller
     /**
      * Edit the given comment.
      */
-    public function update(SaveCommentRequest $request, Team $currentTeam, string $identifier, string $commentId): RedirectResponse
+    public function update(SaveCommentRequest $request, Team $currentTeam, string $identifier, string $commentId, NotifyMentionedMembers $notifyMentionedMembers): RedirectResponse
     {
         $comment = $this->findComment($currentTeam, $identifier, $commentId);
 
         Gate::authorize('update', $comment);
 
+        $previouslyMentioned = $comment->mentionedUserIds();
+
         $comment->update($request->validated());
+
+        $notifyMentionedMembers->handle($comment, $request->user(), $previouslyMentioned);
 
         broadcast(WorkspaceChanged::forIssue($comment->issue, 'comment', 'updated'))->toOthers();
 

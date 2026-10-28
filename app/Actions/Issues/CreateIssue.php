@@ -7,6 +7,7 @@ use App\Events\WorkspaceChanged;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\User;
+use App\Notifications\IssueAssigned;
 use Illuminate\Support\Facades\DB;
 
 class CreateIssue
@@ -29,6 +30,10 @@ class CreateIssue
             $issue->labels()->sync($labelIds);
 
             $issue->recordActivity(IssueActivityType::Created, $creator);
+
+            if ($issue->assignee !== null && $issue->assignee->isNot($creator)) {
+                $issue->assignee->notify(new IssueAssigned($issue, $creator));
+            }
 
             broadcast(WorkspaceChanged::forIssue($issue, 'issue', 'created'))->toOthers();
 

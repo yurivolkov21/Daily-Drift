@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
             'workspace' => fn () => $user?->currentTeam ? $this->workspace($user->currentTeam) : null,
+            'unreadNotificationsCount' => fn () => $user?->unreadNotifications()->count() ?? 0,
         ];
     }
 
