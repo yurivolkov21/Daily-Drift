@@ -1,0 +1,61 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: [tests]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Ships commits whose tests passed on main, once deploy/setup-server.sh has
+    # prepared the server and its variables and secret are set on the repository.
+    if: >-
+      vars.DEPLOY_HOST != '' && (
+        github.event_name == 'workflow_dispatch' || (
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push'
+        )
+      )
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - name: Build release
+        uses: ./.github/actions/build-release
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          reverb-app-key: ${{ vars.VITE_REVERB_APP_KEY }}
+
+      - name: Upload and switch to the release
+        env:
+          COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          (umask 077 && printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy)
+
+          release="$(date -u +%Y%m%d%H%M%S)-${COMMIT::7}"
+          scp -i ~/.ssh/deploy -o BatchMode=yes "$RUNNER_TEMP/release.tar.gz" "deploy@$DEPLOY_HOST:/tmp/$release.tar.gz"
+          ssh -i ~/.ssh/deploy -o BatchMode=yes "deploy@$DEPLOY_HOST" "bash -s -- /tmp/$release.tar.gz $release" < deploy/release.sh
+
+      - name: Check the site answers
+        env:
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+        run: curl -fsS --retry 5 --retry-delay 3 --retry-all-errors -o /dev/null "https://$DEPLOY_HOST/up"
