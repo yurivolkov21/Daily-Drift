@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Issues;
 use App\Actions\Issues\CreateIssue;
 use App\Actions\Issues\UpdateIssue;
 use App\Concerns\PresentsIssueDetails;
+use App\Enums\DueFilter;
 use App\Events\WorkspaceChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Issues\StoreIssueRequest;
@@ -13,6 +14,7 @@ use App\Http\Resources\IssueResource;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Team;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
@@ -26,6 +28,9 @@ class IssueController extends Controller
 
     /**
      * Display the team's issues as a list or a board.
+     *
+     * The due and done filters depend on the reader's day, so they come with
+     * a day to spare and the browser applies them again with its own day.
      */
     public function index(Request $request, Team $currentTeam): Response
     {
@@ -34,6 +39,10 @@ class IssueController extends Controller
             : null;
 
         $assignedToMe = $request->query('assignee') === 'me';
+
+        $due = DueFilter::tryFrom($request->string('due')->toString());
+
+        $doneThisWeek = $request->query('done') === 'week';
 
         $view = $request->query('view') === 'board' ? 'board' : 'list';
 
@@ -49,6 +58,8 @@ class IssueController extends Controller
             ])
             ->when($project, fn (Builder $query, Project $project) => $query->whereBelongsTo($project))
             ->when($assignedToMe, fn (Builder $query) => $query->whereBelongsTo($request->user(), 'assignee'))
+            ->when($due, fn (Builder $query, DueFilter $due) => $query->due($due))
+            ->when($doneThisWeek, fn (Builder $query) => $query->doneSince($this->thisWeekSince())->with('completion'))
             ->orderByDesc('issues.priority')
             ->orderByDesc('issues.created_at')
             ->get();
@@ -58,12 +69,23 @@ class IssueController extends Controller
             'filters' => [
                 'project' => $project?->key,
                 'assignee' => $assignedToMe ? 'me' : null,
+                'due' => $due?->value,
+                'done' => $doneThisWeek ? 'week' : null,
             ],
             'view' => $view,
             'peek' => fn () => $request->filled('peek')
                 ? $this->peek($currentTeam, $request->string('peek')->toString())
                 : null,
         ]);
+    }
+
+    /**
+     * Get the earliest moment a reader may still count as this week: the
+     * start of the week that held yesterday, less a day for their time zone.
+     */
+    protected function thisWeekSince(): CarbonInterface
+    {
+        return today()->subDay()->startOfWeek(CarbonInterface::MONDAY)->subDay();
     }
 
     /**

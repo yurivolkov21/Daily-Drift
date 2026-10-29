@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\DueFilter;
 use App\Enums\IssueActivityType;
 use App\Enums\IssuePriority;
 use App\Enums\IssueStatus;
+use Carbon\CarbonInterface;
 use Database\Factories\IssueFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -17,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -41,6 +44,7 @@ use Illuminate\Support\Str;
  * @property-read Collection<int, Label> $labels
  * @property-read Collection<int, Comment> $comments
  * @property-read Collection<int, IssueActivity> $activities
+ * @property-read IssueActivity|null $completion
  * @property-read Collection<int, Subtask> $subtasks
  * @property-read Collection<int, IssueLink> $links
  */
@@ -131,6 +135,21 @@ class Issue extends Model
     }
 
     /**
+     * Get the latest move of the issue to Done.
+     *
+     * @return HasOne<IssueActivity, $this>
+     */
+    public function completion(): HasOne
+    {
+        return $this->hasOne(IssueActivity::class)->ofMany(
+            ['created_at' => 'max', 'id' => 'max'],
+            fn (Builder $query) => $query
+                ->where('type', IssueActivityType::StatusChanged)
+                ->where('properties->to', IssueStatus::Done->value),
+        );
+    }
+
+    /**
      * Get the sub-tasks that break the issue down.
      *
      * @return HasMany<Subtask, $this>
@@ -169,6 +188,19 @@ class Issue extends Model
     }
 
     /**
+     * Get when the issue was done: its latest move to Done, or its creation
+     * if it was created done. Null while the issue is not done.
+     */
+    public function completedAt(): ?CarbonInterface
+    {
+        if ($this->status !== IssueStatus::Done) {
+            return null;
+        }
+
+        return $this->completion->created_at ?? $this->created_at;
+    }
+
+    /**
      * Scope the query to the issue with the given identifier, such as "DD-123".
      *
      * @param  Builder<Issue>  $query
@@ -179,6 +211,62 @@ class Issue extends Model
         $query
             ->where($query->qualifyColumn('number'), (int) Str::afterLast($identifier, '-'))
             ->whereRelation('project', 'key', Str::upper(Str::beforeLast($identifier, '-')));
+    }
+
+    /**
+     * Scope the query to the issues that are neither done nor canceled.
+     *
+     * @param  Builder<Issue>  $query
+     */
+    #[Scope]
+    protected function open(Builder $query): void
+    {
+        $query->whereNotIn($query->qualifyColumn('status'), IssueStatus::closed());
+    }
+
+    /**
+     * Scope the query to the issues due as the filter says. Whether a date has
+     * passed depends on the reader's day, so the open issues come with a day
+     * to spare at each end and the browser settles it with the same rules as
+     * the dashboard. Undated issues are undated whatever their status.
+     *
+     * @param  Builder<Issue>  $query
+     */
+    #[Scope]
+    protected function due(Builder $query, DueFilter $filter): void
+    {
+        $column = $query->qualifyColumn('due_date');
+        $today = today();
+
+        match ($filter) {
+            DueFilter::None => $query->whereNull($column),
+            DueFilter::Overdue => $query->open()
+                ->whereDate($column, '<=', $today),
+            DueFilter::Today => $query->open()
+                ->whereDate($column, '>=', $today->copy()->subDay())
+                ->whereDate($column, '<=', $today->copy()->addDay()),
+            DueFilter::Week => $query->open()
+                ->whereDate($column, '>=', $today->copy()->subDay())
+                ->whereDate($column, '<=', $today->copy()->addDay()->endOfWeek(CarbonInterface::SUNDAY)),
+        };
+    }
+
+    /**
+     * Scope the query to the issues done since the given time: moved to Done
+     * since then, or created done since then and never moved.
+     *
+     * @param  Builder<Issue>  $query
+     */
+    #[Scope]
+    protected function doneSince(Builder $query, CarbonInterface $since): void
+    {
+        $query
+            ->where($query->qualifyColumn('status'), IssueStatus::Done)
+            ->where(fn (Builder $query) => $query
+                ->whereHas('completion', fn (Builder $query) => $query->where('created_at', '>=', $since))
+                ->orWhere(fn (Builder $query) => $query
+                    ->whereDoesntHave('completion')
+                    ->where($query->qualifyColumn('created_at'), '>=', $since)));
     }
 
     /**

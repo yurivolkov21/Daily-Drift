@@ -37,11 +37,10 @@ import {
     countByAssignee,
     dueWhen,
     greeting,
-    isDueThisWeek,
     sortByFocus,
     weekThroughput,
 } from '@/lib/dashboard';
-import { isOverdue } from '@/lib/issues';
+import { isDueThisWeek, isOverdue } from '@/lib/issues';
 import { isProjectClosed, projectStatusOrder } from '@/lib/projects';
 import { dashboard, inbox } from '@/routes';
 import { index as apiTokensIndex } from '@/routes/api-tokens';
@@ -102,9 +101,10 @@ export default function Dashboard({
     });
     const [agendaScope, setAgendaScope] = useState<'mine' | 'team'>('mine');
 
-    const myIssuesUrl = issuesIndex.url(teamSlug, {
-        query: { assignee: 'me' },
-    });
+    const issuesUrl = (query: Record<string, string>) =>
+        issuesIndex.url(teamSlug, { query });
+    const myIssuesUrl = issuesUrl({ assignee: 'me' });
+    const myDueUrl = issuesUrl({ assignee: 'me', due: 'week' });
     const focus = sortByFocus(assignedIssues);
     const overdue = assignedIssues.filter(isOverdue);
     const dueThisWeek = assignedIssues
@@ -148,7 +148,7 @@ export default function Dashboard({
         greetingParts.push({
             id: 'overdue',
             text: `${overdue.length} overdue ${overdue.length === 1 ? 'issue' : 'issues'}`,
-            href: myIssuesUrl,
+            href: issuesUrl({ assignee: 'me', due: 'overdue' }),
             danger: true,
         });
     }
@@ -157,7 +157,7 @@ export default function Dashboard({
         greetingParts.push({
             id: 'due',
             text: `${dueThisWeek.length} due this week`,
-            href: myIssuesUrl,
+            href: myDueUrl,
         });
     }
 
@@ -184,6 +184,7 @@ export default function Dashboard({
             caption: nextDue?.dueDate
                 ? `Next: ${nextDue.identifier} ${dueWhen(nextDue.dueDate)}`
                 : 'Nothing due',
+            href: myDueUrl,
         },
         {
             id: 'overdue',
@@ -194,12 +195,14 @@ export default function Dashboard({
                     ? countByAssignee(teamOverdue, user.id)
                     : 'All on time',
             danger: true,
+            href: issuesUrl({ due: 'overdue' }),
         },
         {
             id: 'done',
             label: 'Team done this week',
             value: throughput.thisWeek,
             caption: `${throughput.lastWeek} last week`,
+            href: issuesUrl({ done: 'week' }),
             spark: {
                 values: throughput.days,
                 labels: throughput.labels,

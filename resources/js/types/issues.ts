@@ -33,6 +33,10 @@ export type Issue = {
     subtasksCount?: number;
     completedSubtasksCount?: number;
     subtasks?: IssueSubtask[];
+    /**
+     * When the issue was done; sent with the done filter only.
+     */
+    completedAt?: string | null;
     createdAt: string;
     updatedAt: string;
 };
@@ -129,9 +133,15 @@ export type IssueTimelineRow =
 
 export type IssueActivityFilter = 'all' | 'comments' | 'history';
 
+export type DueFilter = 'overdue' | 'today' | 'week' | 'none';
+
+export type DoneFilter = 'week';
+
 export type IssueFilters = {
     project: string | null;
     assignee: 'me' | null;
+    due: DueFilter | null;
+    done: DoneFilter | null;
 };
 
 export type Project = {

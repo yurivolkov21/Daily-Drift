@@ -149,6 +149,18 @@ function groupsFor(
 }
 
 /**
+ * Whether the group is folded away. A lone group never is, or a filter that
+ * leaves only Done would show an empty list.
+ */
+export function isGroupCollapsed(
+    group: IssueListGroup,
+    groups: IssueListGroup[],
+    display: Pick<ListDisplay, 'collapsedGroups'>,
+): boolean {
+    return groups.length > 1 && display.collapsedGroups.includes(group.key);
+}
+
+/**
  * Sort the issues and split them into the list's groups, leaving out empty
  * groups.
  */
