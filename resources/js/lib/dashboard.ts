@@ -1,7 +1,6 @@
 import {
     addDays,
     differenceInCalendarDays,
-    endOfWeek,
     format,
     isSameDay,
     parseISO,
@@ -12,10 +11,11 @@ import {
 import { activityActorName, labelList } from '@/lib/issue-activity';
 import {
     formatDueDate,
-    isClosedStatus,
+    isDueThisWeek,
     isOverdue,
     priorityLabel,
     statusLabel,
+    weekOptions,
 } from '@/lib/issues';
 import type {
     DashboardActivityEntry,
@@ -25,31 +25,10 @@ import type {
 } from '@/types';
 
 /**
- * Weeks run from Monday to Sunday.
- */
-const weekOptions = { weekStartsOn: 1 } as const;
-
-/**
  * Days from today to the due date: 0 today, negative once it has passed.
  */
 export function daysUntilDue(dueDate: string): number {
     return differenceInCalendarDays(parseISO(dueDate), startOfToday());
-}
-
-/**
- * Whether the open issue is due between today and Sunday.
- */
-export function isDueThisWeek(
-    issue: Pick<Issue, 'dueDate' | 'status'>,
-): boolean {
-    if (issue.dueDate === null || isClosedStatus(issue.status)) {
-        return false;
-    }
-
-    const dueDate = parseISO(issue.dueDate);
-    const today = startOfToday();
-
-    return dueDate >= today && dueDate <= endOfWeek(today, weekOptions);
 }
 
 /**

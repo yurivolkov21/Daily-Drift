@@ -27,6 +27,7 @@ import { useListDisplay } from '@/hooks/use-list-display';
 import type { ListOrdering, ListProperty } from '@/hooks/use-list-display';
 import { useUpdateIssue } from '@/hooks/use-update-issue';
 import { toggled } from '@/lib/display-store';
+import { isGroupCollapsed } from '@/lib/issue-list';
 import type { IssueListGroup } from '@/lib/issue-list';
 import {
     formatAge,
@@ -178,7 +179,7 @@ export function IssueList({
         2;
     const titleColumn = columns.findIndex(({ key }) => key === 'title') + 1;
     const expandable = groups
-        .filter((group) => !display.collapsedGroups.includes(group.key))
+        .filter((group) => !isGroupCollapsed(group, groups, display))
         .flatMap((group) => group.issues)
         .filter((issue) => (issue.subtasksCount ?? 0) > 0);
     const allExpanded =
@@ -478,7 +479,7 @@ export function IssueList({
             </div>
 
             {groups.map((group) => {
-                const isCollapsed = display.collapsedGroups.includes(group.key);
+                const isCollapsed = isGroupCollapsed(group, groups, display);
 
                 return (
                     <div key={group.key} role="rowgroup">
@@ -495,6 +496,7 @@ export function IssueList({
                                     <button
                                         type="button"
                                         aria-expanded={!isCollapsed}
+                                        disabled={groups.length === 1}
                                         onClick={() =>
                                             updateDisplay({
                                                 collapsedGroups: toggled(

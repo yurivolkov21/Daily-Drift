@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Issues\UpdateIssue;
 use App\Enums\IssuePriority;
 use App\Enums\IssueStatus;
 use App\Enums\PullRequestState;
@@ -10,6 +11,8 @@ use App\Models\Label;
 use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('guests are redirected to the login page', function () {
@@ -72,6 +75,127 @@ test('issues can be filtered to those assigned to the current user', function ()
         ->has('issues', 1)
         ->where('issues.0.id', $assigned->id)
         ->where('filters.assignee', 'me'),
+    );
+});
+
+test('issues can be filtered by due date, with a day to spare for the reader\'s time zone', function (string $now, string $due, array $expected) {
+    $this->travelTo(Carbon::parse($now));
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user->currentTeam)->create();
+    $issues = collect([
+        'last week' => ['2026-10-20', IssueStatus::Todo],
+        'yesterday' => ['2026-10-28', IssueStatus::Todo],
+        'today' => ['2026-10-29', IssueStatus::InProgress],
+        'tomorrow' => ['2026-10-30', IssueStatus::Todo],
+        'sunday' => ['2026-11-01', IssueStatus::Todo],
+        'monday' => ['2026-11-02', IssueStatus::Todo],
+        'done yesterday' => ['2026-10-28', IssueStatus::Done],
+        'undated' => [null, IssueStatus::Todo],
+        'canceled undated' => [null, IssueStatus::Canceled],
+    ])->map(fn (array $issue) => Issue::factory()->for($project)->withStatus($issue[1])->create(['due_date' => $issue[0]]));
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $user->currentTeam, 'due' => $due]));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('filters.due', $due)
+        ->where('issues', fn (Collection $listed) => $listed->pluck('id')->sort()->values()->all()
+            === $issues->only($expected)->pluck('id')->sort()->values()->all()),
+    );
+})->with([
+    'overdue, on a Thursday' => ['2026-10-29 12:00:00', 'overdue', ['last week', 'yesterday', 'today']],
+    'due today, on a Thursday' => ['2026-10-29 12:00:00', 'today', ['yesterday', 'today', 'tomorrow']],
+    'due this week, on a Thursday' => ['2026-10-29 12:00:00', 'week', ['yesterday', 'today', 'tomorrow', 'sunday']],
+    'due this week, on a Sunday' => ['2026-11-01 12:00:00', 'week', ['sunday', 'monday']],
+    'no due date' => ['2026-10-29 12:00:00', 'none', ['undated', 'canceled undated']],
+]);
+
+test('the due date filter combines with the project and assignee filters', function () {
+    $this->travelTo(Carbon::parse('2026-10-29 12:00:00'));
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $project = Project::factory()->for($team)->create(['key' => 'DD']);
+    $mine = Issue::factory()->for($project)->for($user, 'assignee')->withStatus(IssueStatus::Todo)->create(['due_date' => '2026-10-20']);
+    Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->create(['due_date' => '2026-10-20']);
+    Issue::factory()->for(Project::factory()->for($team)->create(['key' => 'WEB']))->for($user, 'assignee')->withStatus(IssueStatus::Todo)->create(['due_date' => '2026-10-20']);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $team, 'project' => 'dd', 'assignee' => 'me', 'due' => 'overdue']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->has('issues', 1)
+        ->where('issues.0.id', $mine->id)
+        ->where('filters', ['project' => 'DD', 'assignee' => 'me', 'due' => 'overdue', 'done' => null]),
+    );
+});
+
+test('issues can be filtered to those done this week, telling when each was done', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user->currentTeam)->create();
+    $updateIssue = app(UpdateIssue::class);
+    $done = fn (Issue $issue) => $updateIssue->handle($user, $issue, ['status' => IssueStatus::Done]);
+
+    $this->travelTo(Carbon::parse('2026-10-01 09:00:00'));
+    $renamedToday = Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->create();
+    $done($renamedToday);
+    $doneTwice = Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->create();
+    $done($doneTwice);
+    Issue::factory()->for($project)->withStatus(IssueStatus::Done)->create();
+
+    $this->travelTo(Carbon::parse('2026-10-24 15:00:00'));
+    $done(Issue::factory()->for($project)->withStatus(IssueStatus::InReview)->create());
+
+    $this->travelTo(Carbon::parse('2026-10-25 08:00:00'));
+    $doneSunday = Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->create();
+    $done($doneSunday);
+
+    $this->travelTo(Carbon::parse('2026-10-27 11:00:00'));
+    $doneTuesday = Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->create();
+    $done($doneTuesday);
+    $reopened = Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->create();
+    $done($reopened);
+    $updateIssue->handle($user, $reopened, ['status' => IssueStatus::Todo]);
+
+    $this->travelTo(Carbon::parse('2026-10-28 08:30:00'));
+    $createdDone = Issue::factory()->for($project)->withStatus(IssueStatus::Done)->create();
+    $updateIssue->handle($user, $doneTwice, ['status' => IssueStatus::InProgress]);
+    $done($doneTwice);
+    $done(Issue::factory()->withStatus(IssueStatus::Todo)->create());
+
+    $this->travelTo(Carbon::parse('2026-10-29 10:00:00'));
+    $updateIssue->handle($user, $renamedToday, ['title' => 'Renamed after it was done']);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $user->currentTeam, 'done' => 'week']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('filters.done', 'week')
+        ->where('issues', fn (Collection $issues) => $issues->pluck('completedAt', 'id')->sortKeys()->all() === collect([
+            $doneSunday->id => '2026-10-25T08:00:00.000000Z',
+            $doneTuesday->id => '2026-10-27T11:00:00.000000Z',
+            $createdDone->id => '2026-10-28T08:30:00.000000Z',
+            $doneTwice->id => '2026-10-28T08:30:00.000000Z',
+        ])->sortKeys()->all()),
+    );
+});
+
+test('unknown due and done filters are ignored', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user->currentTeam)->create();
+    Issue::factory()->for($project)->withStatus(IssueStatus::Done)->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $user->currentTeam, 'due' => 'someday', 'done' => 'today']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->has('issues', 1)
+        ->missing('issues.0.completedAt')
+        ->where('filters.due', null)
+        ->where('filters.done', null),
     );
 });
 

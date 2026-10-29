@@ -4,6 +4,8 @@ import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { IssueBoard } from '@/components/issue-board';
 import { IssueBoardDisplayMenu } from '@/components/issue-board-display-menu';
+import { IssueFilterChips } from '@/components/issue-filter-chips';
+import { IssueFilterMenu } from '@/components/issue-filter-menu';
 import { IssueList } from '@/components/issue-list';
 import { IssueListDisplayMenu } from '@/components/issue-list-display-menu';
 import { IssuePeek } from '@/components/issue-peek';
@@ -26,7 +28,12 @@ import {
 import { useHotkeys } from '@/hooks/use-hotkeys';
 import { useIssueTracker } from '@/hooks/use-issue-tracker';
 import { useListDisplay } from '@/hooks/use-list-display';
-import { arrangeIssueList } from '@/lib/issue-list';
+import {
+    activeDoneFilter,
+    activeDueFilter,
+    applyDateFilters,
+} from '@/lib/issue-filters';
+import { arrangeIssueList, isGroupCollapsed } from '@/lib/issue-list';
 import { cn } from '@/lib/utils';
 import { index, show } from '@/routes/issues';
 import { index as projectsIndex } from '@/routes/projects';
@@ -49,6 +56,13 @@ const viewOptions: { value: IssueView; label: string; icon: LucideIcon }[] = [
     { value: 'board', label: 'Board view', icon: SquareKanban },
 ];
 
+/**
+ * A thin rule parting the toolbar's groups.
+ */
+function ToolbarRule() {
+    return <div aria-hidden="true" className="h-4 w-px bg-border" />;
+}
+
 export default function IssuesIndex({ issues, filters, view, peek }: Props) {
     const page = usePage();
     const { openCreateIssue } = useIssueTracker();
@@ -56,6 +70,7 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
     const projects = page.props.workspace?.projects ?? [];
     const project = projects.find(({ key }) => key === filters.project);
     const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
+    const [filterOpen, setFilterOpen] = useState(false);
 
     const teamSlug = team?.slug ?? '';
 
@@ -71,6 +86,8 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
             query: {
                 project: query.project,
                 assignee: query.assignee,
+                due: query.due,
+                done: query.done,
                 view: query.view === 'board' ? 'board' : null,
                 peek: query.peek ?? null,
             },
@@ -92,10 +109,18 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
             },
         );
 
+    // The server sends a day to spare around each date filter; the reader's
+    // own day decides.
+    const shownIssues = applyDateFilters(issues, filters);
+    const dateFilters = [
+        activeDueFilter(filters),
+        activeDoneFilter(filters),
+    ].filter((option) => option !== null);
+
     const [listDisplay] = useListDisplay();
-    const listGroups = arrangeIssueList(issues, listDisplay, projects);
+    const listGroups = arrangeIssueList(shownIssues, listDisplay, projects);
     const listOrder = listGroups.flatMap((group) =>
-        listDisplay.collapsedGroups.includes(group.key) ? [] : group.issues,
+        isGroupCollapsed(group, listGroups, listDisplay) ? [] : group.issues,
     );
 
     const moveSelection = (offset: number) => {
@@ -141,19 +166,39 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     { preserveScroll: true },
                 ),
         },
+        { keys: 'f', handler: () => setFilterOpen(true) },
     ]);
 
     const title = project?.name ?? 'Issues';
+
+    const empty =
+        dateFilters.length > 1
+            ? {
+                  title: 'No issues match these filters',
+                  description: 'Drop one of the filters to see more.',
+              }
+            : (dateFilters[0]?.empty ?? {
+                  title: 'No issues here',
+                  description: 'Press C anywhere to create an issue.',
+              });
 
     return (
         <>
             <Head title={title} />
 
             <div className="flex min-h-0 flex-1 flex-col">
+                {/*
+                 * Four groups, left to right: the scope, the filters, how the
+                 * issues are shown, and the way to add one.
+                 */}
                 <div className="flex flex-wrap items-center gap-2 border-b px-4 py-2">
                     <h1 className="mr-2 text-sm font-semibold">{title}</h1>
 
-                    <div className="flex items-center gap-1">
+                    <div
+                        role="group"
+                        aria-label="Scope"
+                        className="flex border"
+                    >
                         <Button
                             size="xs"
                             variant={
@@ -180,69 +225,94 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                         </Button>
                     </div>
 
-                    <SelectMenu
-                        size="sm"
-                        label="Project"
-                        data-test="project-filter"
-                        icon={<FolderKanban />}
-                        options={[
-                            { value: '', label: 'All projects' },
-                            ...projects.map((candidate) => ({
-                                value: candidate.key,
-                                label: candidate.name,
-                                icon: <ProjectGlyph project={candidate} />,
-                            })),
-                        ]}
-                        value={project?.key ?? ''}
-                        onChange={(key) =>
-                            router.visit(urlFor({ project: key || null }))
-                        }
-                    />
+                    <ToolbarRule />
 
-                    <div className="ml-auto flex items-center gap-1">
-                        {view === 'board' ? (
-                            <IssueBoardDisplayMenu />
-                        ) : (
-                            <IssueListDisplayMenu />
-                        )}
-                        <div className="flex border">
-                            {viewOptions.map(
-                                ({ value, label, icon: ViewIcon }) => (
-                                    <Tooltip key={value}>
-                                        <TooltipTrigger
-                                            render={
-                                                <Button
-                                                    size="icon-xs"
-                                                    variant={
-                                                        view === value
-                                                            ? 'secondary'
-                                                            : 'ghost'
-                                                    }
-                                                    aria-label={label}
-                                                    nativeButton={false}
-                                                    render={
-                                                        <Link
-                                                            href={urlFor({
-                                                                view: value,
-                                                            })}
-                                                            preserveScroll
-                                                        />
-                                                    }
-                                                />
-                                            }
-                                        >
-                                            <ViewIcon />
-                                        </TooltipTrigger>
-                                        <TooltipContent side="bottom">
-                                            {label}
-                                            {view !== value ? (
-                                                <Kbd>V</Kbd>
-                                            ) : null}
-                                        </TooltipContent>
-                                    </Tooltip>
-                                ),
+                    <div
+                        role="group"
+                        aria-label="Filters"
+                        className="flex items-center gap-1"
+                    >
+                        <SelectMenu
+                            size="sm"
+                            label="Project"
+                            data-test="project-filter"
+                            icon={<FolderKanban />}
+                            options={[
+                                { value: '', label: 'All projects' },
+                                ...projects.map((candidate) => ({
+                                    value: candidate.key,
+                                    label: candidate.name,
+                                    icon: <ProjectGlyph project={candidate} />,
+                                })),
+                            ]}
+                            value={project?.key ?? ''}
+                            onChange={(key) =>
+                                router.visit(urlFor({ project: key || null }))
+                            }
+                        />
+                        <IssueFilterMenu
+                            filters={filters}
+                            open={filterOpen}
+                            onOpenChange={setFilterOpen}
+                            onChange={(changes) =>
+                                router.visit(urlFor(changes))
+                            }
+                        />
+                    </div>
+
+                    <div className="ml-auto flex items-center gap-2">
+                        <div
+                            role="group"
+                            aria-label="View"
+                            className="flex items-center gap-1"
+                        >
+                            {view === 'board' ? (
+                                <IssueBoardDisplayMenu />
+                            ) : (
+                                <IssueListDisplayMenu />
                             )}
+                            <div className="flex border">
+                                {viewOptions.map(
+                                    ({ value, label, icon: ViewIcon }) => (
+                                        <Tooltip key={value}>
+                                            <TooltipTrigger
+                                                render={
+                                                    <Button
+                                                        size="icon-xs"
+                                                        variant={
+                                                            view === value
+                                                                ? 'secondary'
+                                                                : 'ghost'
+                                                        }
+                                                        aria-label={label}
+                                                        nativeButton={false}
+                                                        render={
+                                                            <Link
+                                                                href={urlFor({
+                                                                    view: value,
+                                                                })}
+                                                                preserveScroll
+                                                            />
+                                                        }
+                                                    />
+                                                }
+                                            >
+                                                <ViewIcon />
+                                            </TooltipTrigger>
+                                            <TooltipContent side="bottom">
+                                                {label}
+                                                {view !== value ? (
+                                                    <Kbd>V</Kbd>
+                                                ) : null}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    ),
+                                )}
+                            </div>
                         </div>
+
+                        <ToolbarRule />
+
                         <Button
                             size="xs"
                             data-test="new-issue-button"
@@ -263,6 +333,8 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     </div>
                 </div>
 
+                <IssueFilterChips filters={filters} hrefFor={urlFor} />
+
                 {projects.length === 0 ? (
                     <Empty>
                         <EmptyHeader>
@@ -281,23 +353,44 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                             </Button>
                         </EmptyContent>
                     </Empty>
-                ) : issues.length === 0 && view === 'list' ? (
+                ) : shownIssues.length === 0 && view === 'list' ? (
                     <Empty>
                         <EmptyHeader>
-                            <EmptyTitle>No issues here</EmptyTitle>
+                            <EmptyTitle>{empty.title}</EmptyTitle>
                             <EmptyDescription>
-                                Press C anywhere to create an issue.
+                                {empty.description}
                             </EmptyDescription>
                         </EmptyHeader>
                         <EmptyContent>
-                            <Button
-                                onClick={() =>
-                                    openCreateIssue({ projectId: project?.id })
-                                }
-                            >
-                                <Plus />
-                                New issue
-                            </Button>
+                            {dateFilters.length > 0 ? (
+                                <Button
+                                    variant="outline"
+                                    nativeButton={false}
+                                    render={
+                                        <Link
+                                            href={urlFor({
+                                                due: null,
+                                                done: null,
+                                            })}
+                                        />
+                                    }
+                                >
+                                    {dateFilters.length > 1
+                                        ? 'Clear filters'
+                                        : 'Clear filter'}
+                                </Button>
+                            ) : (
+                                <Button
+                                    onClick={() =>
+                                        openCreateIssue({
+                                            projectId: project?.id,
+                                        })
+                                    }
+                                >
+                                    <Plus />
+                                    New issue
+                                </Button>
+                            )}
                         </EmptyContent>
                     </Empty>
                 ) : (
@@ -309,7 +402,7 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     >
                         {view === 'board' ? (
                             <IssueBoard
-                                issues={issues}
+                                issues={shownIssues}
                                 projectId={project?.id}
                                 openIssueId={peek?.issue.id ?? null}
                                 onOpenIssue={(issue) =>

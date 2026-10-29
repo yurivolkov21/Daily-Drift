@@ -1,9 +1,12 @@
 import {
     differenceInMinutes,
+    endOfWeek,
     format,
     isBefore,
+    isToday,
     parseISO,
     startOfToday,
+    startOfWeek,
 } from 'date-fns';
 import type { Issue, IssuePriority, IssueStatus } from '@/types';
 
@@ -104,11 +107,53 @@ export function formatAge(timestamp: string): string {
     return format(date, 'MMM d');
 }
 
+/**
+ * Weeks run from Monday to Sunday.
+ */
+export const weekOptions = { weekStartsOn: 1 } as const;
+
 export function isOverdue(issue: Pick<Issue, 'dueDate' | 'status'>): boolean {
     return (
         issue.dueDate !== null &&
         !isClosedStatus(issue.status) &&
         isBefore(parseISO(issue.dueDate), startOfToday())
+    );
+}
+
+export function isDueToday(issue: Pick<Issue, 'dueDate' | 'status'>): boolean {
+    return (
+        issue.dueDate !== null &&
+        !isClosedStatus(issue.status) &&
+        isToday(parseISO(issue.dueDate))
+    );
+}
+
+/**
+ * Whether the open issue is due between today and Sunday.
+ */
+export function isDueThisWeek(
+    issue: Pick<Issue, 'dueDate' | 'status'>,
+): boolean {
+    if (issue.dueDate === null || isClosedStatus(issue.status)) {
+        return false;
+    }
+
+    const dueDate = parseISO(issue.dueDate);
+    const today = startOfToday();
+
+    return dueDate >= today && dueDate <= endOfWeek(today, weekOptions);
+}
+
+/**
+ * Whether the issue was done since Monday.
+ */
+export function isDoneThisWeek(
+    issue: Pick<Issue, 'completedAt' | 'status'>,
+): boolean {
+    return (
+        issue.status === 'done' &&
+        issue.completedAt != null &&
+        parseISO(issue.completedAt) >= startOfWeek(startOfToday(), weekOptions)
     );
 }
 

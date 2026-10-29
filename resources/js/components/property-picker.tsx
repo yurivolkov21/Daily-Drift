@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import {
     Command,
     CommandEmpty,
@@ -7,6 +7,7 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
+    CommandSeparator,
 } from '@/components/ui/command';
 import {
     Popover,
@@ -20,6 +21,11 @@ export type PropertyOption<TValue> = {
     label: string;
     icon?: ReactNode;
     display?: ReactNode;
+    /**
+     * The heading the option is listed under; options of one group stay
+     * together, in the order of their first appearance.
+     */
+    group?: string;
 };
 
 type Props<TValue> = {
@@ -70,6 +76,12 @@ export function PropertyPicker<TValue extends string | number | null>({
     const setOpen = onOpenChange ?? setUncontrolledOpen;
     const [wasOpen, setWasOpen] = useState(open);
     const listRef = useRef<HTMLDivElement>(null);
+    const groups = [...new Set(options.map((option) => option.group))].map(
+        (heading) => ({
+            heading,
+            options: options.filter((option) => option.group === heading),
+        }),
+    );
 
     // Clear the search when reopening rather than closing, so the list does
     // not jump while the popover fades out.
@@ -105,34 +117,39 @@ export function PropertyPicker<TValue extends string | number | null>({
                     ) : null}
                     <CommandList>
                         <CommandEmpty>No results.</CommandEmpty>
-                        <CommandGroup>
-                            {options.map((option) => (
-                                <CommandItem
-                                    key={String(option.value)}
-                                    value={String(option.value)}
-                                    keywords={[option.label]}
-                                    data-checked={selected.includes(
-                                        option.value,
-                                    )}
-                                    onSelect={() => {
-                                        onSelect(option.value);
+                        {groups.map((group, index) => (
+                            <Fragment key={group.heading ?? ''}>
+                                {index > 0 ? <CommandSeparator /> : null}
+                                <CommandGroup heading={group.heading}>
+                                    {group.options.map((option) => (
+                                        <CommandItem
+                                            key={String(option.value)}
+                                            value={String(option.value)}
+                                            keywords={[option.label]}
+                                            data-checked={selected.includes(
+                                                option.value,
+                                            )}
+                                            onSelect={() => {
+                                                onSelect(option.value);
 
-                                        if (!multiple) {
-                                            setOpen(false);
-                                        }
-                                    }}
-                                >
-                                    {option.display ?? (
-                                        <>
-                                            {option.icon}
-                                            <span className="truncate">
-                                                {option.label}
-                                            </span>
-                                        </>
-                                    )}
-                                </CommandItem>
-                            ))}
-                        </CommandGroup>
+                                                if (!multiple) {
+                                                    setOpen(false);
+                                                }
+                                            }}
+                                        >
+                                            {option.display ?? (
+                                                <>
+                                                    {option.icon}
+                                                    <span className="truncate">
+                                                        {option.label}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            </Fragment>
+                        ))}
                         {renderExtra?.(search, () => setSearch(''))}
                     </CommandList>
                 </Command>

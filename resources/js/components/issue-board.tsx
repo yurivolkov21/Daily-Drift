@@ -273,8 +273,14 @@ export function IssueBoard({
     const columns = preview ?? buildColumns(issues, display.lanes, lanes);
     const issuesById = new Map(issues.map((issue) => [issue.id, issue]));
     const columnWidth = display.density === 'detailed' ? '20rem' : '18rem';
+    // A column holding every issue in view stays open, or a filter that
+    // leaves only Done would show an empty board.
     const isCollapsed = (status: IssueStatus) =>
-        display.collapsedStatuses.includes(status);
+        display.collapsedStatuses.includes(status) &&
+        !(
+            issues.length > 0 &&
+            issues.every((issue) => issue.status === status)
+        );
 
     const toggleStatus = (status: IssueStatus) =>
         updateDisplay({

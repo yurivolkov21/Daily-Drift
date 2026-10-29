@@ -18,7 +18,6 @@ use App\Models\TeamInvitation;
 use App\Models\ToolEvent;
 use App\Models\User;
 use Carbon\CarbonInterface;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -179,11 +178,8 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get when each issue done since the start of last week was done.
-     *
-     * An issue counts from its latest move to Done, or from its creation if it
-     * was created done. Either one saves the issue, so only issues saved since
-     * then need a look.
+     * Get when each issue done since the start of last week was done: its
+     * latest move to Done, or its creation if it was created done.
      *
      * @return array<int, array{issueId: string, completedAt: string}>
      */
@@ -191,29 +187,17 @@ class DashboardController extends Controller
     {
         $since = now()->startOfWeek(CarbonInterface::MONDAY)->subWeek()->subDay();
 
-        $issues = $team->issues()
-            ->where('issues.status', IssueStatus::Done)
-            ->where('issues.updated_at', '>=', $since)
-            ->with(['activities' => fn (HasMany $query) => $query
-                ->where('type', IssueActivityType::StatusChanged)
-                ->where('properties->to', IssueStatus::Done->value)
-                ->latest()])
-            ->get();
-
-        $completions = [];
-
-        foreach ($issues as $issue) {
-            $completedAt = $issue->activities->first()->created_at ?? $issue->created_at;
-
-            if ($completedAt !== null && $completedAt->gte($since)) {
-                $completions[] = [
-                    'issueId' => $issue->id,
-                    'completedAt' => $completedAt->toISOString(),
-                ];
-            }
-        }
-
-        return collect($completions)->sortBy('completedAt')->values()->all();
+        return $team->issues()
+            ->doneSince($since)
+            ->with('completion')
+            ->get()
+            ->map(fn (Issue $issue) => [
+                'issueId' => $issue->id,
+                'completedAt' => $issue->completedAt()?->toISOString() ?? '',
+            ])
+            ->sortBy('completedAt')
+            ->values()
+            ->all();
     }
 
     /**
