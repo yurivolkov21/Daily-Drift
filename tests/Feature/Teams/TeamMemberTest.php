@@ -111,6 +111,31 @@ test('team member role cannot be set to owner', function () {
     expect($team->members()->where('user_id', $member->id)->first()->pivot->role->value)->toEqual(TeamRole::Member->value);
 });
 
+test('the team owner\'s role cannot be changed', function () {
+    $owner = User::factory()->create();
+    $secondOwner = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($secondOwner, ['role' => TeamRole::Owner->value]);
+
+    $this
+        ->actingAs($owner)
+        ->patch(route('teams.members.update', [$team, $owner]), [
+            'role' => TeamRole::Admin->value,
+        ])
+        ->assertForbidden();
+
+    $this
+        ->actingAs($secondOwner)
+        ->patch(route('teams.members.update', [$team, $owner]), [
+            'role' => TeamRole::Member->value,
+        ])
+        ->assertForbidden();
+
+    expect($owner->fresh()->teamRole($team))->toBe(TeamRole::Owner);
+});
+
 test('removed member current team is set to personal team', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();

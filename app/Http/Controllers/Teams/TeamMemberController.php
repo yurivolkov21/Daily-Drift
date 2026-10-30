@@ -14,18 +14,20 @@ use Inertia\Inertia;
 class TeamMemberController extends Controller
 {
     /**
-     * Update the specified team member's role.
+     * Update the specified team member's role. The owner's own role never
+     * changes here, so a team always keeps its owner.
      */
     public function update(UpdateTeamMemberRequest $request, Team $team, User $user): RedirectResponse
     {
         Gate::authorize('updateMember', $team);
 
-        $newRole = TeamRole::from($request->validated('role'));
-
-        $team->memberships()
+        $membership = $team->memberships()
             ->where('user_id', $user->id)
-            ->firstOrFail()
-            ->update(['role' => $newRole]);
+            ->firstOrFail();
+
+        abort_if($membership->role === TeamRole::Owner, 403, __('The team owner\'s role cannot be changed.'));
+
+        $membership->update(['role' => TeamRole::from($request->validated('role'))]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member role updated.')]);
 

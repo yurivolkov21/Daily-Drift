@@ -50,10 +50,13 @@ Route::prefix('{current_team}')
         Route::delete('labels/{label}', [LabelController::class, 'destroy'])->name('labels.destroy');
     });
 
-Route::middleware(['auth'])->group(function () {
+// Only the owner of the invited address may answer, so it must be verified.
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
     Route::delete('invitations/{invitation}', [TeamInvitationController::class, 'decline'])->name('invitations.decline');
+});
 
+Route::middleware(['auth'])->group(function () {
     Route::get('inbox', InboxController::class)->name('inbox');
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
