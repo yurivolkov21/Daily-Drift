@@ -88,6 +88,35 @@ test('team invitations can be created by admins', function () {
     $response->assertRedirect(route('teams.edit', $team));
 });
 
+test('invitations cannot make anyone an owner', function (TeamRole $inviterRole) {
+    Notification::fake();
+
+    $owner = User::factory()->create();
+    $inviter = $inviterRole === TeamRole::Owner ? $owner : User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    if ($inviter->isNot($owner)) {
+        $team->members()->attach($inviter, ['role' => $inviterRole->value]);
+    }
+
+    $response = $this
+        ->actingAs($inviter)
+        ->post(route('teams.invitations.store', $team), [
+            'email' => 'second-account@example.com',
+            'role' => TeamRole::Owner->value,
+        ]);
+
+    $response->assertSessionHasErrors('role');
+
+    $this->assertDatabaseMissing('team_invitations', ['email' => 'second-account@example.com']);
+    Notification::assertNothingSent();
+})->with([
+    'admin' => [TeamRole::Admin],
+    'owner' => [TeamRole::Owner],
+]);
+
 test('existing team members cannot be invited', function () {
     Notification::fake();
 
@@ -289,6 +318,34 @@ test('team invitations cannot be accepted by uninvited user', function () {
 
     expect($uninvitedUser->fresh()->belongsToTeam($team))->toBeFalse();
 });
+
+test('invitations can only be answered from a verified email address', function (string $route, string $method) {
+    $owner = User::factory()->create();
+    $unverifiedUser = User::factory()->unverified()->create(['email' => 'invited@example.com']);
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $invitation = TeamInvitation::factory()->create([
+        'team_id' => $team->id,
+        'email' => 'invited@example.com',
+        'role' => TeamRole::Admin,
+        'invited_by' => $owner->id,
+    ]);
+
+    $response = $this
+        ->actingAs($unverifiedUser)
+        ->{$method}(route($route, $invitation));
+
+    $response->assertRedirect(route('verification.notice'));
+
+    expect($unverifiedUser->fresh()->belongsToTeam($team))->toBeFalse();
+    expect($invitation->fresh())->not->toBeNull()
+        ->and($invitation->fresh()->accepted_at)->toBeNull();
+})->with([
+    'accept' => ['invitations.accept', 'post'],
+    'decline' => ['invitations.decline', 'delete'],
+]);
 
 test('expired invitations cannot be accepted', function () {
     $owner = User::factory()->create();
