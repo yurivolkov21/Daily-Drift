@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Teams;
 
 use App\Actions\Teams\CreateTeam;
+use App\Actions\Teams\DeleteTeam;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teams\DeleteTeamRequest;
 use App\Http\Requests\Teams\SaveTeamRequest;
 use App\Models\Membership;
-use App\Models\PersonalAccessToken;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -167,23 +167,19 @@ class TeamController extends Controller
     /**
      * Delete the specified team.
      */
-    public function destroy(DeleteTeamRequest $request, Team $team): RedirectResponse
+    public function destroy(DeleteTeamRequest $request, Team $team, DeleteTeam $deleteTeam): RedirectResponse
     {
         $user = $request->user();
         $fallbackTeam = $user->isCurrentTeam($team)
             ? $user->fallbackTeam($team)
             : null;
 
-        DB::transaction(function () use ($user, $team) {
+        DB::transaction(function () use ($user, $team, $deleteTeam) {
             User::where('current_team_id', $team->id)
                 ->where('id', '!=', $user->id)
                 ->each(fn (User $affectedUser) => $affectedUser->switchTeam($affectedUser->personalTeam()));
 
-            $team->invitations()->delete();
-            $team->memberships()->delete();
-            PersonalAccessToken::query()->whereBelongsTo($team)->delete();
-            $team->githubWebhook()->delete();
-            $team->delete();
+            $deleteTeam->handle($team);
         });
 
         if ($fallbackTeam) {
