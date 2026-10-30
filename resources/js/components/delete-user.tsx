@@ -84,6 +84,7 @@ export default function DeleteUser() {
                                         />
 
                                         <InputError message={errors.password} />
+                                        <InputError message={errors.teams} />
                                     </div>
 
                                     <DialogFooter className="gap-2">

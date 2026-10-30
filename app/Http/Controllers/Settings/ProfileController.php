@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Actions\Teams\DeleteTeam;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\Team;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,15 +47,22 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's profile.
+     * Delete the user's profile with the teams they own, which hold no one
+     * else by now, and their API tokens and notifications. What they wrote in
+     * other teams stays there without their name.
      */
-    public function destroy(ProfileDeleteRequest $request): RedirectResponse
+    public function destroy(ProfileDeleteRequest $request, DeleteTeam $deleteTeam): RedirectResponse
     {
         $user = $request->user();
 
         Auth::logout();
 
-        $user->delete();
+        DB::transaction(function () use ($user, $deleteTeam) {
+            $user->ownedTeams()->get()->each(fn (Team $team) => $deleteTeam->handle($team));
+            $user->tokens()->delete();
+            $user->notifications()->delete();
+            $user->delete();
+        });
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

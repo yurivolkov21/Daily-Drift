@@ -1,8 +1,17 @@
 <?php
 
+use App\Actions\Teams\CreateTeam;
 use App\Enums\TeamRole;
 use App\Enums\TokenAbility;
+use App\Models\Comment;
+use App\Models\Issue;
+use App\Models\IssueActivity;
+use App\Models\IssueLink;
+use App\Models\Label;
+use App\Models\Project;
+use App\Models\Subtask;
 use App\Models\Team;
+use App\Models\ToolEvent;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -125,6 +134,61 @@ test('teams can be deleted by owners', function () {
     $this->assertSoftDeleted('teams', [
         'id' => $team->id,
     ]);
+});
+
+test('deleting a team deletes its projects, issues, labels and the work tools reported', function () {
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+    $otherTeam = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $issue = Issue::factory()->for(Project::factory()->for($team))->create();
+    $label = Label::factory()->for($team)->create();
+    $issue->labels()->attach($label);
+    Comment::factory()->for($issue)->create();
+    Subtask::factory()->for($issue)->create();
+    IssueActivity::factory()->for($issue)->create();
+    IssueLink::factory()->for($issue)->create();
+    ToolEvent::factory()->for($team)->create(['issue_id' => $issue->id]);
+    ToolEvent::factory()->for($team)->create();
+
+    $otherIssue = Issue::factory()->for(Project::factory()->for($otherTeam))->create();
+
+    $this
+        ->actingAs($owner)
+        ->delete(route('teams.destroy', $team), [
+            'name' => $team->name,
+        ])
+        ->assertRedirect(route('teams.index'));
+
+    $this->assertSoftDeleted($team);
+
+    expect(Project::query()->whereBelongsTo($team)->exists())->toBeFalse()
+        ->and(Issue::query()->whereKey($issue->id)->exists())->toBeFalse()
+        ->and(Label::query()->whereBelongsTo($team)->exists())->toBeFalse()
+        ->and(Comment::query()->count())->toBe(0)
+        ->and(Subtask::query()->count())->toBe(0)
+        ->and(IssueActivity::query()->count())->toBe(0)
+        ->and(IssueLink::query()->count())->toBe(0)
+        ->and(ToolEvent::query()->count())->toBe(0);
+
+    $this->assertModelExists($otherIssue);
+});
+
+test('a deleted team\'s slug is never given to another team', function () {
+    $owner = User::factory()->create();
+    $team = app(CreateTeam::class)->handle($owner, 'Acme');
+
+    $this
+        ->actingAs($owner)
+        ->delete(route('teams.destroy', $team), [
+            'name' => 'Acme',
+        ]);
+
+    $newTeam = app(CreateTeam::class)->handle($owner, 'Acme');
+
+    expect($newTeam->slug)->not->toBe($team->slug);
 });
 
 test('team deletion requires name confirmation', function () {
