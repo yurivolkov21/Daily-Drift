@@ -137,9 +137,21 @@ export type DueFilter = 'overdue' | 'today' | 'week' | 'none';
 
 export type DoneFilter = 'week';
 
+/**
+ * A member's id, "me" for the reader or "none" for no one.
+ */
+export type AssigneeFilter = 'me' | 'none' | number;
+
+/**
+ * The filters of the issues page, as its URL names them. An issue passes a
+ * list when it matches any of the values, and every filter applies at once.
+ */
 export type IssueFilters = {
     project: string | null;
-    assignee: 'me' | null;
+    assignee: AssigneeFilter[];
+    status: IssueStatus[];
+    priority: IssuePriority[];
+    label: string[];
     due: DueFilter | null;
     done: DoneFilter | null;
 };

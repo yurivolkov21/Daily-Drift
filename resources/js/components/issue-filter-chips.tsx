@@ -1,46 +1,35 @@
 import { Link } from '@inertiajs/react';
 import { X } from 'lucide-react';
-import { DateFilterIcon } from '@/components/issue-filter-menu';
+import {
+    FilterPropertyIcon,
+    useFilterOptions,
+} from '@/components/issue-filter-menu';
 import { Button } from '@/components/ui/button';
-import { activeDoneFilter, activeDueFilter } from '@/lib/issue-filters';
+import {
+    activeFilterProperties,
+    clearedFilters,
+    droppedFilter,
+    filterValues,
+} from '@/lib/issue-filters';
+import type { FilterPropertyKey } from '@/lib/issue-filters';
 import type { IssueFilters } from '@/types';
 
 type Props = {
     filters: IssueFilters;
     hrefFor: (changes: Partial<IssueFilters>) => string;
+    onEdit: (property: FilterPropertyKey) => void;
 };
 
 /**
- * The date filters in force as chips under the toolbar, each with a way to
- * drop it, and one to drop them all.
+ * The filters in force as chips under the toolbar, one per property: its
+ * values open the menu on that property, × drops it, and Clear drops them
+ * all.
  */
-export function IssueFilterChips({ filters, hrefFor }: Props) {
-    const due = activeDueFilter(filters);
-    const done = activeDoneFilter(filters);
-    const chips = [
-        due
-            ? {
-                  key: 'due',
-                  group: 'Due date',
-                  label: due.label,
-                  icon: <DateFilterIcon due={due.value} className="size-3.5" />,
-                  href: hrefFor({ due: null }),
-              }
-            : null,
-        done
-            ? {
-                  key: 'done',
-                  group: 'Completed',
-                  label: done.label,
-                  icon: (
-                      <DateFilterIcon done={done.value} className="size-3.5" />
-                  ),
-                  href: hrefFor({ done: null }),
-              }
-            : null,
-    ].filter((chip) => chip !== null);
+export function IssueFilterChips({ filters, hrefFor, onEdit }: Props) {
+    const options = useFilterOptions();
+    const active = activeFilterProperties(filters);
 
-    if (chips.length === 0) {
+    if (active.length === 0) {
         return null;
     }
 
@@ -51,31 +40,68 @@ export function IssueFilterChips({ filters, hrefFor }: Props) {
             data-test="filter-chips"
             className="flex flex-wrap items-center gap-1.5 border-b px-4 py-1.5"
         >
-            {chips.map((chip) => (
-                <span
-                    key={chip.key}
-                    className="inline-flex h-7 items-center gap-1.5 border bg-muted/40 pl-2 text-xs"
-                >
-                    {chip.icon}
-                    <span className="text-muted-foreground">{chip.group}</span>
-                    <span className="font-medium">{chip.label}</span>
-                    <Link
-                        href={chip.href}
-                        preserveScroll
-                        aria-label={`Remove the ${chip.group} filter`}
-                        className="flex h-full w-7 items-center justify-center text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
+            {active.map((property) => {
+                const chosen = filterValues(filters, property.key).flatMap(
+                    (value) =>
+                        options[property.key].filter(
+                            (option) => option.value === value,
+                        ),
+                );
+
+                return (
+                    <span
+                        key={property.key}
+                        className="inline-flex h-7 max-w-full items-center gap-1.5 border bg-muted/40 pl-2 text-xs"
                     >
-                        <X className="size-3" />
-                    </Link>
-                </span>
-            ))}
+                        <FilterPropertyIcon
+                            property={property.key}
+                            className="size-3.5 shrink-0"
+                        />
+                        <span className="text-muted-foreground">
+                            {property.label}
+                        </span>
+                        <span className="text-muted-foreground">
+                            {chosen.length > 1
+                                ? property.operatorMany
+                                : property.operator}
+                        </span>
+                        <button
+                            type="button"
+                            aria-label={`Change the ${property.label} filter`}
+                            onClick={() => onEdit(property.key)}
+                            className="flex h-full min-w-0 items-center gap-1 font-medium outline-none hover:underline focus-visible:underline"
+                        >
+                            {chosen.length === 1
+                                ? (chosen[0].display ?? (
+                                      <>
+                                          {chosen[0].icon}
+                                          <span className="truncate">
+                                              {chosen[0].label}
+                                          </span>
+                                      </>
+                                  ))
+                                : chosen
+                                      .map((option) => option.label)
+                                      .join(', ')}
+                        </button>
+                        <Link
+                            href={hrefFor(droppedFilter(property.key))}
+                            preserveScroll
+                            aria-label={`Remove the ${property.label} filter`}
+                            className="flex h-full w-7 shrink-0 items-center justify-center text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
+                        >
+                            <X className="size-3" />
+                        </Link>
+                    </span>
+                );
+            })}
             <Button
                 size="xs"
                 variant="ghost"
                 nativeButton={false}
                 render={
                     <Link
-                        href={hrefFor({ due: null, done: null })}
+                        href={hrefFor(clearedFilters(filters))}
                         preserveScroll
                     />
                 }

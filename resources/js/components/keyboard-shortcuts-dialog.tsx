@@ -29,7 +29,7 @@ const shortcutGroups: { title: string; shortcuts: [string[], string][] }[] = [
             [['K'], 'Select previous issue'],
             [['Enter'], 'Open selected issue'],
             [['V'], 'Switch between list and board'],
-            [['F'], 'Filter by due date or completion'],
+            [['F'], 'Filter issues'],
         ],
     },
     {

@@ -74,7 +74,105 @@ test('issues can be filtered to those assigned to the current user', function ()
     $response->assertInertia(fn (Assert $page) => $page
         ->has('issues', 1)
         ->where('issues.0.id', $assigned->id)
-        ->where('filters.assignee', 'me'),
+        ->where('filters.assignee', ['me']),
+    );
+});
+
+test('issues can be filtered by assignee: members, the reader as "me" and no one as "none"', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $teammate = User::factory()->create();
+    $team->members()->attach($teammate, ['role' => TeamRole::Member->value]);
+    $outsider = User::factory()->create();
+    $project = Project::factory()->for($team)->create();
+    $mine = Issue::factory()->for($project)->for($user, 'assignee')->create();
+    $teammates = Issue::factory()->for($project)->for($teammate, 'assignee')->create();
+    $nobodys = Issue::factory()->for($project)->create();
+    Issue::factory()->for($project)->for($outsider, 'assignee')->create();
+
+    $listed = fn (string $assignee) => $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $team, 'assignee' => $assignee]))
+        ->inertiaProps()['issues'];
+
+    expect(collect($listed($teammate->id.',none'))->pluck('id')->sort()->values()->all())
+        ->toBe(collect([$teammates->id, $nobodys->id])->sort()->values()->all())
+        ->and(collect($listed('me'))->pluck('id')->all())->toBe([$mine->id])
+        ->and(collect($listed('none'))->pluck('id')->all())->toBe([$nobodys->id])
+        ->and(collect($listed((string) $outsider->id)))->toHaveCount(4)
+        ->and(collect($listed('me,'.$teammate->id.','.$outsider->id.',somebody'))->pluck('id')->sort()->values()->all())
+        ->toBe(collect([$mine->id, $teammates->id])->sort()->values()->all());
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $team, 'assignee' => $user->id.',me,'.$teammate->id.','.$outsider->id.',none,somebody']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('filters.assignee', ['me', $teammate->id, 'none']),
+    );
+});
+
+test('issues can be filtered by status and priority, any of the listed ones', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user->currentTeam)->create();
+    $todo = Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->create(['priority' => IssuePriority::High]);
+    $inProgress = Issue::factory()->for($project)->withStatus(IssueStatus::InProgress)->create(['priority' => IssuePriority::Low]);
+    $done = Issue::factory()->for($project)->withStatus(IssueStatus::Done)->create(['priority' => IssuePriority::Urgent]);
+    Issue::factory()->for($project)->withStatus(IssueStatus::Backlog)->create(['priority' => IssuePriority::None]);
+
+    $listed = fn (array $query) => collect($this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $user->currentTeam, ...$query]))
+        ->inertiaProps()['issues'])->pluck('id')->sort()->values()->all();
+
+    expect($listed(['status' => 'todo,in_progress,someday']))
+        ->toBe(collect([$todo->id, $inProgress->id])->sort()->values()->all())
+        ->and($listed(['priority' => '4,3,9,high']))
+        ->toBe(collect([$todo->id, $done->id])->sort()->values()->all())
+        ->and($listed(['status' => 'todo,done', 'priority' => '4']))
+        ->toBe([$done->id]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $user->currentTeam, 'status' => 'done, todo,done,someday', 'priority' => '3,high,0']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('filters.status', ['done', 'todo'])
+        ->where('filters.priority', [3, 0]),
+    );
+});
+
+test('issues can be filtered by label, any of the listed ones', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $project = Project::factory()->for($team)->create();
+    $bug = Label::factory()->for($team)->create(['name' => 'Bug']);
+    $design = Label::factory()->for($team)->create(['name' => 'Design']);
+    $otherTeams = Label::factory()->create(['name' => 'Bug']);
+    $buggy = Issue::factory()->for($project)->hasAttached($bug)->create();
+    $both = Issue::factory()->for($project)->hasAttached([$bug, $design])->create();
+    $designed = Issue::factory()->for($project)->hasAttached($design)->create();
+    Issue::factory()->for($project)->create();
+    Issue::factory()->for(Project::factory()->for($otherTeams->team))->hasAttached($otherTeams)->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $team, 'label' => $bug->id.','.$otherTeams->id.',unknown']));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('filters.label', [$bug->id])
+        ->where('issues', fn (Collection $issues) => $issues->pluck('id')->sort()->values()->all()
+            === collect([$buggy->id, $both->id])->sort()->values()->all()),
+    );
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', ['current_team' => $team, 'label' => $design->id.','.$bug->id]));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('filters.label', [$design->id, $bug->id])
+        ->where('issues', fn (Collection $issues) => $issues->pluck('id')->sort()->values()->all()
+            === collect([$buggy->id, $both->id, $designed->id])->sort()->values()->all()),
     );
 });
 
@@ -127,7 +225,47 @@ test('the due date filter combines with the project and assignee filters', funct
     $response->assertInertia(fn (Assert $page) => $page
         ->has('issues', 1)
         ->where('issues.0.id', $mine->id)
-        ->where('filters', ['project' => 'DD', 'assignee' => 'me', 'due' => 'overdue', 'done' => null]),
+        ->where('filters', [
+            'project' => 'DD',
+            'assignee' => ['me'],
+            'status' => [],
+            'priority' => [],
+            'label' => [],
+            'due' => 'overdue',
+            'done' => null,
+        ]),
+    );
+});
+
+test('every filter applies at once', function () {
+    $this->travelTo(Carbon::parse('2026-10-29 12:00:00'));
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $project = Project::factory()->for($team)->create(['key' => 'DD']);
+    $bug = Label::factory()->for($team)->create();
+    $match = fn () => Issue::factory()->for($project)->for($user, 'assignee')->withStatus(IssueStatus::Todo)->hasAttached($bug);
+    $matching = $match()->create(['priority' => IssuePriority::High, 'due_date' => '2026-10-20']);
+    $match()->create(['priority' => IssuePriority::High, 'due_date' => '2026-11-20']);
+    $match()->create(['priority' => IssuePriority::Low, 'due_date' => '2026-10-20']);
+    $match()->withStatus(IssueStatus::Done)->create(['priority' => IssuePriority::High, 'due_date' => '2026-10-20']);
+    Issue::factory()->for($project)->for($user, 'assignee')->withStatus(IssueStatus::Todo)->create(['priority' => IssuePriority::High, 'due_date' => '2026-10-20']);
+    Issue::factory()->for($project)->withStatus(IssueStatus::Todo)->hasAttached($bug)->create(['priority' => IssuePriority::High, 'due_date' => '2026-10-20']);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('issues.index', [
+            'current_team' => $team,
+            'project' => 'dd',
+            'assignee' => 'me',
+            'status' => 'todo,in_progress',
+            'priority' => '3,4',
+            'label' => $bug->id,
+            'due' => 'overdue',
+        ]));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->has('issues', 1)
+        ->where('issues.0.id', $matching->id),
     );
 });
 
@@ -182,20 +320,35 @@ test('issues can be filtered to those done this week, telling when each was done
     );
 });
 
-test('unknown due and done filters are ignored', function () {
+test('unknown filters are ignored', function () {
     $user = User::factory()->create();
     $project = Project::factory()->for($user->currentTeam)->create();
     Issue::factory()->for($project)->withStatus(IssueStatus::Done)->create();
 
     $response = $this
         ->actingAs($user)
-        ->get(route('issues.index', ['current_team' => $user->currentTeam, 'due' => 'someday', 'done' => 'today']));
+        ->get(route('issues.index', [
+            'current_team' => $user->currentTeam,
+            'assignee' => 'somebody',
+            'status' => 'someday',
+            'priority' => 'high',
+            'label' => 'unknown',
+            'due' => 'someday',
+            'done' => 'today',
+        ]));
 
     $response->assertInertia(fn (Assert $page) => $page
         ->has('issues', 1)
         ->missing('issues.0.completedAt')
-        ->where('filters.due', null)
-        ->where('filters.done', null),
+        ->where('filters', [
+            'project' => null,
+            'assignee' => [],
+            'status' => [],
+            'priority' => [],
+            'label' => [],
+            'due' => null,
+            'done' => null,
+        ]),
     );
 });
 

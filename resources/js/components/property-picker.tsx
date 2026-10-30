@@ -46,7 +46,7 @@ type Props<TValue> = {
 /**
  * Match options by their label, ignoring case.
  */
-function filterByLabel(
+export function filterByLabel(
     _value: string,
     search: string,
     keywords: string[] = [],
