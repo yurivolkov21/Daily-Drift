@@ -31,8 +31,13 @@ import { useListDisplay } from '@/hooks/use-list-display';
 import {
     activeDoneFilter,
     activeDueFilter,
+    activeFilterProperties,
     applyDateFilters,
+    clearedFilters,
+    isMyIssuesScope,
+    issueFilterQuery,
 } from '@/lib/issue-filters';
+import type { FilterPropertyKey } from '@/lib/issue-filters';
 import { arrangeIssueList, isGroupCollapsed } from '@/lib/issue-list';
 import { cn } from '@/lib/utils';
 import { index, show } from '@/routes/issues';
@@ -70,7 +75,10 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
     const projects = page.props.workspace?.projects ?? [];
     const project = projects.find(({ key }) => key === filters.project);
     const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
-    const [filterOpen, setFilterOpen] = useState(false);
+    const [filterMenu, setFilterMenu] = useState<{
+        open: boolean;
+        at: FilterPropertyKey | null;
+    }>({ open: false, at: null });
 
     const teamSlug = team?.slug ?? '';
 
@@ -80,16 +88,17 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
             peek?: string | null;
         },
     ): string => {
-        const query = { ...filters, view, ...changes };
+        const {
+            view: nextView = view,
+            peek = null,
+            ...filterChanges
+        } = changes;
 
         return index.url(teamSlug, {
             query: {
-                project: query.project,
-                assignee: query.assignee,
-                due: query.due,
-                done: query.done,
-                view: query.view === 'board' ? 'board' : null,
-                peek: query.peek ?? null,
+                ...issueFilterQuery({ ...filters, ...filterChanges }),
+                view: nextView === 'board' ? 'board' : null,
+                peek,
             },
         });
     };
@@ -112,10 +121,14 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
     // The server sends a day to spare around each date filter; the reader's
     // own day decides.
     const shownIssues = applyDateFilters(issues, filters);
-    const dateFilters = [
-        activeDueFilter(filters),
-        activeDoneFilter(filters),
-    ].filter((option) => option !== null);
+    const activeFilters = activeFilterProperties(filters);
+    const dateFilter = activeDueFilter(filters) ?? activeDoneFilter(filters);
+    const scope =
+        filters.assignee.length === 0
+            ? 'all'
+            : isMyIssuesScope(filters)
+              ? 'me'
+              : null;
 
     const [listDisplay] = useListDisplay();
     const listGroups = arrangeIssueList(shownIssues, listDisplay, projects);
@@ -166,21 +179,27 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     { preserveScroll: true },
                 ),
         },
-        { keys: 'f', handler: () => setFilterOpen(true) },
+        {
+            keys: 'f',
+            handler: () => setFilterMenu({ open: true, at: null }),
+        },
     ]);
 
     const title = project?.name ?? 'Issues';
 
+    // A lone date filter explains itself; any other mix gets one message.
     const empty =
-        dateFilters.length > 1
-            ? {
-                  title: 'No issues match these filters',
-                  description: 'Drop one of the filters to see more.',
-              }
-            : (dateFilters[0]?.empty ?? {
-                  title: 'No issues here',
-                  description: 'Press C anywhere to create an issue.',
-              });
+        activeFilters.length === 1 && dateFilter !== null
+            ? dateFilter.empty
+            : activeFilters.length > 0
+              ? {
+                    title: 'No issues match these filters',
+                    description: 'Drop one of the filters to see more.',
+                }
+              : {
+                    title: 'No issues here',
+                    description: 'Press C anywhere to create an issue.',
+                };
 
     return (
         <>
@@ -201,25 +220,19 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     >
                         <Button
                             size="xs"
-                            variant={
-                                filters.assignee === null
-                                    ? 'secondary'
-                                    : 'ghost'
-                            }
+                            variant={scope === 'all' ? 'secondary' : 'ghost'}
                             nativeButton={false}
-                            render={<Link href={urlFor({ assignee: null })} />}
+                            render={<Link href={urlFor({ assignee: [] })} />}
                         >
                             All issues
                         </Button>
                         <Button
                             size="xs"
-                            variant={
-                                filters.assignee === 'me'
-                                    ? 'secondary'
-                                    : 'ghost'
-                            }
+                            variant={scope === 'me' ? 'secondary' : 'ghost'}
                             nativeButton={false}
-                            render={<Link href={urlFor({ assignee: 'me' })} />}
+                            render={
+                                <Link href={urlFor({ assignee: ['me'] })} />
+                            }
                         >
                             My issues
                         </Button>
@@ -252,10 +265,19 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                         />
                         <IssueFilterMenu
                             filters={filters}
-                            open={filterOpen}
-                            onOpenChange={setFilterOpen}
+                            open={filterMenu.open}
+                            openAt={filterMenu.at}
+                            onOpenChange={(open) =>
+                                setFilterMenu({
+                                    open,
+                                    at: open ? filterMenu.at : null,
+                                })
+                            }
                             onChange={(changes) =>
-                                router.visit(urlFor(changes))
+                                router.visit(urlFor(changes), {
+                                    preserveState: true,
+                                    preserveScroll: true,
+                                })
                             }
                         />
                     </div>
@@ -320,9 +342,12 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                             onClick={() =>
                                 openCreateIssue({
                                     projectId: project?.id,
-                                    assigneeId:
-                                        filters.assignee === 'me'
-                                            ? page.props.auth.user.id
+                                    assigneeId: isMyIssuesScope(filters)
+                                        ? page.props.auth.user.id
+                                        : undefined,
+                                    status:
+                                        filters.status.length === 1
+                                            ? filters.status[0]
                                             : undefined,
                                 })
                             }
@@ -333,7 +358,13 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                     </div>
                 </div>
 
-                <IssueFilterChips filters={filters} hrefFor={urlFor} />
+                <IssueFilterChips
+                    filters={filters}
+                    hrefFor={urlFor}
+                    onEdit={(property) =>
+                        setFilterMenu({ open: true, at: property })
+                    }
+                />
 
                 {projects.length === 0 ? (
                     <Empty>
@@ -362,20 +393,19 @@ export default function IssuesIndex({ issues, filters, view, peek }: Props) {
                             </EmptyDescription>
                         </EmptyHeader>
                         <EmptyContent>
-                            {dateFilters.length > 0 ? (
+                            {activeFilters.length > 0 ? (
                                 <Button
                                     variant="outline"
                                     nativeButton={false}
                                     render={
                                         <Link
-                                            href={urlFor({
-                                                due: null,
-                                                done: null,
-                                            })}
+                                            href={urlFor(
+                                                clearedFilters(filters),
+                                            )}
                                         />
                                     }
                                 >
-                                    {dateFilters.length > 1
+                                    {activeFilters.length > 1
                                         ? 'Clear filters'
                                         : 'Clear filter'}
                                 </Button>

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Data\IssueFilters;
+use App\Enums\DoneFilter;
 use App\Enums\DueFilter;
 use App\Enums\IssueActivityType;
 use App\Enums\IssuePriority;
@@ -222,6 +224,46 @@ class Issue extends Model
     protected function open(Builder $query): void
     {
         $query->whereNotIn($query->qualifyColumn('status'), IssueStatus::closed());
+    }
+
+    /**
+     * Scope the query to the issues passing the filters of the issues page,
+     * for the given reader.
+     *
+     * @param  Builder<Issue>  $query
+     */
+    #[Scope]
+    protected function filteredBy(Builder $query, IssueFilters $filters, User $reader): void
+    {
+        $query
+            ->when($filters->project, fn (Builder $query, Project $project) => $query->whereBelongsTo($project))
+            ->when($filters->assignees !== [], fn (Builder $query) => $query
+                ->assignedTo($filters->assigneeIds($reader), $filters->includesUnassigned()))
+            ->when($filters->statuses !== [], fn (Builder $query) => $query
+                ->whereIn($query->qualifyColumn('status'), $filters->statuses))
+            ->when($filters->priorities !== [], fn (Builder $query) => $query
+                ->whereIn($query->qualifyColumn('priority'), $filters->priorities))
+            ->when($filters->labelIds !== [], fn (Builder $query) => $query
+                ->whereHas('labels', fn (Builder $query) => $query->whereKey($filters->labelIds)))
+            ->when($filters->due, fn (Builder $query, DueFilter $due) => $query->due($due))
+            ->when($filters->done, fn (Builder $query, DoneFilter $done) => $query->doneSince($done->since()));
+    }
+
+    /**
+     * Scope the query to the issues assigned to any of the given members,
+     * and to no one when asked.
+     *
+     * @param  Builder<Issue>  $query
+     * @param  array<int, int>  $userIds
+     */
+    #[Scope]
+    protected function assignedTo(Builder $query, array $userIds, bool $orUnassigned = false): void
+    {
+        $column = $query->qualifyColumn('assignee_id');
+
+        $query->where(fn (Builder $query) => $query
+            ->when($userIds !== [], fn (Builder $query) => $query->whereIn($column, $userIds))
+            ->when($orUnassigned, fn (Builder $query) => $query->orWhereNull($column)));
     }
 
     /**
