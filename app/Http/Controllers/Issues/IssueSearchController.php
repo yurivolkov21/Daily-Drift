@@ -22,7 +22,10 @@ class IssueSearchController extends Controller
         $issues = $currentTeam->issues()
             ->with('project')
             ->when($search !== '', fn (Builder $query) => $query->where(function (Builder $query) use ($search) {
-                $query->where('issues.title', 'like', '%'.$search.'%');
+                // A percent sign or underscore in the search is part of the title, not a wildcard.
+                $query->whereRaw("issues.title like ? escape '!'", [
+                    '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search).'%',
+                ]);
 
                 if (preg_match('/^'.Issue::IDENTIFIER_PATTERN.'$/', $search) === 1) {
                     $query->orWhere(fn (Builder $query) => $query->identifiedBy($search));
