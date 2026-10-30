@@ -1,0 +1,72 @@
+name: deploy-check
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/**'
+      - '.github/actions/build-release/**'
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/deploy-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    # Runs deploy/setup-server.sh and two releases on a fresh Ubuntu 24.04
+    # runner, like on the real server, then checks that Caddy serves the app over
+    # HTTPS and hands WebSockets to Reverb.
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up the server
+        id: server
+        run: |
+          sudo DAILY_DRIFT_DOMAIN=localhost \
+            DAILY_DRIFT_MAIL_USERNAME=check@example.com \
+            DAILY_DRIFT_MAIL_PASSWORD=unused \
+            bash deploy/setup-server.sh
+          echo "reverb-app-key=$(sudo grep '^REVERB_APP_KEY=' /var/www/daily-drift/shared/.env | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+
+      - name: Build release
+        uses: ./.github/actions/build-release
+        with:
+          host: localhost
+          reverb-app-key: ${{ steps.server.outputs.reverb-app-key }}
+
+      - name: Release twice
+        run: |
+          for release in 20260101000000-first 20260101000100-second; do
+            sudo install -o deploy -g deploy -m 644 "$RUNNER_TEMP/release.tar.gz" "/tmp/$release.tar.gz"
+            sudo -u deploy bash -s -- "/tmp/$release.tar.gz" "$release" < deploy/release.sh
+          done
+          test "$(readlink /var/www/daily-drift/current)" = /var/www/daily-drift/releases/20260101000100-second
+          sudo ls /var/www/daily-drift/backups | grep -q '^database-pre-deploy-'
+
+      - name: Check the site and the WebSocket
+        env:
+          REVERB_APP_KEY: ${{ steps.server.outputs.reverb-app-key }}
+        run: |
+          systemctl is-active caddy php8.4-fpm daily-drift-reverb daily-drift-queue
+          curl -kfsS --retry 5 --retry-delay 2 --retry-all-errors -o /dev/null https://localhost/up
+          curl -kfsS -o /dev/null https://localhost/login
+
+          # Reverb keeps the connection open after the handshake, so curl stops at --max-time.
+          curl -k --http1.1 -sS -o /dev/null -D "$RUNNER_TEMP/websocket-headers" --max-time 5 \
+            -H 'Connection: Upgrade' -H 'Upgrade: websocket' -H 'Sec-WebSocket-Version: 13' \
+            -H "Sec-WebSocket-Key: $(openssl rand -base64 16)" \
+            "https://localhost/app/$REVERB_APP_KEY?protocol=7&client=js&version=8.4.0" || true
+          cat "$RUNNER_TEMP/websocket-headers"
+          grep -q '^HTTP/1.1 101' "$RUNNER_TEMP/websocket-headers"
+
+      - name: Show the logs
+        if: failure()
+        run: |
+          sudo journalctl -u caddy -u php8.4-fpm -u daily-drift-reverb -u daily-drift-queue --no-pager -n 100 || true
+          sudo sh -c 'tail -n 50 /var/www/daily-drift/shared/storage/logs/*.log' || true
