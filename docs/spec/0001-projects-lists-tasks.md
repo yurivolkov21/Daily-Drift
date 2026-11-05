@@ -1,6 +1,6 @@
 # Spec 0001: Projects, lists and tasks
 
-**Status:** Draft · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-planned)
+**Status:** Draft · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [Phase 1 screens](../design/README.md#screens-for-phase-1)
 
 ## Goal
 
