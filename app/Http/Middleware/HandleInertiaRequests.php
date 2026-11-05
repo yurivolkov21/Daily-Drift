@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -46,6 +47,18 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'recentProjects' => fn () => $user?->currentTeam
+                ? $user->currentTeam->projects()
+                    ->active()
+                    ->latest('updated_at')
+                    ->limit(5)
+                    ->get(['id', 'name', 'color'])
+                    ->map(fn (Project $project) => [
+                        'id' => $project->id,
+                        'name' => $project->name,
+                        'color' => $project->color->value,
+                    ])
+                : [],
         ];
     }
 }
