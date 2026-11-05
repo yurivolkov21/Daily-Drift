@@ -16,12 +16,12 @@ Daily-Drift is a personal remake of a team project I built in my second semester
 
 ## Requirements
 
-| Tool | Version |
-| --- | --- |
-| PHP | **8.4.27 or newer**. 8.4.0–8.4.26 are affected by PHP2Shell (CVE-2026-109618, CVE-2026-109619); `composer.json` requires `^8.4.27`, so older versions are refused. |
-| Composer | 2.x |
-| Node.js | 24 LTS (24.22.1 or newer), see `.nvmrc` |
-| pnpm | 12, pinned in `package.json` (`corepack enable pnpm` picks the right version) |
+| Tool     | Version                                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| PHP      | **8.4.27 or newer**. 8.4.0–8.4.26 are affected by PHP2Shell (CVE-2026-109618, CVE-2026-109619); `composer.json` requires `^8.4.27`, so older versions are refused. |
+| Composer | 2.x                                                                                                                                                                |
+| Node.js  | 24 LTS (24.22.1 or newer), see `.nvmrc`                                                                                                                            |
+| pnpm     | 12, pinned in `package.json` (`corepack enable pnpm` picks the right version)                                                                                      |
 
 ## Getting started
 
