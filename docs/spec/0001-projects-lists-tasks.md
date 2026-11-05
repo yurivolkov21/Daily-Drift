@@ -32,6 +32,7 @@ Named `task_lists` because `list` is a reserved word in PHP.
 | `id`         | id                     |                             |
 | `project_id` | foreign key → projects | cascade on delete           |
 | `name`       | string(80)             | required                    |
+| `color`      | string(20)             | same palette as projects    |
 | `position`   | unsigned integer       | 0-based order of the column |
 | timestamps   |                        |                             |
 
@@ -53,14 +54,18 @@ Named `task_lists` because `list` is a reserved word in PHP.
 
 ## Behaviour
 
-- **New project:** starts with three lists: _To do_, _In progress_, _Done_.
+- **New project:** starts with three lists: _To do_ (slate), _In progress_ (amber), _Done_ (green). A list added later takes the next unused color; the list menu can change it.
 - **Ordering:** positions are dense and 0-based. When a list or task moves, the server receives the target list and target index, then rewrites the positions of the affected list(s) inside one database transaction. The client never sends positions for other items.
 - **Moving tasks:** a task can move to any list in the same project, never to another project.
 - **Completing:** completion is a checkbox (`completed_at`) and does not depend on the list. Moving a card to _Done_ does not complete it automatically in this phase.
 - **Archiving:** archived projects are read-only and hidden from the main list; they can be restored.
 - **Deleting a list** deletes its tasks; the UI asks for confirmation and shows the task count.
 - **Progress:** list and project progress = completed tasks ÷ all tasks, shown as a percentage. Empty means 0%.
-- **Dashboard:** overdue open tasks, open tasks due today, and active projects with their progress, for the current team.
+- **Dashboard:** for the current team:
+    - counts of open tasks, tasks due today, overdue tasks, and tasks completed in the last 7 days compared with the 7 days before;
+    - open tasks with a due date, grouped as overdue, today and the next 7 days;
+    - tasks completed per day over the last 14 days (from `completed_at`);
+    - active projects with their progress and the number of tasks in each list.
 
 ## Permissions
 
@@ -82,16 +87,17 @@ Under the starter kit's team prefix `/{current_team}`:
 
 - `GET projects`, `POST projects`, `GET projects/{project}`, `PATCH projects/{project}`, `DELETE projects/{project}`
 - `POST projects/{project}/archive`, `DELETE projects/{project}/archive`
-- `POST projects/{project}/lists`, `PATCH lists/{list}`, `PATCH lists/{list}/move`, `DELETE lists/{list}`
+- `POST projects/{project}/lists`, `PATCH lists/{list}` (name and color), `PATCH lists/{list}/move`, `DELETE lists/{list}`
 - `POST lists/{list}/tasks`, `PATCH tasks/{task}`, `PATCH tasks/{task}/move`, `PATCH tasks/{task}/complete`, `DELETE tasks/{task}`
 
 ## Acceptance criteria
 
 - A member sees only projects of teams they belong to; other teams' projects return 404.
-- Creating a project creates the three default lists.
+- Creating a project creates the three default lists with their default colors.
 - Dragging a task to position _n_ of another list stores the new list and leaves both lists with dense positions 0…k.
 - Members cannot create, edit, archive or delete projects; admins cannot delete projects.
 - Progress percentages match the share of completed tasks.
+- Dashboard counts and the completed-per-day series match the tasks of the current team only.
 - Every rule above has a feature test.
 
 ## Out of scope for this spec
