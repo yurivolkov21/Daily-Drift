@@ -1,11 +1,10 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { Archive, ArchiveRestore, ListTodo } from 'lucide-react';
+import { Archive, ArchiveRestore } from 'lucide-react';
+import { Board } from '@/components/board/board';
 import { ProjectMenu } from '@/components/projects/project-menu';
 import { ProjectTile } from '@/components/projects/project-tile';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { HUES } from '@/lib/hues';
-import { cn } from '@/lib/utils';
 import { index, restore, show } from '@/routes/projects';
 import type { Project } from '@/types';
 
@@ -76,42 +75,7 @@ export default function ProjectShow({ project }: Props) {
                     </Alert>
                 )}
 
-                <div className="-mx-4 flex snap-x scroll-px-4 items-start gap-3 overflow-x-auto px-4 pb-4 md:-mx-6 md:scroll-px-6 md:px-6">
-                    {project.lists.map((list) => (
-                        <section
-                            key={list.id}
-                            aria-label={list.name}
-                            className={cn(
-                                'flex w-[19rem] shrink-0 snap-start flex-col gap-2 rounded-2xl border p-2',
-                                HUES[list.color].column,
-                            )}
-                        >
-                            <div className="flex items-center gap-2 px-1.5 pt-1">
-                                <span
-                                    className={cn(
-                                        'size-2.5 rounded-full',
-                                        HUES[list.color].dot,
-                                    )}
-                                />
-                                <h2 className="truncate text-sm font-semibold">
-                                    {list.name}
-                                </h2>
-                                <span
-                                    className={cn(
-                                        'rounded-full px-2 py-px text-xs font-medium tabular-nums',
-                                        HUES[list.color].pill,
-                                    )}
-                                >
-                                    0
-                                </span>
-                            </div>
-                            <div className="flex min-h-28 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-current/10 text-center text-xs text-muted-foreground">
-                                <ListTodo className="size-4" />
-                                No tasks yet
-                            </div>
-                        </section>
-                    ))}
-                </div>
+                <Board teamSlug={teamSlug} project={project} />
             </div>
         </>
     );
