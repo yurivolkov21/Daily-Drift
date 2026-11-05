@@ -20,7 +20,8 @@ class EnsureTeamMembership
     {
         [$user, $team] = [$request->user(), $this->team($request)];
 
-        abort_if(! $user || ! $team || ! $user->belongsToTeam($team), 403);
+        // Answer 404, not 403, so people outside a team cannot tell that it exists.
+        abort_if(! $user || ! $team || ! $user->belongsToTeam($team), 404);
 
         $this->ensureTeamMemberHasRequiredRole($user, $team, $minimumRole);
 

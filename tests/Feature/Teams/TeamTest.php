@@ -325,7 +325,7 @@ class TeamTest extends TestCase
             ->actingAs($user)
             ->delete(route('teams.leave', $team));
 
-        $response->assertForbidden();
+        $response->assertNotFound();
     }
 
     public function test_deleting_team_switches_other_affected_users_to_their_personal_team()
@@ -414,7 +414,7 @@ class TeamTest extends TestCase
             ->actingAs($user)
             ->post(route('teams.switch', $team));
 
-        $response->assertForbidden();
+        $response->assertNotFound();
     }
 
     public function test_guests_cannot_access_teams()
