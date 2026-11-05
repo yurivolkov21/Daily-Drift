@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, User> $members
  * @property-read Collection<int, Project> $projects
  * @property-read Collection<int, TaskList> $lists
+ * @property-read Collection<int, Task> $tasks
  */
 #[Fillable(['name', 'slug', 'is_personal'])]
 class Team extends Model
@@ -117,6 +118,16 @@ class Team extends Model
     public function lists(): HasManyThrough
     {
         return $this->hasManyThrough(TaskList::class, Project::class);
+    }
+
+    /**
+     * Get all tasks of the team's projects, for route bindings like `lists()`.
+     *
+     * @return HasManyThrough<Task, Project, $this>
+     */
+    public function tasks(): HasManyThrough
+    {
+        return $this->hasManyThrough(Task::class, Project::class);
     }
 
     /**

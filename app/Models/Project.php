@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property-read Team $team
  * @property-read User|null $creator
  * @property-read Collection<int, TaskList> $lists
+ * @property-read Collection<int, Task> $tasks
  */
 #[Fillable(['name', 'description', 'color', 'archived_at'])]
 class Project extends Model
@@ -61,6 +62,16 @@ class Project extends Model
     public function lists(): HasMany
     {
         return $this->hasMany(TaskList::class)->orderBy('position');
+    }
+
+    /**
+     * Get all tasks of the project.
+     *
+     * @return HasMany<Task, $this>
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
     }
 
     /**

@@ -20,6 +20,7 @@ readonly class ProjectData
         public ?string $updatedAt,
         public ?string $creatorName,
         public array $lists,
+        public ProjectStats $stats,
         public ProjectAbilities $can,
     ) {
         //
@@ -39,6 +40,7 @@ readonly class ProjectData
             updatedAt: $project->updated_at?->toISOString(),
             creatorName: $project->creator?->name,
             lists: $project->lists->map(fn (TaskList $list) => TaskListData::from($list))->values()->all(),
+            stats: ProjectStats::from($project),
             can: ProjectAbilities::for($user, $project),
         );
     }
