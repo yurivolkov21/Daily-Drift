@@ -3,7 +3,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { Archive, Columns3 } from 'lucide-react';
 import { ProjectMenu } from '@/components/projects/project-menu';
 import { ProjectTile } from '@/components/projects/project-tile';
+import { HueBar } from '@/components/hue-progress';
 import { HUES } from '@/lib/hues';
+import { percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { show } from '@/routes/projects';
 import type { Project } from '@/types';
@@ -14,6 +16,8 @@ type Props = {
 };
 
 export function ProjectCard({ teamSlug, project }: Props) {
+    const progress = percent(project.stats.completed, project.stats.tasks);
+
     return (
         <div className="group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-md">
             <div
@@ -53,18 +57,37 @@ export function ProjectCard({ teamSlug, project }: Props) {
                     {project.description || 'No description yet.'}
                 </p>
 
-                <div className="flex flex-wrap gap-1.5">
-                    {project.lists.map((list) => (
-                        <span
-                            key={list.id}
-                            className={cn(
-                                'rounded-md px-2 py-0.5 text-xs font-medium',
-                                HUES[list.color].pill,
-                            )}
-                        >
-                            {list.name}
+                <div className="grid grid-cols-3 gap-2">
+                    <MiniStat
+                        label="Open"
+                        value={project.stats.tasks - project.stats.completed}
+                    />
+                    <MiniStat
+                        label="Due this week"
+                        value={project.stats.dueSoon}
+                    />
+                    <MiniStat
+                        label="Overdue"
+                        value={project.stats.overdue}
+                        className={
+                            project.stats.overdue > 0
+                                ? 'bg-red-500/10 text-red-700 dark:text-red-400'
+                                : undefined
+                        }
+                    />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">
+                            {project.stats.completed} of {project.stats.tasks}{' '}
+                            tasks done
                         </span>
-                    ))}
+                        <span className="font-semibold tabular-nums">
+                            {progress}%
+                        </span>
+                    </div>
+                    <HueBar value={progress} hue={project.color} />
                 </div>
             </div>
             <div className="relative flex items-center justify-between gap-3 border-t bg-muted/30 px-5 py-3 text-xs text-muted-foreground">
@@ -85,6 +108,32 @@ export function ProjectCard({ teamSlug, project }: Props) {
                     )
                 )}
             </div>
+        </div>
+    );
+}
+
+function MiniStat({
+    label,
+    value,
+    className,
+}: {
+    label: string;
+    value: number;
+    className?: string;
+}) {
+    return (
+        <div
+            className={cn(
+                'flex flex-col gap-0.5 rounded-lg bg-muted/60 px-3 py-2',
+                className,
+            )}
+        >
+            <span className="truncate text-[11px] text-muted-foreground">
+                {label}
+            </span>
+            <span className="text-base font-semibold tabular-nums">
+                {value}
+            </span>
         </div>
     );
 }

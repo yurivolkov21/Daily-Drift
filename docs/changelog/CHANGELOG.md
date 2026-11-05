@@ -10,6 +10,8 @@ Newest first. Dates are in the project's local time (UTC+7).
 - Phase 1 UI design, first pass (provisional, to be revised): screens with screenshots, color-coded projects and lists, components per screen, block sources and their licenses, and [ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md) for drag and drop.
 - Projects: create, edit, archive, restore and delete projects inside a team. A new project starts with To do, In progress and Done. Owners and admins manage projects, only owners delete them, and members can view them. The sidebar lists the five most recently updated active projects.
 - Lists: add, rename, recolor, reorder (drag and drop or keyboard) and delete the lists of a project. Every team member can manage lists; archived projects are read-only. A new list goes to the end in the first unused color. Board columns use the ReUI Kanban component ([ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md)).
+- Tasks: add tasks at the bottom of a list, edit the title, description, priority and due date in a side sheet, complete them, move them within and between lists by drag and drop or keyboard, and delete them. An open task has its own link (`?task={id}`).
+- Progress: each list shows a completion ring, the board shows task counts and overall progress, and project cards show open, due-this-week and overdue tasks.
 
 ### Changed
 
