@@ -20,7 +20,7 @@ Spec: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md) · 
 
 - [x] UI design, first pass: screens, components and sources
 - [ ] UI design, revision: reach the look the owner wants (the first pass is provisional)
-- [ ] Projects: create, edit, archive and delete inside a team
+- [x] Projects: create, edit, archive and delete inside a team
 - [ ] Lists: Kanban columns per project; create, rename, reorder, delete
 - [ ] Tasks: title, description, due date, priority, complete; drag and drop within and across lists
 - [ ] Progress: completion percentage per list and project
