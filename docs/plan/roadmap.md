@@ -18,7 +18,8 @@ From the Laravel React starter kit (teams variant), see [ADR 0001](../decisions/
 
 Spec: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md) · Design: [Phase 1 screens](../design/README.md#screens-for-phase-1)
 
-- [x] UI design: screens, components and sources
+- [x] UI design, first pass: screens, components and sources
+- [ ] UI design, revision: reach the look the owner wants (the first pass is provisional)
 - [ ] Projects: create, edit, archive and delete inside a team
 - [ ] Lists: Kanban columns per project; create, rename, reorder, delete
 - [ ] Tasks: title, description, due date, priority, complete; drag and drop within and across lists
