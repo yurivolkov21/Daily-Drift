@@ -14,10 +14,11 @@ From the Laravel React starter kit (teams variant), see [ADR 0001](../decisions/
 - [x] Toolchain pinned (PHP 8.4.27+, Node 24, pnpm 12), CI and Dependabot
 - [x] Full shadcn/ui component library installed
 
-## Phase 1: Core Kanban (Planned)
+## Phase 1: Core Kanban (In progress)
 
-Spec: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md)
+Spec: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md) · Design: [Phase 1 screens](../design/README.md#screens-for-phase-1)
 
+- [x] UI design: screens, components and sources
 - [ ] Projects: create, edit, archive and delete inside a team
 - [ ] Lists: Kanban columns per project; create, rename, reorder, delete
 - [ ] Tasks: title, description, due date, priority, complete; drag and drop within and across lists
