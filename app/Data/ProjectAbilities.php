@@ -3,6 +3,7 @@
 namespace App\Data;
 
 use App\Models\Project;
+use App\Models\TaskList;
 use App\Models\User;
 
 readonly class ProjectAbilities
@@ -12,6 +13,7 @@ readonly class ProjectAbilities
         public bool $archive,
         public bool $restore,
         public bool $delete,
+        public bool $manageLists,
     ) {
         //
     }
@@ -26,6 +28,7 @@ readonly class ProjectAbilities
             archive: $user->can('archive', $project),
             restore: $user->can('restore', $project),
             delete: $user->can('delete', $project),
+            manageLists: $user->can('create', [TaskList::class, $project]),
         );
     }
 }
