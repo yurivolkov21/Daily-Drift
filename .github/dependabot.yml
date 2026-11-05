@@ -11,6 +11,8 @@ updates:
         patterns:
           - "*"
 
+  # Minor and patch updates come as one grouped pull request.
+  # Major updates come one per pull request, so each can be tested on its own.
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
@@ -21,6 +23,9 @@ updates:
       composer:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "npm"
     directory: "/"
@@ -32,3 +37,17 @@ updates:
       npm:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Types must match the Node.js major in .nvmrc (24). Remove when Node moves to a new LTS.
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
+      # The client must match the laravel/passkeys server package that Fortify requires (^0.2).
+      # Update both together when Fortify moves to a newer server version.
+      - dependency-name: "@laravel/passkeys"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-major"
