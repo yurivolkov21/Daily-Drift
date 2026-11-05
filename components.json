@@ -17,5 +17,9 @@
         "lib": "@/lib",
         "hooks": "@/hooks"
     },
-    "iconLibrary": "lucide"
+    "iconLibrary": "lucide",
+    "registries": {
+        "@reui": "https://reui.io/r/styles/radix-vega/{name}.json",
+        "@shadcn-studio": "https://shadcnstudio.com/r/new-york-v4/{name}.json"
+    }
 }
