@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Projects;
 
 use App\Actions\Projects\CreateProject;
 use App\Data\ProjectData;
+use App\Data\ProjectStats;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Projects\SaveProjectRequest;
 use App\Models\Project;
@@ -27,6 +28,7 @@ class ProjectController extends Controller
 
         $projects = $current_team->projects()
             ->with(['creator', 'lists', 'team'])
+            ->withCount(ProjectStats::counts())
             ->latest('updated_at')
             ->get();
 
@@ -57,7 +59,7 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $project->load(['creator', 'lists', 'team']);
+        $project->load(['creator', 'lists.tasks.creator', 'team'])->loadCount(ProjectStats::counts());
 
         return Inertia::render('projects/show', [
             'project' => ProjectData::from($project, $request->user()),

@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Lists\TaskListController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
+use App\Http\Controllers\Tasks\TaskController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,12 @@ Route::prefix('{current_team}')
             Route::patch('lists/{list}', [TaskListController::class, 'update'])->name('lists.update');
             Route::patch('lists/{list}/move', [TaskListController::class, 'move'])->name('lists.move');
             Route::delete('lists/{list}', [TaskListController::class, 'destroy'])->name('lists.destroy');
+
+            Route::post('lists/{list}/tasks', [TaskController::class, 'store'])->name('tasks.store');
+            Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+            Route::patch('tasks/{task}/move', [TaskController::class, 'move'])->name('tasks.move');
+            Route::patch('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+            Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
         });
     });
 
