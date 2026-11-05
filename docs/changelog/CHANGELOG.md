@@ -10,6 +10,7 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Changed
 
+- PHPUnit 13.
 - Updated recharts to 3.10.1, `@rolldown/plugin-babel` to 0.3, `@types/node` to 24.x (matching Node 24) and the optional Rollup binaries to 4.67.2.
 - Dependabot now groups only minor and patch updates; each major update comes as its own pull request.
 - Dependabot no longer proposes `@types/node` majors beyond Node 24, or `@laravel/passkeys` versions ahead of the server package Fortify requires.
