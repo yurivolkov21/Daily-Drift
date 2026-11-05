@@ -118,4 +118,4 @@ The shadcn CLI knows all of these registries, but this project's `new-york` styl
 - **shadcn/studio:** rejects `new-york`; use `https://shadcnstudio.com/r/new-york-v4/<name>.json`.
 - **ShadcnUIKit** and **Shadcn Space** serve free items at `https://shadcnuikit.com/r/<name>.json` and `https://shadcnspace.com/r/<name>.json`; paid ones answer with an authentication error.
 
-The first pull request that installs from these registries adds the ReUI and shadcn/studio URLs to `registries` in `components.json`, so `@reui/...` and `@shadcn-studio/...` resolve to the right versions (checked with `shadcn view`).
+`components.json` points `@reui` at `radix-vega` and `@shadcn-studio` at `new-york-v4` under `registries`, so `pnpm dlx shadcn@latest add @reui/<name>` installs the Radix version. The CLI still writes ReUI files to `components/reui/` at the repository root; move them to `resources/js/components/reui/`, which lint and format skip like `components/ui`.

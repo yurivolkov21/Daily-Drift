@@ -12,6 +12,7 @@ export type ProjectAbilities = {
     archive: boolean;
     restore: boolean;
     delete: boolean;
+    manageLists: boolean;
 };
 
 export type Project = {
