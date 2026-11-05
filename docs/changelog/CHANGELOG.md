@@ -7,7 +7,7 @@ Newest first. Dates are in the project's local time (UTC+7).
 ### Added
 
 - Project docs: roadmap, Phase 1 spec, tech stack, architecture decision records and this changelog.
-- Phase 1 UI design: screens with screenshots, components per screen, block sources and their licenses, and [ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md) for drag and drop.
+- Phase 1 UI design: screens with screenshots, color-coded projects and lists, components per screen, block sources and their licenses, and [ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md) for drag and drop.
 
 ### Changed
 
