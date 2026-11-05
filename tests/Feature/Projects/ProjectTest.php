@@ -176,7 +176,14 @@ class ProjectTest extends TestCase
                 ->where('project.lists.1.name', 'Second')
                 ->where('project.can.update', false)
                 ->where('project.can.delete', false)
+                ->where('project.can.manageLists', true)
             );
+
+        $project->update(['archived_at' => now()]);
+
+        $this->actingAs($user)
+            ->get(route('projects.show', ['current_team' => $team->slug, 'project' => $project->id]))
+            ->assertInertia(fn (Assert $page) => $page->where('project.can.manageLists', false));
     }
 
     public function test_owners_and_admins_can_update_projects()

@@ -29,6 +29,13 @@ class TaskList extends Model
     use HasFactory;
 
     /**
+     * Changing a list counts as an update of its project.
+     *
+     * @var list<string>
+     */
+    protected $touches = ['project'];
+
+    /**
      * Get the project the list belongs to.
      *
      * @return BelongsTo<Project, $this>

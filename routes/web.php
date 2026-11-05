@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Lists\TaskListController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
 use App\Http\Controllers\Teams\TeamInvitationController;
@@ -22,6 +23,11 @@ Route::prefix('{current_team}')
             Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
             Route::post('projects/{project}/archive', [ProjectArchiveController::class, 'store'])->name('projects.archive');
             Route::delete('projects/{project}/archive', [ProjectArchiveController::class, 'destroy'])->name('projects.restore');
+
+            Route::post('projects/{project}/lists', [TaskListController::class, 'store'])->name('lists.store');
+            Route::patch('lists/{list}', [TaskListController::class, 'update'])->name('lists.update');
+            Route::patch('lists/{list}/move', [TaskListController::class, 'move'])->name('lists.move');
+            Route::delete('lists/{list}', [TaskListController::class, 'destroy'])->name('lists.destroy');
         });
     });
 
