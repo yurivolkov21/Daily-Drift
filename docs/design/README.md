@@ -1,6 +1,8 @@
 # Design
 
-**Status:** Phase 1 designed (second version). The screenshots come from a prototype built with the installed components and sample data, in the app's own theme.
+**Status:** Working draft (second version). The screenshots come from a prototype built with the installed components and sample data, in the app's own theme.
+
+> **Not the final look.** This version is accepted as a starting point so Phase 1 can begin, but it is not yet the interface the project owner wants. It will be revised before Phase 1 is done; until then, treat layouts and styling as provisional and keep the data model and behaviour as the stable part.
 
 ## Principles
 
