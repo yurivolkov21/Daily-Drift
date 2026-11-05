@@ -14,6 +14,10 @@ Daily-Drift is a personal remake of a team project I built in my second semester
 - **UI:** [shadcn/ui](https://ui.shadcn.com) (Radix, `new-york` style), with every component available for this style installed in `resources/js/components/ui`
 - **Tooling:** PHPUnit, PHPStan, Pint, Wayfinder (typed routes for the frontend)
 
+## Docs
+
+Roadmap, feature specs, tech stack, decisions and changelog live in [`docs/`](docs/README.md).
+
 ## Requirements
 
 | Tool     | Version                                                                                                                                                            |
