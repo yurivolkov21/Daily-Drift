@@ -1,7 +1,6 @@
 import { Form, router } from '@inertiajs/react';
 import {
     Check,
-    ListTodo,
     MoreHorizontal,
     Palette,
     Pencil,
@@ -9,6 +8,9 @@ import {
     X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { AddTask } from '@/components/board/add-task';
+import { TaskCard } from '@/components/board/task-card';
+import { ProgressRing } from '@/components/hue-progress';
 import InputError from '@/components/input-error';
 import {
     KanbanColumn,
@@ -38,9 +40,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { HUE_NAMES, HUES } from '@/lib/hues';
+import { percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { destroy, update } from '@/routes/lists';
-import type { TaskList } from '@/types';
+import type { Task, TaskList } from '@/types';
 
 /**
  * Kanban column keys. Plain numeric keys would be reordered by JavaScript,
@@ -53,28 +56,31 @@ export const listIdFromKey = (key: string) => Number(key.replace('list-', ''));
 type Props = {
     teamSlug: string;
     list: TaskList;
+    /** The tasks shown in the column, which may differ from list.tasks while dragging. */
+    tasks: Task[];
     canManage: boolean;
+    onOpenTask?: (task: Task) => void;
     isOverlay?: boolean;
 };
 
 export function ListColumn({
     teamSlug,
     list,
+    tasks,
     canManage,
+    onOpenTask,
     isOverlay = false,
 }: Props) {
     const [renaming, setRenaming] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const parameters = { current_team: teamSlug, list: list.id };
 
+    const done = tasks.filter((task) => task.completedAt !== null).length;
+    const progress = percent(done, tasks.length);
+
     const title = (
         <>
-            <span
-                className={cn(
-                    'size-2.5 shrink-0 rounded-full',
-                    HUES[list.color].dot,
-                )}
-            />
+            <ProgressRing value={progress} hue={list.color} />
             <span className="truncate text-sm font-semibold">{list.name}</span>
             <span
                 className={cn(
@@ -82,7 +88,7 @@ export function ListColumn({
                     HUES[list.color].pill,
                 )}
             >
-                0
+                {tasks.length}
             </span>
         </>
     );
@@ -190,13 +196,28 @@ export function ListColumn({
 
             <KanbanColumnContent
                 value={columnKey(list.id)}
-                className="flex min-h-28 flex-col gap-2"
+                className="flex min-h-20 flex-col gap-2 p-0.5"
             >
-                <div className="flex min-h-28 flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-current/10 text-center text-xs text-muted-foreground">
-                    <ListTodo className="size-4" />
-                    No tasks yet
-                </div>
+                {tasks.map((task) => (
+                    <TaskCard
+                        key={task.id}
+                        teamSlug={teamSlug}
+                        task={task}
+                        canManage={canManage}
+                        onOpen={onOpenTask}
+                        isOverlay={isOverlay}
+                    />
+                ))}
+                {tasks.length === 0 && (
+                    <p className="flex min-h-20 flex-1 items-center justify-center rounded-xl border border-dashed border-current/10 text-xs text-muted-foreground">
+                        {canManage ? 'Drop a task here' : 'No tasks'}
+                    </p>
+                )}
             </KanbanColumnContent>
+
+            {canManage && !isOverlay && (
+                <AddTask teamSlug={teamSlug} listId={list.id} />
+            )}
 
             {canManage && !isOverlay && (
                 <AlertDialog open={deleting} onOpenChange={setDeleting}>
@@ -206,8 +227,9 @@ export function ListColumn({
                                 Delete “{list.name}”?
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                The list and every task in it are deleted. This
-                                cannot be undone.
+                                {tasks.length === 0
+                                    ? 'The list is empty. This cannot be undone.'
+                                    : `Its ${tasks.length} ${tasks.length === 1 ? 'task is' : 'tasks are'} deleted with it. This cannot be undone.`}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
