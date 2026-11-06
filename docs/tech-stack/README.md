@@ -23,6 +23,7 @@
 - **React 19**, **TypeScript**, **Tailwind CSS 4**, **Vite+**.
 - **shadcn/ui** (Radix, `new-york` style), with every component published for this style in `resources/js/components/ui`. See [ADR 0004](../decisions/0004-shadcn-components.md).
 - **ReUI Kanban** (Radix version, on `@dnd-kit/core` 6) for drag and drop on the board, in `resources/js/components/reui`. See [ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md).
+- **Fonts:** Instrument Sans from the starter kit, downloaded from Bunny Fonts during the production build. The interface rebuild switches to Inter and Plus Jakarta Sans ([ADR 0007](../decisions/0007-floating-shell-with-motion.md)).
 - Quality: `pnpm run check` (lint and format) and `pnpm run types:check` (TypeScript).
 
 ## CI
