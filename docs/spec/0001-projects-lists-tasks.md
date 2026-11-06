@@ -1,6 +1,6 @@
 # Spec 0001: Projects, lists and tasks
 
-**Status:** Draft · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [Phase 1 screens](../design/README.md#screens-for-phase-1)
+**Status:** In progress (projects, lists, tasks and progress are done; the dashboard is next) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [Phase 1 screens](../design/README.md#screens-for-phase-1)
 
 ## Goal
 
@@ -66,6 +66,7 @@ Named `task_lists` because `list` is a reserved word in PHP.
     - open tasks with a due date, grouped as overdue, today and the next 7 days;
     - tasks completed per day over the last 14 days (from `completed_at`);
     - active projects with their progress and the number of tasks in each list.
+    - The chosen design adds this week's share of tasks done, 7-day sparklines and a 7 or 14 day range; see [spec 0002](0002-interface-rebuild.md#dashboard).
 
 ## Permissions
 
@@ -99,6 +100,11 @@ Under the starter kit's team prefix `/{current_team}`:
 - Progress percentages match the share of completed tasks.
 - Dashboard counts and the completed-per-day series match the tasks of the current team only.
 - Every rule above has a feature test.
+
+## Known limitations
+
+- **Time zone.** "Today", "overdue" and "due in the next 7 days" use the app's time zone, which is UTC. For someone in UTC+7, a task becomes overdue at 07:00 local time instead of midnight. A per-user or per-team time zone is needed before the dashboard ships.
+- **Keyboard moves.** Moving a card with the keyboard jumps to the nearest drop target in the arrow's direction, which is not always the next position in the list.
 
 ## Out of scope for this spec
 

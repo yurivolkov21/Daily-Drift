@@ -4,7 +4,7 @@ A collaborative task manager: teams create projects, organise work into lists an
 
 Daily-Drift is a personal remake of a team project I built in my second semester at VTC Academy, rebuilt from scratch with a current Laravel + React stack.
 
-> **Status:** early setup. Authentication, teams and the UI component library are in place; the task features come next.
+> **Status:** Phase 1 in progress. Projects, lists, tasks with drag and drop, and progress work. The interface is being rebuilt to a new design ([design notes](docs/design/README.md)), and the dashboard comes next.
 
 ## Stack
 
@@ -12,6 +12,7 @@ Daily-Drift is a personal remake of a team project I built in my second semester
 - **Teams:** teams, email invitations, roles and permissions (from the starter kit's `teams` variant)
 - **Frontend:** Inertia 3, React 19, TypeScript, Tailwind CSS 4, Vite+
 - **UI:** [shadcn/ui](https://ui.shadcn.com) (Radix, `new-york` style), with every component available for this style installed in `resources/js/components/ui`
+- **Drag and drop:** [ReUI](https://reui.io) Kanban on `@dnd-kit`
 - **Tooling:** PHPUnit, PHPStan, Pint, Wayfinder (typed routes for the frontend)
 
 ## Docs
@@ -54,4 +55,4 @@ The production build downloads the Instrument Sans font from `fonts.bunny.net`, 
 ## Credits
 
 - Built on the [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit) (teams variant), MIT licensed.
-- UI components from [shadcn/ui](https://ui.shadcn.com), MIT licensed.
+- UI components from [shadcn/ui](https://ui.shadcn.com) and the Kanban component from [ReUI](https://reui.io), both MIT licensed. Other design sources and their licenses are listed in the [design notes](docs/design/README.md#sources).
