@@ -20,6 +20,7 @@ Newest first. Dates are in the project's local time (UTC+7).
 - People outside a team get 404 instead of 403 on its pages ([ADR 0006](../decisions/0006-not-found-for-non-members.md)).
 - PHPUnit 13.
 - TypeScript 7, the native compiler. `tsconfig.json` now lists `node` under `types`, because TypeScript 6 and later no longer load every installed `@types` package by default.
+- lucide-react 1.69. Every icon the app uses keeps its name.
 - Updated recharts to 3.10.1, `@rolldown/plugin-babel` to 0.3, `@types/node` to 24.x (matching Node 24) and the optional Rollup binaries to 4.67.2.
 - Dependabot now groups only minor and patch updates; each major update comes as its own pull request.
 - Dependabot no longer proposes `@types/node` majors beyond Node 24, or `@laravel/passkeys` versions ahead of the server package Fortify requires.
