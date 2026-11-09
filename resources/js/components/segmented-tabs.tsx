@@ -6,6 +6,8 @@ type Option<T extends string> = {
     value: T;
     label: string;
     icon?: LucideIcon;
+    /** A count shown after the label, such as the number of projects. */
+    count?: number;
 };
 
 type Props<T extends string> = Omit<
@@ -56,24 +58,31 @@ export function SegmentedTabs<T extends string>({
                     transform: `translateX(${index * 100}%)`,
                 }}
             />
-            {options.map(({ value: option, label: text, icon: Icon }) => (
-                <button
-                    key={option}
-                    type="button"
-                    role="radio"
-                    aria-checked={option === value}
-                    onClick={() => onChange(option)}
-                    className={cn(
-                        'relative flex min-h-9 items-center justify-center gap-1.5 rounded-[9px] px-3.5 text-sm font-semibold transition-colors',
-                        option === value
-                            ? 'text-foreground'
-                            : 'text-muted-foreground hover:text-foreground',
-                    )}
-                >
-                    {Icon && <Icon className="size-4" />}
-                    {text}
-                </button>
-            ))}
+            {options.map(
+                ({ value: option, label: text, icon: Icon, count }) => (
+                    <button
+                        key={option}
+                        type="button"
+                        role="radio"
+                        aria-checked={option === value}
+                        onClick={() => onChange(option)}
+                        className={cn(
+                            'relative flex min-h-9 items-center justify-center gap-1.5 rounded-[9px] px-3.5 text-sm font-semibold transition-colors',
+                            option === value
+                                ? 'text-foreground'
+                                : 'text-muted-foreground hover:text-foreground',
+                        )}
+                    >
+                        {Icon && <Icon className="size-4" />}
+                        {text}
+                        {count !== undefined && (
+                            <span className="font-medium text-muted-foreground tabular-nums">
+                                {count}
+                            </span>
+                        )}
+                    </button>
+                ),
+            )}
         </div>
     );
 }
