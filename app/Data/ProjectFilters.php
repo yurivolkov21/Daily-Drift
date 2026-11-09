@@ -30,6 +30,7 @@ readonly class ProjectFilters
         public string $sort = 'updated',
         public ?string $health = null,
         public array $colors = [],
+        public bool $mine = false,
     ) {
         //
     }
@@ -56,6 +57,7 @@ readonly class ProjectFilters
             sort: $pick('sort', self::SORTS, 'updated'),
             health: $pick('health', self::HEALTHS, null),
             colors: $colors,
+            mine: $request->query('mine') === '1',
         );
     }
 
@@ -74,6 +76,7 @@ readonly class ProjectFilters
             ->filter(fn (ProjectData $project) => ($project->archivedAt !== null) === $archived)
             ->filter(fn (ProjectData $project) => $archived || $this->health === null || $project->stats->health === $this->health)
             ->filter(fn (ProjectData $project) => $this->colors === [] || in_array($project->color, $this->colors, true))
+            ->filter(fn (ProjectData $project) => ! $this->mine || $project->stats->assignedToMe > 0)
             ->sort($this->comparator())
             ->values();
     }
@@ -97,7 +100,7 @@ readonly class ProjectFilters
     }
 
     /**
-     * @return array{status: string, view: string, sort: string, health: string|null, colors: array<int, string>}
+     * @return array{status: string, view: string, sort: string, health: string|null, colors: array<int, string>, mine: bool}
      */
     public function toArray(): array
     {
@@ -107,6 +110,7 @@ readonly class ProjectFilters
             'sort' => $this->sort,
             'health' => $this->health,
             'colors' => $this->colors,
+            'mine' => $this->mine,
         ];
     }
 }

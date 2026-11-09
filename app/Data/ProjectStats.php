@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Support\LocalTime;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 readonly class ProjectStats
 {
@@ -21,6 +22,7 @@ readonly class ProjectStats
         public int $completedRecently,
         public ?string $oldestOverdueOn,
         public string $health,
+        public int $assignedToMe = 0,
     ) {
         //
     }
@@ -54,6 +56,10 @@ readonly class ProjectStats
             'tasks as stale_open_tasks_count' => fn (Builder $query) => $query
                 ->whereNull('completed_at')
                 ->where('created_at', '<', $weekAgo),
+            // Open tasks assigned to the viewer (spec 0004).
+            'tasks as assigned_to_me_count' => fn (Builder $query) => $query
+                ->whereNull('completed_at')
+                ->where('assignee_id', Auth::id()),
         ];
     }
 
@@ -95,6 +101,7 @@ readonly class ProjectStats
             completedRecently: $completedRecently,
             oldestOverdueOn: is_string($oldest) ? substr($oldest, 0, 10) : null,
             health: $overdue > 0 || ($stale > 0 && $completedRecently === 0) ? self::ATTENTION : self::ON_TRACK,
+            assignedToMe: (int) $project->getAttribute('assigned_to_me_count'),
         );
     }
 }

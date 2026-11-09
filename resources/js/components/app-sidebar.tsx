@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
+    ListTodo,
     FolderKanban,
     LayoutGrid,
     PanelLeftClose,
@@ -26,7 +27,7 @@ import {
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { HUES } from '@/lib/hues';
 import { cn } from '@/lib/utils';
-import { dashboard } from '@/routes';
+import { dashboard, myTasks } from '@/routes';
 import { index as projectsIndex, show as showProject } from '@/routes/projects';
 import { edit as editTeam } from '@/routes/teams';
 import type { NavItem } from '@/types';
@@ -54,6 +55,12 @@ export function AppSidebar() {
                       href: projectsIndex(teamSlug),
                       icon: FolderKanban,
                       badge: page.props.activeProjectCount,
+                  },
+                  {
+                      title: 'My tasks',
+                      href: myTasks(teamSlug),
+                      icon: ListTodo,
+                      badge: page.props.myOpenTaskCount || undefined,
                   },
                   {
                       title: 'Team',

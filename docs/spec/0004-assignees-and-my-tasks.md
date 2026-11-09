@@ -1,6 +1,6 @@
 # Spec 0004: Assignees and My tasks
 
-**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-planned) · **Design:** wireframes to come (round 4)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 4](../design/README.md#screens-for-phase-2)
 
 ## Goal
 
@@ -18,7 +18,7 @@ A task has **one assignee or none**. One owner per task keeps _My tasks_, filter
 
 ## Behaviour
 
-- **Assigning:** the task sheet gets an _Assignee_ field listing the team's members with their initials avatar, with _Assign to me_ first and _Unassigned_ last. Every team member can assign or unassign any task, as with editing tasks ([spec 0001](0001-projects-lists-tasks.md#permissions)). Archived projects stay read-only.
+- **Assigning:** the task sheet gets an _Assignee_ field: a searchable menu of the team's members with their initials avatar, with _Assign to me_ first and _Unassigned_ last. Picking someone saves at once, like moving a task to another list. Every team member can assign or unassign any task, as with editing tasks ([spec 0001](0001-projects-lists-tasks.md#permissions)). Archived projects stay read-only.
 - **Who can be assigned:** only members of the project's team. Anyone else is a validation error.
 - **Leaving a team:** when someone leaves or is removed from a team, their tasks in that team's projects become unassigned. Deleting an account unassigns through the foreign key.
 - **New tasks** start unassigned.
@@ -56,10 +56,10 @@ A task has **one assignee or none**. One owner per task keeps _My tasks_, filter
 - Notifications on assignment (the notifications spec).
 - An _Assigned to me_ filter on the board (the labels and filters spec).
 
-## Open questions
+## Decisions
 
-1. **Unassigned tasks in _My focus_.** Proposed: yes, as above. The alternative is assigned tasks only, which leaves _My focus_ empty for people who never assign.
-2. **Unassigned tasks on _My tasks_.** Proposed: no; the page is only what is yours.
+1. **Unassigned tasks in _My focus_:** yes (the owner, 9 November), so _My focus_ is not empty for people who never assign.
+2. **Unassigned tasks on _My tasks_:** no; the page is only what is yours (the chosen wireframe).
 
 ## Acceptance criteria
 

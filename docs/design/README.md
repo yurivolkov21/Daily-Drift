@@ -13,6 +13,7 @@ The owner asked for a modern SaaS dashboard with smooth motion. Each round showe
 | 1     | Dashboard, scrollbars         | A merge of two options ("indigo rail" and "floating canvas"); thin scrollbars shown on hover or scroll |
 | 2     | Projects, board               | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
 | 3     | Sign in and sign up, settings | A glass card over a moving board; tabs inside one card                                                 |
+| 4     | My tasks, assignee field      | A grouped list; a searchable menu in the task sheet                                                    |
 
 The wireframes live in the owner's private design canvas. Screenshots of the built screens will be added here as each screen ships.
 
@@ -126,6 +127,19 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - **Appearance:** _Light_, _Dark_ and _Match my device_ with small previews; Motion: _Match device_, _Reduced_, _Full_.
 - **Team:** name and address, members with a role menu (Admin, Member, Remove; the owner is fixed), invitations by email with a role, and pending invitations with _Cancel_.
 
+## Screens for Phase 2
+
+### My tasks
+
+- A toolbar card with the title, today's date and how many tasks are due today, overdue and in the next 7 days, then project chips to filter by.
+- One card with the groups _Overdue_, _Today_, _Next 7 days_, _Later_ and _No due date_; each folds, and empty ones are hidden. Rows have a round checkbox, the title (a link to the task on its board), the project and list, the priority and how late or when the task is due.
+- Ticking a task fades and strikes it through, then moves it to _Done lately_ (folded, the last 7 days) with an _Undo_ toast.
+
+### Assignee
+
+- The task sheet's _Assignee_ row opens a menu with a search field: _Assign to me_ first (with how many open tasks of this project you already have), then the other members, then _Unassigned_. Picking someone saves at once.
+- Cards show the assignee's initials avatar, which pops in when it changes. The creator moves to the sheet's _Created by_ row.
+
 ## Components by screen
 
 | Screen       | shadcn/ui components                                                                  | Other                          |
@@ -136,6 +150,8 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 | Board        | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`           | ReUI `kanban`                  |
 | Sign in      | `input`, `button`, `tabs`                                                             |                                |
 | Settings     | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team) | Local segmented tabs           |
+| My tasks     | `checkbox`, `sonner` (toast with _Undo_)                                              |                                |
+| Assignee     | `popover`, `command`                                                                  |                                |
 | Empty states | `empty`                                                                               | Adapted from ReUI `c-empty-12` |
 
 The small local components from the first pass (progress ring, segmented bar, hue bar) stay.

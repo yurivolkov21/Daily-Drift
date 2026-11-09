@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Project;
+use App\Models\Task;
 use App\Support\LocalTime;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -56,6 +57,14 @@ class HandleInertiaRequests extends Middleware
                 'names' => $user->currentTeam->members()->orderBy('team_members.created_at')->limit(4)->pluck('name')->all(),
             ] : null,
             'activeProjectCount' => fn () => $user?->currentTeam ? $user->currentTeam->projects()->active()->count() : 0,
+            // The viewer's open tasks in the current team, for _My tasks_ in the sidebar (spec 0004).
+            'myOpenTaskCount' => fn () => $user?->currentTeam
+                ? Task::query()
+                    ->where('assignee_id', $user->id)
+                    ->whereNull('completed_at')
+                    ->whereHas('project', fn ($query) => $query->whereBelongsTo($user->currentTeam)->whereNull('archived_at'))
+                    ->count()
+                : 0,
             'recentProjects' => fn () => $user?->currentTeam
                 ? $user->currentTeam->projects()
                     ->active()

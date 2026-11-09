@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Projects\SaveProjectRequest;
 use App\Models\Project;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -71,12 +72,18 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $project->load(['creator', 'lists.tasks.creator', 'team'])
+        $project->load(['creator', 'lists.tasks.creator', 'lists.tasks.assignee', 'team'])
             ->loadCount(ProjectStats::counts())
             ->loadMin(ProjectStats::oldestOverdue(), 'due_on');
 
         return Inertia::render('projects/show', [
             'project' => ProjectData::from($project, $request->user()),
+            // Who a task can be assigned to (spec 0004).
+            'members' => $current_team->members()
+                ->orderBy('name')
+                ->get(['users.id', 'users.name'])
+                ->map(fn (User $member) => ['id' => $member->id, 'name' => $member->name])
+                ->values(),
         ]);
     }
 

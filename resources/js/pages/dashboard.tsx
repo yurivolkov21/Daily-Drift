@@ -78,8 +78,8 @@ export default function Dashboard({
                         <GreetingCard data={data} onShow={showGroup} />
                         <DueTodayCard
                             teamSlug={teamSlug}
-                            tasks={data.focus.today.items}
-                            total={data.focus.today.total}
+                            tasks={data.dueToday.items}
+                            total={data.dueToday.total}
                             onMore={() => showGroup('today')}
                         />
                     </section>

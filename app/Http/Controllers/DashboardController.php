@@ -36,7 +36,7 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'pendingInvitations' => $pendingInvitations,
-            'dashboard' => $team ? (new TeamDashboard($team))->toArray() : null,
+            'dashboard' => $team ? (new TeamDashboard($team, viewer: $request->user()))->toArray() : null,
         ]);
     }
 }

@@ -16,6 +16,8 @@ readonly class TaskData
         public ?string $completedAt,
         public int $position,
         public ?string $creatorName,
+        public ?int $assigneeId,
+        public ?string $assigneeName,
         public ?string $createdAt,
         public ?string $updatedAt,
     ) {
@@ -37,6 +39,8 @@ readonly class TaskData
             completedAt: $task->completed_at?->toISOString(),
             position: $task->position,
             creatorName: $task->creator?->name,
+            assigneeId: $task->assignee_id,
+            assigneeName: $task->assignee?->name,
             createdAt: $task->created_at?->toISOString(),
             updatedAt: $task->updated_at?->toISOString(),
         );

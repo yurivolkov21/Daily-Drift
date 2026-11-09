@@ -1,4 +1,4 @@
-import { Form, router } from '@inertiajs/react';
+import { Form, router, usePage } from '@inertiajs/react';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import {
     AlignLeft,
@@ -9,6 +9,7 @@ import {
     Flag,
     Trash2,
     User,
+    UserRoundCheck,
     X,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -53,6 +54,8 @@ import { dueState, PRIORITIES, PRIORITY_NAMES } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { complete, destroy, move, update } from '@/routes/tasks';
 import type { Priority, Project, Task } from '@/types';
+import type { Member } from './assignee-field';
+import { AssigneeField } from './assignee-field';
 import { CreatorAvatar } from './task-badges';
 
 type Props = {
@@ -109,6 +112,26 @@ function TaskForm({
     const completed = task.completedAt !== null;
     const { today } = useLocalTime();
     const state = dueState({ dueOn, completedAt: task.completedAt }, today);
+
+    const members = (usePage().props.members as Member[] | undefined) ?? [];
+    const openCounts: Record<number, number> = {};
+
+    project.lists.forEach((item) =>
+        item.tasks?.forEach((other) => {
+            if (other.assigneeId !== null && other.completedAt === null) {
+                openCounts[other.assigneeId] =
+                    (openCounts[other.assigneeId] ?? 0) + 1;
+            }
+        }),
+    );
+
+    // Assigning saves at once, like moving to another list (spec 0004).
+    const assign = (assigneeId: number | null) =>
+        router.visit(update(parameters), {
+            data: { assignee_id: assigneeId },
+            preserveScroll: true,
+            preserveState: true,
+        });
 
     const moveTo = (listId: number) => {
         const target = project.lists.find((item) => item.id === listId);
@@ -344,6 +367,20 @@ function TaskForm({
                                     )}
                                 </div>
                                 <InputError message={errors.due_on} />
+                            </Property>
+
+                            <Property
+                                icon={<UserRoundCheck />}
+                                label="Assignee"
+                            >
+                                <AssigneeField
+                                    members={members}
+                                    value={task.assigneeId}
+                                    openCounts={openCounts}
+                                    disabled={!canManage}
+                                    onChange={assign}
+                                />
+                                <InputError message={errors.assignee_id} />
                             </Property>
 
                             <Property icon={<User />} label="Created by">

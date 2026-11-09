@@ -13,6 +13,9 @@ export type Task = {
     completedAt: string | null;
     position: number;
     creatorName: string | null;
+    /** One team member or nobody (spec 0004). */
+    assigneeId: number | null;
+    assigneeName: string | null;
     createdAt: string | null;
     updatedAt: string | null;
 };
@@ -48,6 +51,8 @@ export type ProjectStats = {
     /** Date only, `YYYY-MM-DD`. */
     oldestOverdueOn: string | null;
     health: ProjectHealth;
+    /** Open tasks assigned to the viewer. */
+    assignedToMe: number;
 };
 
 export type ProjectSort = 'updated' | 'name' | 'progress' | 'overdue';
@@ -59,6 +64,8 @@ export type ProjectFilters = {
     sort: ProjectSort;
     health: ProjectHealth | null;
     colors: Hue[];
+    /** Only projects with an open task assigned to the viewer. */
+    mine: boolean;
 };
 
 export type Project = {

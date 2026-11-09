@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { complete } from '@/routes/tasks';
 import type { Task } from '@/types';
-import { CreatorAvatar, DueLabel, PriorityPill } from './task-badges';
+import { AssigneeAvatar, DueLabel, PriorityPill } from './task-badges';
 
 /** Kanban item keys; see columnKey for why ids get a prefix. */
 export const itemKey = (task: Pick<Task, 'id'>) => `task-${task.id}`;
@@ -131,10 +131,14 @@ export function TaskCard({
                 <div className="flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1 pl-6.5">
                     {!completed && <PriorityPill priority={task.priority} />}
                     <DueLabel task={task} />
-                    <CreatorAvatar
-                        name={task.creatorName}
-                        className="ml-auto"
-                    />
+                    {task.assigneeId !== null && task.assigneeName && (
+                        <AssigneeAvatar
+                            key={task.assigneeId}
+                            id={task.assigneeId}
+                            name={task.assigneeName}
+                            className="ml-auto"
+                        />
+                    )}
                 </div>
             </KanbanItemHandle>
         </KanbanItem>

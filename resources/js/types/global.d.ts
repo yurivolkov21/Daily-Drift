@@ -23,6 +23,8 @@ declare module '@inertiajs/core' {
             /** The first members of the current team, for the header. */
             teamPeople: { total: number; names: string[] } | null;
             activeProjectCount: number;
+            /** Open tasks assigned to the viewer in the current team. */
+            myOpenTaskCount: number;
             [key: string]: unknown;
         };
     }

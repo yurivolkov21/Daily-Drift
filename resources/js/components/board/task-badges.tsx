@@ -1,4 +1,5 @@
 import { CalendarDays, Flag } from 'lucide-react';
+import { MemberAvatar } from '@/components/member-avatar';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Tooltip,
@@ -60,6 +61,32 @@ export function DueLabel({
             {state === 'overdue' && 'Overdue · '}
             {state === 'today' ? 'Today' : formatDue(task.dueOn)}
         </span>
+    );
+}
+
+/** The assignee on a card, with their name on hover (spec 0004). */
+export function AssigneeAvatar({
+    id,
+    name,
+    className,
+}: {
+    id: number;
+    name: string;
+    className?: string;
+}) {
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <span
+                    tabIndex={-1}
+                    className={cn('animate-pop rounded-full', className)}
+                >
+                    <MemberAvatar id={id} name={name} />
+                    <span className="sr-only">Assigned to {name}</span>
+                </span>
+            </TooltipTrigger>
+            <TooltipContent>Assigned to {name}</TooltipContent>
+        </Tooltip>
     );
 }
 

@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int $project_id
  * @property int $task_list_id
  * @property int|null $created_by
+ * @property int|null $assignee_id
  * @property string $title
  * @property string|null $description
  * @property Priority $priority
@@ -26,8 +27,9 @@ use Illuminate\Support\Carbon;
  * @property-read Project $project
  * @property-read TaskList $list
  * @property-read User|null $creator
+ * @property-read User|null $assignee
  */
-#[Fillable(['title', 'description', 'priority', 'due_on', 'completed_at', 'position'])]
+#[Fillable(['title', 'description', 'priority', 'due_on', 'completed_at', 'position', 'assignee_id'])]
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
@@ -68,6 +70,16 @@ class Task extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the team member the task is assigned to.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     /**

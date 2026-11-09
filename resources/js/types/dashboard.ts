@@ -39,6 +39,9 @@ export type DashboardData = {
         previous7: number;
         previous14: number;
     };
+    /** Every open task due today, team-wide. */
+    dueToday: { total: number; items: FocusTask[] };
+    /** The viewer's tasks and unassigned ones (spec 0004). */
     focus: Record<FocusGroup, { total: number; items: FocusTask[] }>;
     projects: {
         id: number;
