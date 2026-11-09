@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TeamInvitation;
+use App\Queries\TeamDashboard;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,8 +32,11 @@ class DashboardController extends Controller
                 ],
             ]);
 
+        $team = $request->user()->currentTeam;
+
         return Inertia::render('dashboard', [
             'pendingInvitations' => $pendingInvitations,
+            'dashboard' => $team ? (new TeamDashboard($team))->toArray() : null,
         ]);
     }
 }

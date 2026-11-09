@@ -67,7 +67,7 @@ export function SegmentedTabs<T extends string>({
                         aria-checked={option === value}
                         onClick={() => onChange(option)}
                         className={cn(
-                            'relative flex min-h-9 items-center justify-center gap-1.5 rounded-[9px] px-3.5 text-sm font-semibold transition-colors',
+                            'relative flex min-h-9 items-center justify-center gap-1.5 rounded-[9px] px-3.5 text-sm font-semibold whitespace-nowrap transition-colors',
                             option === value
                                 ? 'text-foreground'
                                 : 'text-muted-foreground hover:text-foreground',
