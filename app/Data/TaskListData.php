@@ -9,6 +9,7 @@ readonly class TaskListData
 {
     /**
      * @param  array<int, TaskData>|null  $tasks  Null when the tasks were not loaded.
+     * @param  int|null  $taskCount  Null when the tasks were not counted.
      */
     public function __construct(
         public int $id,
@@ -16,6 +17,7 @@ readonly class TaskListData
         public string $color,
         public int $position,
         public ?array $tasks,
+        public ?int $taskCount = null,
     ) {
         //
     }
@@ -33,6 +35,7 @@ readonly class TaskListData
             tasks: $list->relationLoaded('tasks')
                 ? $list->tasks->map(fn (Task $task) => TaskData::from($task))->values()->all()
                 : null,
+            taskCount: $list->getAttribute('tasks_count') !== null ? (int) $list->getAttribute('tasks_count') : null,
         );
     }
 }

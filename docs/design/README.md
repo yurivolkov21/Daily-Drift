@@ -1,6 +1,6 @@
 # Design
 
-**Status:** Chosen; tokens and the app shell are built, the screens are next · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
+**Status:** Chosen; tokens, the app shell and the projects page are built · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
 
 This page describes the interface the app is being rebuilt to. It replaces the first pass, which kept the starter kit's look and was accepted only as a starting point (see [Earlier version](#earlier-version)).
 
@@ -79,7 +79,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 ## App shell
 
 - **Sidebar:** a floating night-blue card, 256 px wide, that folds to a 76 px icon rail with its button or Ctrl/⌘ + B; the choice is remembered. It holds the logo, the team switcher, _Dashboard_, _Projects_ (with a count), _My tasks_ (Phase 2) and _Team_, then _Recent_: the five most recently updated active projects as colored letter tiles with their open task counts, and the user at the bottom. On the rail, labels fade out, items show tooltips and counts become dots.
-- **Header bar:** a white card with breadcrumbs, search (⌘K, Phase 2) and the page's main action.
+- **Header bar:** a white card with breadcrumbs that start with the team, the first team members, and the page's main action. Search (⌘K) joins it in Phase 2.
 
 ## Screens for Phase 1
 

@@ -64,9 +64,18 @@ class ProjectTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('projects/index')
-                ->has('projects', 2)
+                ->has('projects', 1)
+                ->where('projects.0.name', 'Active one')
+                ->where('counts.active', 1)
+                ->where('counts.archived', 1)
                 ->where('canCreate', false)
-                ->where('projects', fn ($projects) => collect($projects)->pluck('name')->sort()->values()->all() === ['Active one', 'Archived one'])
+            );
+
+        $this->actingAs($user)
+            ->get(route('projects.index', ['current_team' => $team->slug, 'status' => 'archived']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('projects', 1)
+                ->where('projects.0.name', 'Archived one')
             );
 
         $this->assertNotNull($archived->fresh()->archived_at);

@@ -1,6 +1,6 @@
 # Spec 0002: Interface rebuild
 
-**Status:** In progress (shell and Motion setting done) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
+**Status:** In progress (shell, Motion setting and projects page done) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
 
 ## Goal
 
@@ -17,9 +17,9 @@ Rebuild the shell and the Phase 1 screens to the chosen design, and add the beha
 - **View:** `grid` (default) or `list`.
 - **Sort:** `updated` (most recently updated first), `name` (A to Z), `progress` (least done first), `overdue` (most overdue tasks first, then most recently updated).
 - **Filters:** health and color (any of the ten hues). "Assigned to me" waits for assignees in Phase 2.
-- View, sort and filters are kept in the query string (`?view=list&sort=name&health=attention&color=indigo`), so a link reopens the same page. The last view is also remembered in the browser.
+- Tab, view, sort and filters are kept in the query string (`?status=archived&view=list&sort=name&health=attention&color=indigo,teal`), so a link reopens the same page. Unknown values fall back to the defaults. The last view is also kept in the `projects_view` cookie and used when the link has none.
 - **Health** of an active project:
-    - **Needs attention** when it has at least one open task past its due date, or when it has open tasks and none was completed in the last 7 days.
+    - **Needs attention** when it has at least one open task past its due date, or when it has open tasks created more than 7 days ago and none was completed in the last 7 days. (Counting only tasks older than a week keeps a project that was just set up from being flagged.)
     - **On track** otherwise, including empty projects.
     - The list view shows the reason, for example "2 tasks overdue, oldest since 2 Nov".
 - **List view** groups projects by health; each group collapses, and a switch turns grouping off.
@@ -72,7 +72,7 @@ See [spec 0001](0001-projects-lists-tasks.md#known-limitations).
 
 - The sidebar state survives a reload; Ctrl/⌘ + B toggles it.
 - Projects view, sort and filters survive a reload through the query string.
-- Health: a project with an overdue open task, or with open tasks and no completion in 7 days, is _Needs attention_; any other project is _On track_.
+- Health: a project with an overdue open task, or with week-old open tasks and no completion in 7 days, is _Needs attention_; any other project is _On track_.
 - Sorting by `overdue` orders projects by their number of overdue open tasks.
 - Dropping a task on a folded list stores it at the end of that list; _Undo_ restores the old list and index.
 - This week's share and the sparkline values match the current team's tasks only.

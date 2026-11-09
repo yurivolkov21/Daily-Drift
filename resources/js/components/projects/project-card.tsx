@@ -1,10 +1,12 @@
 import { Link } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
-import { Archive, Columns3 } from 'lucide-react';
-import { ProjectMenu } from '@/components/projects/project-menu';
-import { ProjectTile } from '@/components/projects/project-tile';
+import { Archive } from 'lucide-react';
 import { HueBar } from '@/components/hue-progress';
+import { ProjectMenu } from '@/components/projects/project-menu';
+import { useInitials } from '@/hooks/use-initials';
+import type { Hue } from '@/lib/hues';
 import { HUES } from '@/lib/hues';
+import { openTasks } from '@/lib/projects';
 import { percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { show } from '@/routes/projects';
@@ -13,127 +15,183 @@ import type { Project } from '@/types';
 type Props = {
     teamSlug: string;
     project: Project;
+    /** Position in the grid, to stagger the entrance. */
+    index?: number;
 };
 
-export function ProjectCard({ teamSlug, project }: Props) {
+/**
+ * A project in the grid: a striped cover in the project's hue, the letter
+ * tile, three numbers, progress and who made it. Archived projects keep the
+ * same card in grey.
+ */
+export function ProjectCard({ teamSlug, project, index = 0 }: Props) {
+    const getInitials = useInitials();
+    const archived = project.archivedAt !== null;
+    const hue: Hue = archived ? 'slate' : project.color;
     const progress = percent(project.stats.completed, project.stats.tasks);
+    const delay = `${120 + index * 60}ms`;
+    const when = archived ? project.archivedAt : project.updatedAt;
 
     return (
-        <div className="group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-md">
+        <article
+            className="group/card relative flex animate-rise flex-col rounded-card bg-card transition-[translate,box-shadow] duration-300 ease-slide hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-22px_rgb(40_30_120/0.35)]"
+            style={{ animationDelay: delay }}
+        >
             <div
+                aria-hidden="true"
                 className={cn(
-                    'pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b to-transparent',
-                    HUES[project.color].gradient,
+                    'relative h-[78px] overflow-hidden rounded-t-card bg-linear-to-br',
+                    HUES[hue].cover,
                 )}
-            />
-            <div className="relative flex flex-1 flex-col gap-4 p-5">
-                <div className="flex items-start gap-3">
-                    <ProjectTile name={project.name} color={project.color} />
-                    <div className="min-w-0 flex-1">
+            >
+                <span className="absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent_0_14px,rgb(255_255_255/0.45)_14px_15px)] bg-size-[auto] transition-[background-position] duration-700 group-hover/card:bg-position-[24px_0] dark:bg-[repeating-linear-gradient(135deg,transparent_0_14px,rgb(255_255_255/0.06)_14px_15px)]" />
+            </div>
+
+            {(archived || project.stats.health === 'attention') && (
+                <span
+                    className={cn(
+                        'absolute top-3 left-3.5 flex items-center gap-1.5 rounded-full bg-card/90 py-1 pr-2.5 pl-2 text-xs font-semibold backdrop-blur-sm',
+                        archived ? 'text-muted-foreground' : 'text-red-700',
+                    )}
+                >
+                    {archived ? (
+                        <Archive className="size-3.5" />
+                    ) : (
+                        <span className="relative flex size-2">
+                            <span className="absolute inline-flex size-full animate-ping rounded-full bg-red-500/60" />
+                            <span className="relative inline-flex size-2 rounded-full bg-red-500" />
+                        </span>
+                    )}
+                    {archived ? 'Archived' : 'Needs attention'}
+                </span>
+            )}
+
+            <div className="flex flex-1 flex-col gap-4 px-5 pb-5">
+                <div className="-mt-6 flex items-end justify-between">
+                    <span
+                        aria-hidden="true"
+                        className={cn(
+                            'flex size-12 items-center justify-center rounded-[14px] border-[3px] border-card font-display text-lg font-extrabold text-white shadow-[0_10px_20px_-12px_rgb(23_21_59/0.6)]',
+                            HUES[hue].dot,
+                        )}
+                    >
+                        {project.name.trim().charAt(0).toUpperCase() || '?'}
+                    </span>
+                    <ProjectMenu
+                        teamSlug={teamSlug}
+                        project={project}
+                        className="relative z-10 -mr-2"
+                    />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <h2 className="text-[17px] leading-snug font-extrabold">
                         <Link
                             href={show({
                                 current_team: teamSlug,
                                 project: project.id,
                             })}
                             prefetch
-                            className="block truncate font-semibold outline-none after:absolute after:inset-0 focus-visible:underline"
+                            className="outline-none after:absolute after:inset-0 after:rounded-card focus-visible:after:ring-2 focus-visible:after:ring-ring"
                         >
                             {project.name}
                         </Link>
-                        <p className="text-xs text-muted-foreground">
-                            {project.updatedAt
-                                ? `Updated ${formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })}`
-                                : 'Not updated yet'}
-                        </p>
-                    </div>
-                    <ProjectMenu
-                        teamSlug={teamSlug}
-                        project={project}
-                        className="-mt-1 -mr-2"
-                    />
+                    </h2>
+                    <p className="line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-muted-foreground">
+                        {project.description || 'No description yet.'}
+                    </p>
                 </div>
 
-                <p className="line-clamp-2 min-h-10 text-sm text-muted-foreground">
-                    {project.description || 'No description yet.'}
-                </p>
-
-                <div className="grid grid-cols-3 gap-2">
+                <dl className="grid grid-cols-3 gap-2">
+                    <MiniStat label="Open" value={openTasks(project)} />
                     <MiniStat
-                        label="Open"
-                        value={project.stats.tasks - project.stats.completed}
-                    />
-                    <MiniStat
-                        label="Due this week"
+                        label="Next 7 days"
                         value={project.stats.dueSoon}
                     />
                     <MiniStat
                         label="Overdue"
                         value={project.stats.overdue}
-                        className={
-                            project.stats.overdue > 0
-                                ? 'bg-red-500/10 text-red-700 dark:text-red-400'
-                                : undefined
-                        }
+                        alert={project.stats.overdue > 0}
                     />
-                </div>
+                </dl>
 
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                            {project.stats.completed} of {project.stats.tasks}{' '}
-                            tasks done
-                        </span>
                         <span className="font-semibold tabular-nums">
-                            {progress}%
+                            {progress}% done
+                        </span>
+                        <span className="text-muted-foreground tabular-nums">
+                            {project.stats.completed} of {project.stats.tasks}{' '}
+                            tasks
                         </span>
                     </div>
-                    <HueBar value={progress} hue={project.color} />
+                    <HueBar
+                        value={progress}
+                        hue={hue}
+                        delay={`${380 + index * 60}ms`}
+                        className="h-[7px]"
+                    />
+                </div>
+
+                <div className="mt-auto flex items-center justify-between gap-3 border-t border-border/70 pt-4 text-xs text-muted-foreground">
+                    {project.creatorName ? (
+                        <span
+                            className="flex size-7 items-center justify-center rounded-full bg-[#f5d0fe] text-[10.5px] font-bold text-[#701a75]"
+                            title={`Created by ${project.creatorName}`}
+                        >
+                            {getInitials(project.creatorName)}
+                        </span>
+                    ) : (
+                        <span />
+                    )}
+                    {when && (
+                        <span>
+                            {archived ? 'Archived' : 'Updated'}{' '}
+                            {formatDistanceToNow(new Date(when), {
+                                addSuffix: true,
+                            })}
+                        </span>
+                    )}
                 </div>
             </div>
-            <div className="relative flex items-center justify-between gap-3 border-t bg-muted/30 px-5 py-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                    <Columns3 className="size-3.5" />
-                    {project.lists.length}{' '}
-                    {project.lists.length === 1 ? 'list' : 'lists'}
-                </span>
-                {project.archivedAt ? (
-                    <span className="flex items-center gap-1.5">
-                        <Archive className="size-3.5" /> Archived
-                    </span>
-                ) : (
-                    project.creatorName && (
-                        <span className="truncate">
-                            By {project.creatorName}
-                        </span>
-                    )
-                )}
-            </div>
-        </div>
+        </article>
     );
 }
 
 function MiniStat({
     label,
     value,
-    className,
+    alert = false,
 }: {
     label: string;
     value: number;
-    className?: string;
+    alert?: boolean;
 }) {
     return (
         <div
             className={cn(
-                'flex flex-col gap-0.5 rounded-lg bg-muted/60 px-3 py-2',
-                className,
+                'flex flex-col gap-0.5 rounded-xl px-3 py-2.5',
+                alert ? 'bg-red-500/10' : 'bg-muted',
             )}
         >
-            <span className="truncate text-[11px] text-muted-foreground">
+            <dt
+                className={cn(
+                    'truncate text-[11.5px]',
+                    alert
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-muted-foreground',
+                )}
+            >
                 {label}
-            </span>
-            <span className="text-base font-semibold tabular-nums">
+            </dt>
+            <dd
+                className={cn(
+                    'font-display text-lg font-extrabold tabular-nums',
+                    alert && 'text-red-700 dark:text-red-400',
+                )}
+            >
                 {value}
-            </span>
+            </dd>
         </div>
     );
 }

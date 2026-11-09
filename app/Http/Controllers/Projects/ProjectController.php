@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Projects;
 
 use App\Actions\Projects\CreateProject;
 use App\Data\ProjectData;
+use App\Data\ProjectFilters;
 use App\Data\ProjectStats;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Projects\SaveProjectRequest;
@@ -25,15 +26,26 @@ class ProjectController extends Controller
         Gate::authorize('viewAny', [Project::class, $current_team]);
 
         $user = $request->user();
+        $filters = ProjectFilters::fromRequest($request);
 
         $projects = $current_team->projects()
-            ->with(['creator', 'lists', 'team'])
+            ->with(['creator', 'lists' => fn ($query) => $query->withCount('tasks'), 'team'])
             ->withCount(ProjectStats::counts())
+            ->withMin(ProjectStats::oldestOverdue(), 'due_on')
             ->latest('updated_at')
-            ->get();
+            ->get()
+            ->map(fn (Project $project) => ProjectData::from($project, $user));
+
+        $active = $projects->whereNull('archivedAt');
 
         return Inertia::render('projects/index', [
-            'projects' => $projects->map(fn (Project $project) => ProjectData::from($project, $user))->values(),
+            'projects' => $filters->apply($projects),
+            'filters' => $filters->toArray(),
+            'counts' => [
+                'active' => $active->count(),
+                'archived' => $projects->count() - $active->count(),
+                'attention' => $active->filter(fn (ProjectData $project) => $project->stats->health === ProjectStats::ATTENTION)->count(),
+            ],
             'canCreate' => $user->can('create', [Project::class, $current_team]),
         ]);
     }
@@ -59,7 +71,9 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $project->load(['creator', 'lists.tasks.creator', 'team'])->loadCount(ProjectStats::counts());
+        $project->load(['creator', 'lists.tasks.creator', 'team'])
+            ->loadCount(ProjectStats::counts())
+            ->loadMin(ProjectStats::oldestOverdue(), 'due_on');
 
         return Inertia::render('projects/show', [
             'project' => ProjectData::from($project, $request->user()),

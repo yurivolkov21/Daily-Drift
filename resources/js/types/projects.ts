@@ -24,6 +24,8 @@ export type TaskList = {
     position: number;
     /** Null on pages that do not load tasks. */
     tasks: Task[] | null;
+    /** Null on pages that do not count tasks. */
+    taskCount: number | null;
 };
 
 export type ProjectAbilities = {
@@ -34,11 +36,29 @@ export type ProjectAbilities = {
     manageLists: boolean;
 };
 
+export type ProjectHealth = 'attention' | 'track';
+
 export type ProjectStats = {
     tasks: number;
     completed: number;
     overdue: number;
     dueSoon: number;
+    /** Completed in the last 7 days. */
+    completedRecently: number;
+    /** Date only, `YYYY-MM-DD`. */
+    oldestOverdueOn: string | null;
+    health: ProjectHealth;
+};
+
+export type ProjectSort = 'updated' | 'name' | 'progress' | 'overdue';
+
+/** The projects page's tab, view, sort and filters (`App\Data\ProjectFilters`). */
+export type ProjectFilters = {
+    status: 'active' | 'archived';
+    view: 'grid' | 'list';
+    sort: ProjectSort;
+    health: ProjectHealth | null;
+    colors: Hue[];
 };
 
 export type Project = {

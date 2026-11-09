@@ -294,13 +294,13 @@ class TaskTest extends TestCase
                 ->has('project.lists.0.tasks', 3)
                 ->has('project.lists.1.tasks', 1)
                 ->has('project.lists.2.tasks', 0)
-                ->where('project.stats', ['tasks' => 4, 'completed' => 1, 'overdue' => 1, 'dueSoon' => 1])
+                ->where('project.stats', ['tasks' => 4, 'completed' => 1, 'overdue' => 1, 'dueSoon' => 1, 'completedRecently' => 1, 'oldestOverdueOn' => '2026-11-03', 'health' => 'attention'])
             );
 
         $this->actingAs($this->member)
             ->get(route('projects.index', ['current_team' => $this->team->slug]))
             ->assertInertia(fn (Assert $page) => $page
-                ->where('projects.0.stats', ['tasks' => 4, 'completed' => 1, 'overdue' => 1, 'dueSoon' => 1])
+                ->where('projects.0.stats', ['tasks' => 4, 'completed' => 1, 'overdue' => 1, 'dueSoon' => 1, 'completedRecently' => 1, 'oldestOverdueOn' => '2026-11-03', 'health' => 'attention'])
                 ->where('projects.0.lists.0.tasks', null)
             );
     }

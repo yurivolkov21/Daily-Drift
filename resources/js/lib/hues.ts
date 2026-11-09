@@ -33,6 +33,8 @@ type HueClasses = {
     bar: string;
     /** Gradient start for card headers. */
     gradient: string;
+    /** Gradient for the striped cover on project cards (with bg-linear-to-br). */
+    cover: string;
 };
 
 export const HUES: Record<Hue, HueClasses> = {
@@ -44,6 +46,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-slate-500/10 text-slate-700 dark:text-slate-300',
         bar: 'bg-slate-400',
         gradient: 'from-slate-500/10',
+        cover: 'from-slate-500/10 to-slate-500/30',
     },
     red: {
         label: 'Red',
@@ -53,6 +56,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-red-500/10 text-red-700 dark:text-red-400',
         bar: 'bg-red-500',
         gradient: 'from-red-500/10',
+        cover: 'from-red-500/15 to-red-500/40',
     },
     orange: {
         label: 'Orange',
@@ -62,6 +66,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-orange-500/10 text-orange-700 dark:text-orange-400',
         bar: 'bg-orange-500',
         gradient: 'from-orange-500/10',
+        cover: 'from-orange-500/15 to-orange-500/40',
     },
     amber: {
         label: 'Amber',
@@ -71,6 +76,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
         bar: 'bg-amber-500',
         gradient: 'from-amber-500/10',
+        cover: 'from-amber-500/15 to-amber-500/40',
     },
     green: {
         label: 'Green',
@@ -80,6 +86,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-green-500/10 text-green-700 dark:text-green-400',
         bar: 'bg-green-500',
         gradient: 'from-green-500/10',
+        cover: 'from-green-500/15 to-green-500/40',
     },
     teal: {
         label: 'Teal',
@@ -89,6 +96,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-teal-500/10 text-teal-700 dark:text-teal-400',
         bar: 'bg-teal-500',
         gradient: 'from-teal-500/10',
+        cover: 'from-teal-500/15 to-teal-500/40',
     },
     blue: {
         label: 'Blue',
@@ -98,6 +106,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-blue-500/10 text-blue-700 dark:text-blue-400',
         bar: 'bg-blue-500',
         gradient: 'from-blue-500/10',
+        cover: 'from-blue-500/15 to-blue-500/40',
     },
     indigo: {
         label: 'Indigo',
@@ -107,6 +116,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400',
         bar: 'bg-indigo-500',
         gradient: 'from-indigo-500/10',
+        cover: 'from-indigo-500/15 to-indigo-500/40',
     },
     violet: {
         label: 'Violet',
@@ -116,6 +126,7 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-violet-500/10 text-violet-700 dark:text-violet-400',
         bar: 'bg-violet-500',
         gradient: 'from-violet-500/10',
+        cover: 'from-violet-500/15 to-violet-500/40',
     },
     pink: {
         label: 'Pink',
@@ -125,5 +136,6 @@ export const HUES: Record<Hue, HueClasses> = {
         pill: 'bg-pink-500/10 text-pink-700 dark:text-pink-400',
         bar: 'bg-pink-500',
         gradient: 'from-pink-500/10',
+        cover: 'from-pink-500/15 to-pink-500/40',
     },
 };
