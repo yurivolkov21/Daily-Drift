@@ -1,6 +1,10 @@
 import { Form, Head } from '@inertiajs/react';
+import { CircleCheck } from 'lucide-react';
+import { useState } from 'react';
+import { AuthTabs } from '@/components/auth-tabs';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import { PasswordStrength } from '@/components/password-strength';
 import TeamInvitationAlert from '@/components/team-invitation-alert';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -17,9 +21,13 @@ type Props = {
 };
 
 export default function Register({ passwordRules, teamInvitation }: Props) {
+    const [password, setPassword] = useState('');
+    const [confirmation, setConfirmation] = useState('');
+
     return (
         <>
             <Head title="Register" />
+            <AuthTabs current="register" invitation={teamInvitation?.code} />
             <Form
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
@@ -46,7 +54,8 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
                                     tabIndex={1}
                                     autoComplete="name"
                                     name="name"
-                                    placeholder="Full name"
+                                    placeholder="Your name"
+                                    className="h-11 rounded-xl bg-muted"
                                 />
                                 <InputError
                                     message={errors.name}
@@ -63,7 +72,8 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
                                     tabIndex={2}
                                     autoComplete="email"
                                     name="email"
-                                    placeholder="email@example.com"
+                                    placeholder="you@example.com"
+                                    className="h-11 rounded-xl bg-muted"
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -76,9 +86,14 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
                                     tabIndex={3}
                                     autoComplete="new-password"
                                     name="password"
-                                    placeholder="Password"
+                                    placeholder="At least 8 characters"
                                     passwordrules={passwordRules}
+                                    className="h-11 rounded-xl bg-muted"
+                                    onChange={(event) =>
+                                        setPassword(event.target.value)
+                                    }
                                 />
+                                <PasswordStrength password={password} />
                                 <InputError message={errors.password} />
                             </div>
 
@@ -94,7 +109,18 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
                                     name="password_confirmation"
                                     placeholder="Confirm password"
                                     passwordrules={passwordRules}
+                                    className="h-11 rounded-xl bg-muted pr-16"
+                                    onChange={(event) =>
+                                        setConfirmation(event.target.value)
+                                    }
                                 />
+                                {confirmation !== '' &&
+                                    confirmation === password && (
+                                        <span className="flex animate-pop items-center gap-1.5 text-xs font-semibold text-green-600">
+                                            <CircleCheck className="size-4" />
+                                            The passwords match
+                                        </span>
+                                    )}
                                 <InputError
                                     message={errors.password_confirmation}
                                 />
@@ -102,7 +128,7 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-2 w-full"
+                                className="mt-2 h-12 w-full rounded-xl text-[15px] font-bold"
                                 tabIndex={5}
                                 data-test="register-user-button"
                             >
@@ -127,7 +153,7 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
                                 data-test="team-invitation-login-link"
                                 tabIndex={6}
                             >
-                                Log in
+                                Sign in
                             </TextLink>
                         </div>
                     </>
@@ -138,6 +164,6 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
 }
 
 Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+    title: 'Create your account',
+    description: 'Free for small teams. Your first board is ready in a minute.',
 };

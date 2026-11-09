@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { AuthTabs } from '@/components/auth-tabs';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TeamInvitationAlert from '@/components/team-invitation-alert';
@@ -36,6 +37,8 @@ export default function Login({
                 />
             )}
 
+            <AuthTabs current="login" invitation={teamInvitation?.code} />
+
             <PasskeyVerify />
 
             <Form
@@ -56,7 +59,8 @@ export default function Login({
                                     autoFocus
                                     tabIndex={1}
                                     autoComplete="email"
-                                    placeholder="email@example.com"
+                                    placeholder="you@example.com"
+                                    className="h-11 rounded-xl bg-muted"
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -80,7 +84,8 @@ export default function Login({
                                     required
                                     tabIndex={2}
                                     autoComplete="current-password"
-                                    placeholder="Password"
+                                    placeholder="Your password"
+                                    className="h-11 rounded-xl bg-muted"
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -91,23 +96,25 @@ export default function Login({
                                     name="remember"
                                     tabIndex={3}
                                 />
-                                <Label htmlFor="remember">Remember me</Label>
+                                <Label htmlFor="remember">
+                                    Keep me signed in on this device
+                                </Label>
                             </div>
 
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                className="mt-2 h-12 w-full rounded-xl text-[15px] font-bold"
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
                             >
                                 {processing && <Spinner />}
-                                Log in
+                                Sign in
                             </Button>
                         </div>
 
                         <div className="text-center text-sm text-muted-foreground">
-                            Don't have an account?{' '}
+                            New to Daily-Drift?{' '}
                             <TextLink
                                 href={register({
                                     query: {
@@ -117,7 +124,7 @@ export default function Login({
                                 data-test="register-link"
                                 tabIndex={5}
                             >
-                                Sign up
+                                Create an account
                             </TextLink>
                         </div>
                     </>
@@ -125,7 +132,10 @@ export default function Login({
             </Form>
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <div
+                    role="status"
+                    className="mt-4 rounded-xl bg-green-500/10 px-4 py-3 text-center text-sm font-medium text-green-700 dark:text-green-400"
+                >
                     {status}
                 </div>
             )}
@@ -134,6 +144,6 @@ export default function Login({
 }
 
 Login.layout = {
-    title: 'Log in to your account',
-    description: 'Enter your email and password below to log in',
+    title: 'Welcome back',
+    description: 'Sign in to pick up where you left off.',
 };

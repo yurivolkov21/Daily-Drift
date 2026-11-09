@@ -8,8 +8,12 @@ export default function InputError({
 }: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
     return message ? (
         <p
+            role="alert"
             {...props}
-            className={cn('text-sm text-red-600 dark:text-red-400', className)}
+            className={cn(
+                'animate-shake text-sm font-medium text-red-600 dark:text-red-400',
+                className,
+            )}
         >
             {message}
         </p>
