@@ -38,6 +38,9 @@
     --animate-bump: bump 0.45s var(--ease-slide);
     --animate-grow: grow 0.9s var(--ease-slide) both;
     --animate-fade: fade 1.2s ease both;
+    --animate-shake: shake 0.45s ease both;
+    --animate-lane-up: lane-up 40s linear infinite;
+    --animate-lane-down: lane-down 46s linear infinite;
 
     @keyframes rise {
         from {
@@ -61,6 +64,43 @@
     @keyframes draw {
         from {
             stroke-dashoffset: var(--ring-length);
+        }
+    }
+
+    /* An invalid field or its message. */
+    @keyframes shake {
+        10%,
+        90% {
+            transform: translateX(-1px);
+        }
+        20%,
+        80% {
+            transform: translateX(3px);
+        }
+        30%,
+        50%,
+        70% {
+            transform: translateX(-5px);
+        }
+        40%,
+        60% {
+            transform: translateX(5px);
+        }
+    }
+
+    /* The board drifting behind the sign-in card; lanes hold two copies. */
+    @keyframes lane-up {
+        to {
+            transform: translateY(-50%);
+        }
+    }
+
+    @keyframes lane-down {
+        from {
+            transform: translateY(-50%);
+        }
+        to {
+            transform: translateY(0);
         }
     }
 
