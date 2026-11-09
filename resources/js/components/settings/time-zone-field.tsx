@@ -22,45 +22,68 @@ function zoneLabel(zone: string): string {
     return zone.replaceAll('_', ' ');
 }
 
-/** The zone's offset right now, such as "GMT+7". */
+/**
+ * The zone's offset right now, such as "GMT+7", or nothing if the browser
+ * does not know the zone (older browsers miss recent names).
+ */
 function offsetOf(zone: string, at: Date): string {
-    return (
-        new Intl.DateTimeFormat('en-US', {
-            timeZone: zone,
-            timeZoneName: 'shortOffset',
-        })
-            .formatToParts(at)
-            .find((part) => part.type === 'timeZoneName')?.value ?? ''
-    );
+    try {
+        return (
+            new Intl.DateTimeFormat('en-US', {
+                timeZone: zone,
+                timeZoneName: 'shortOffset',
+            })
+                .formatToParts(at)
+                .find((part) => part.type === 'timeZoneName')?.value ?? ''
+        );
+    } catch {
+        return '';
+    }
 }
 
-function todayIn(zone: string): string {
-    return new Intl.DateTimeFormat('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        timeZone: zone,
-    }).format(new Date());
+function todayIn(zone: string): string | null {
+    try {
+        return new Intl.DateTimeFormat('en-GB', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            timeZone: zone,
+        }).format(new Date());
+    } catch {
+        return null;
+    }
 }
 
 /**
- * Picks a time zone, or "Match my device" (null), from a searchable list.
- * The list is built only while it is open.
+ * Picks a time zone, or "Match my device" (null), from a searchable list of
+ * the IANA names the server knows. Offsets are worked out only while the
+ * list is open.
  */
 export function TimeZoneField({
     id,
     value,
+    zones: names,
+    device: serverDevice,
     onChange,
     invalid = false,
 }: {
     id: string;
     value: string | null;
+    /** The IANA names to pick from, from the server. */
+    zones: string[];
+    /** The device's zone as the server read it from the cookie, if any. */
+    device: string | null;
     onChange: (zone: string | null) => void;
     invalid?: boolean;
 }) {
     const [open, setOpen] = useState(false);
-    const device = useMemo(() => deviceTimeZone(), []);
+    const device = useMemo(
+        () => serverDevice ?? deviceTimeZone(),
+        [serverDevice],
+    );
     const effective = value ?? device;
+    const offset = offsetOf(effective, new Date());
+    const today = todayIn(effective);
 
     const zones = useMemo(() => {
         if (!open) {
@@ -68,17 +91,9 @@ export function TimeZoneField({
         }
 
         const now = new Date();
-        const names = Intl.supportedValuesOf('timeZone').filter(
-            (zone) => zone !== 'UTC',
-        );
-        const all = ['UTC', ...names];
 
-        if (value !== null && !all.includes(value)) {
-            all.unshift(value);
-        }
-
-        return all.map((zone) => ({ zone, offset: offsetOf(zone, now) }));
-    }, [open, value]);
+        return names.map((zone) => ({ zone, offset: offsetOf(zone, now) }));
+    }, [open, names]);
 
     const pick = (zone: string | null) => {
         onChange(zone);
@@ -106,8 +121,8 @@ export function TimeZoneField({
                                 ? 'Match my device'
                                 : zoneLabel(value)}
                             <span className="text-muted-foreground">
-                                {value === null && ` · ${zoneLabel(device)}`} (
-                                {offsetOf(effective, new Date())})
+                                {value === null && ` · ${zoneLabel(device)}`}
+                                {offset && ` (${offset})`}
                             </span>
                         </span>
                         <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
@@ -171,7 +186,7 @@ export function TimeZoneField({
                 </PopoverContent>
             </Popover>
             <p className="text-[12.5px] text-muted-foreground">
-                It is {todayIn(effective)} there. Due dates turn overdue at
+                {today && `It is ${today} there. `}Due dates turn overdue at
                 midnight in this time zone.
             </p>
         </>
