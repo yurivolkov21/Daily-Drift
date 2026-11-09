@@ -73,6 +73,26 @@ class TimeZoneTest extends TestCase
         );
     }
 
+    public function test_an_old_device_zone_name_is_read_as_its_iana_name()
+    {
+        $this->dashboard($this->member(), 'Asia/Saigon')->assertInertia(fn (Assert $page) => $page
+            ->where('timeZone', 'Asia/Ho_Chi_Minh')
+            ->where('today', '2026-11-10')
+        );
+    }
+
+    public function test_the_profile_offers_iana_names_and_the_device_zone()
+    {
+        $this->withUnencryptedCookie('timezone', 'Asia/Saigon')
+            ->actingAs($this->member())
+            ->get(route('profile.edit'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('deviceTimeZone', 'Asia/Ho_Chi_Minh')
+                ->where('timeZones', fn ($zones) => collect($zones)->contains('Asia/Ho_Chi_Minh')
+                    && ! collect($zones)->contains('Asia/Saigon'))
+            );
+    }
+
     public function test_the_picked_zone_wins_over_the_device_zone()
     {
         $this->dashboard($this->member('Asia/Ho_Chi_Minh'), 'America/Los_Angeles')->assertInertia(fn (Assert $page) => $page
@@ -98,11 +118,11 @@ class TimeZoneTest extends TestCase
             ->assertSessionHasNoErrors();
         $this->assertSame('Asia/Ho_Chi_Minh', $user->refresh()->timezone);
 
-        // Old names that some browsers still report are accepted.
+        // Old names that browsers still report are stored under their IANA name.
         $this->actingAs($user)
-            ->patch(route('profile.update'), [...$profile, 'timezone' => 'Asia/Saigon'])
+            ->patch(route('profile.update'), [...$profile, 'timezone' => 'Asia/Calcutta'])
             ->assertSessionHasNoErrors();
-        $this->assertSame('Asia/Saigon', $user->refresh()->timezone);
+        $this->assertSame('Asia/Kolkata', $user->refresh()->timezone);
 
         $this->actingAs($user)
             ->patch(route('profile.update'), [...$profile, 'timezone' => null])

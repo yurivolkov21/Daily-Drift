@@ -10,8 +10,8 @@
 
 - **Which time zone:** the one the person picked under _Settings → Profile_, or else their device's. Without either, the app's time zone (UTC) applies.
 - **Device time zone:** every page sets a `timezone` cookie from the browser (`Intl.DateTimeFormat().resolvedOptions().timeZone`), so the server knows it from the second request on. The cookie is not encrypted.
-- **Picking one:** _Time zone_ under Profile offers _Match my device_ (the default, stored as no value) or any IANA time zone, from a searchable list with each zone's current offset. It is saved with the rest of the profile.
-- **Valid names:** any IANA name, old aliases such as `Asia/Saigon` included, since some browsers still report them. Anything else is a validation error on Profile and is ignored in the cookie.
+- **Picking one:** _Time zone_ under Profile offers _Match my device_ (the default, stored as no value) or any current IANA time zone, from a searchable list with each zone's current offset. The list comes from the server, so it only holds names PHP knows. It is saved with the rest of the profile.
+- **Valid names:** any IANA name PHP knows. Browsers still report some old names (Chrome sends `Asia/Saigon` for Vietnam, `Asia/Calcutta` for India), and not every PHP build knows them, so those are swapped for their IANA name (`Asia/Ho_Chi_Minh`, `Asia/Kolkata`) in the cookie and before saving. Anything else is a validation error on Profile and is ignored in the cookie.
 - **What follows the time zone:**
     - _Overdue_, _Today_ and _Next 7 days_ on cards, in the task sheet, in _My focus_ and in project stats (and so a project's health);
     - the dashboard's days: due today, the week ring (Monday to Sunday), the sparklines, throughput and "done in 7 days";
@@ -29,7 +29,8 @@
 
 - With a picked time zone, the shared `today` and the dashboard's `today` are that zone's date.
 - Without one, the device's time zone from the cookie is used; an unknown name falls back to UTC; a picked zone wins over the device.
-- Profile saves a zone, saves an old alias, clears it back to _Match my device_, and rejects an unknown name.
+- Profile saves a zone, stores an old name under its IANA name, clears it back to _Match my device_, and rejects an unknown name.
+- An old device zone name is read as its IANA name; Profile offers IANA names only.
 - A task due yesterday in the viewer's time zone is overdue for them and not for a viewer whose day has not ended.
 - The dashboard counts a completion on the viewer's local day.
 - Every rule above has a feature test (`tests/Feature/TimeZoneTest.php`).

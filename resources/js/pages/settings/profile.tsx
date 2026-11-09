@@ -29,9 +29,13 @@ import { send } from '@/routes/verification';
 export default function Profile({
     mustVerifyEmail,
     status,
+    timeZones,
+    deviceTimeZone,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
+    timeZones: string[];
+    deviceTimeZone: string | null;
 }) {
     const { auth } = usePage().props;
     const getInitials = useInitials();
@@ -167,6 +171,8 @@ export default function Profile({
                         <TimeZoneField
                             id="timezone"
                             value={form.data.timezone}
+                            zones={timeZones}
+                            device={deviceTimeZone}
                             onChange={(zone) => form.setData('timezone', zone)}
                             invalid={Boolean(form.errors.timezone)}
                         />

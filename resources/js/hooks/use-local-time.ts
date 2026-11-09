@@ -16,13 +16,21 @@ export function deviceTimeZone(): string {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
-/** The hour of the day (0 to 23) right now in a time zone. */
+/**
+ * The hour of the day (0 to 23) right now in a time zone, or on the device's
+ * clock if the browser does not know the zone (older browsers miss recent
+ * names such as `Europe/Kyiv`).
+ */
 export function hourIn(zone: string): number {
-    return Number(
-        new Intl.DateTimeFormat('en-GB', {
-            hour: 'numeric',
-            hourCycle: 'h23',
-            timeZone: zone,
-        }).format(new Date()),
-    );
+    try {
+        return Number(
+            new Intl.DateTimeFormat('en-GB', {
+                hour: 'numeric',
+                hourCycle: 'h23',
+                timeZone: zone,
+            }).format(new Date()),
+        );
+    } catch {
+        return new Date().getHours();
+    }
 }

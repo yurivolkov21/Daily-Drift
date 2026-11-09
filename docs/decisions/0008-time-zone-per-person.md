@@ -10,6 +10,7 @@ Dates such as "today" and "overdue" used the app's time zone (UTC). The roadmap 
 
 - Each person has a time zone ([spec 0003](../spec/0003-user-time-zone.md)). There is no team time zone.
 - The default is _Match my device_: the browser sends its time zone in a `timezone` cookie on every page, the same way the theme and the Motion setting are kept. A person can instead pick a fixed zone under Profile; it is stored in `users.timezone` (null means the device).
+- Old names that browsers still report (`Asia/Saigon`) are swapped for their IANA name (`Asia/Ho_Chi_Minh`) before use: PHP builds that use the system time zone data may not know them.
 - Timestamps stay in UTC in the database and `config('app.timezone')` stays UTC. Only the viewer's "today", the edges of a day and the start of a week are computed in their time zone (`App\Support\LocalTime`). Changing the app's time zone per request was ruled out: Laravel writes timestamps without an offset, so they would be stored in mixed zones.
 
 ## Consequences
