@@ -6,19 +6,21 @@ import {
     CalendarClock,
     CheckCheck,
     ListTodo,
+    Plus,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { openAddTask } from '@/components/board/add-task';
 import { Board } from '@/components/board/board';
+import { HeaderActions } from '@/components/header-actions';
 import { HueBar } from '@/components/hue-progress';
 import { ProjectMenu } from '@/components/projects/project-menu';
-import { ProjectTile } from '@/components/projects/project-tile';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { teamCrumb } from '@/lib/breadcrumbs';
+import { HUES } from '@/lib/hues';
 import { percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { index, restore, show } from '@/routes/projects';
 import type { Project } from '@/types';
-import { teamCrumb } from '@/lib/breadcrumbs';
 
 type Props = {
     project: Project;
@@ -27,108 +29,137 @@ type Props = {
 export default function ProjectShow({ project }: Props) {
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
+    const firstList = project.lists[0];
+    const { stats } = project;
+    const progress = percent(stats.completed, stats.tasks);
 
     return (
         <>
             <Head title={project.name} />
-            <div className="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-6">
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex min-w-0 items-start gap-3">
-                        <ProjectTile
-                            name={project.name}
-                            color={project.color}
-                            className="size-11 text-lg"
+
+            {project.can.manageLists && firstList && (
+                <HeaderActions>
+                    <Button
+                        onClick={() => openAddTask(firstList.id)}
+                        className="h-10 rounded-xl px-4 shadow-[0_8px_20px_-10px_var(--primary)]"
+                    >
+                        <Plus /> New task
+                    </Button>
+                </HeaderActions>
+            )}
+
+            <div className="flex min-w-0 flex-1 flex-col gap-3.5">
+                <section className="flex animate-rise flex-wrap items-center gap-x-5 gap-y-4 rounded-card bg-card px-5 py-4 [animation-delay:110ms]">
+                    <span
+                        aria-hidden="true"
+                        className={cn(
+                            'flex size-13 shrink-0 items-center justify-center rounded-[15px] font-display text-xl font-extrabold text-white shadow-[0_12px_24px_-14px_rgb(23_21_59/0.6)]',
+                            HUES[project.archivedAt ? 'slate' : project.color]
+                                .dot,
+                        )}
+                    >
+                        {project.name.trim().charAt(0).toUpperCase() || '?'}
+                    </span>
+                    <div className="min-w-0 flex-[1_1_16rem]">
+                        <h1 className="truncate text-[22px] font-extrabold tracking-tight">
+                            {project.name}
+                        </h1>
+                        <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
+                            {project.description || 'No description yet.'}
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Chip icon={<ListTodo />}>
+                            {stats.tasks - stats.completed} open
+                        </Chip>
+                        <Chip icon={<CheckCheck />}>
+                            {stats.completed} done
+                        </Chip>
+                        {stats.overdue > 0 && (
+                            <Chip
+                                icon={<AlarmClock />}
+                                className="bg-red-500/10 text-red-700 dark:text-red-400"
+                            >
+                                {stats.overdue} overdue
+                            </Chip>
+                        )}
+                        {stats.dueSoon > 0 && (
+                            <Chip
+                                icon={<CalendarClock />}
+                                className="bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                            >
+                                {stats.dueSoon} in 7 days
+                            </Chip>
+                        )}
+                    </div>
+                    <div className="flex w-44 flex-col gap-1.5">
+                        <span className="flex justify-between text-xs">
+                            <strong className="tabular-nums">
+                                {progress}% done
+                            </strong>
+                            <span className="text-muted-foreground tabular-nums">
+                                {stats.completed} of {stats.tasks}
+                            </span>
+                        </span>
+                        <HueBar
+                            value={progress}
+                            hue={project.color}
+                            delay="400ms"
+                            className="h-[7px]"
                         />
-                        <div className="min-w-0">
-                            <h1 className="truncate text-xl font-semibold tracking-tight">
-                                {project.name}
-                            </h1>
-                            {project.description && (
-                                <p className="line-clamp-2 text-sm text-muted-foreground">
-                                    {project.description}
-                                </p>
-                            )}
-                        </div>
                     </div>
                     <ProjectMenu
                         teamSlug={teamSlug}
                         project={project}
                         variant="outline"
+                        className="rounded-xl"
                     />
-                </div>
+                </section>
 
                 {project.archivedAt && (
-                    <Alert>
-                        <Archive />
-                        <AlertTitle>This project is archived</AlertTitle>
-                        <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
-                            <span>
-                                Its lists and tasks are read-only until it is
-                                restored.
-                            </span>
-                            {project.can.restore && (
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                        router.visit(
-                                            restore({
-                                                current_team: teamSlug,
-                                                project: project.id,
-                                            }),
-                                            { preserveScroll: true },
-                                        )
-                                    }
-                                >
-                                    <ArchiveRestore /> Restore
-                                </Button>
-                            )}
-                        </AlertDescription>
-                    </Alert>
+                    <div
+                        role="status"
+                        className="flex animate-rise flex-wrap items-center gap-3 rounded-2xl bg-amber-500/10 px-4 py-3 text-sm text-amber-900 [animation-delay:140ms] dark:text-amber-200"
+                    >
+                        <Archive className="size-4" />
+                        <span className="flex-1">
+                            <strong>This project is archived.</strong> Its lists
+                            and tasks are read-only until it is restored.
+                        </span>
+                        {project.can.restore && (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-lg"
+                                onClick={() =>
+                                    router.visit(
+                                        restore({
+                                            current_team: teamSlug,
+                                            project: project.id,
+                                        }),
+                                        { preserveScroll: true },
+                                    )
+                                }
+                            >
+                                <ArchiveRestore /> Restore
+                            </Button>
+                        )}
+                    </div>
                 )}
 
-                <BoardSummary project={project} />
-
                 <Board teamSlug={teamSlug} project={project} />
+
+                <p className="animate-rise px-1 text-[12.5px] text-muted-foreground [animation-delay:500ms]">
+                    Drag a card to move it, or press{' '}
+                    <kbd className="rounded border bg-card px-1 font-sans text-[11px]">
+                        Alt
+                    </kbd>{' '}
+                    + arrow keys. Fold a list with{' '}
+                    <strong className="font-semibold">«</strong>: it still takes
+                    dropped cards and keeps its count.
+                </p>
             </div>
         </>
-    );
-}
-
-function BoardSummary({ project }: { project: Project }) {
-    const { stats } = project;
-    const value = percent(stats.completed, stats.tasks);
-
-    return (
-        <div className="flex flex-wrap items-center gap-2">
-            <Chip icon={<ListTodo />}>
-                {stats.tasks} {stats.tasks === 1 ? 'task' : 'tasks'}
-            </Chip>
-            <Chip icon={<CheckCheck />}>{stats.completed} done</Chip>
-            {stats.overdue > 0 && (
-                <Chip
-                    icon={<AlarmClock />}
-                    className="border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400"
-                >
-                    {stats.overdue} overdue
-                </Chip>
-            )}
-            {stats.dueSoon > 0 && (
-                <Chip
-                    icon={<CalendarClock />}
-                    className="border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                >
-                    {stats.dueSoon} due this week
-                </Chip>
-            )}
-            <div className="ml-auto hidden items-center gap-3 sm:flex">
-                <span className="text-xs text-muted-foreground">Progress</span>
-                <HueBar value={value} hue={project.color} className="w-40" />
-                <span className="text-sm font-semibold tabular-nums">
-                    {value}%
-                </span>
-            </div>
-        </div>
     );
 }
 
@@ -144,7 +175,7 @@ function Chip({
     return (
         <span
             className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-xs text-muted-foreground [&_svg]:size-3.5',
+                'inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground [&_svg]:size-3.5',
                 className,
             )}
         >

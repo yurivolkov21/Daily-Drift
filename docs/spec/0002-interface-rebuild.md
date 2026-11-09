@@ -1,6 +1,6 @@
 # Spec 0002: Interface rebuild
 
-**Status:** In progress (shell, Motion setting and projects page done) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
+**Status:** In progress (shell, Motion setting, projects page and board done) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
 
 ## Goal
 
@@ -66,7 +66,7 @@ See [spec 0001](0001-projects-lists-tasks.md#known-limitations).
 ## Open questions
 
 1. **Complete or move to Done.** In the board wireframe, _Mark complete_ also moved the card to _Done_. Spec 0001 keeps completion separate from the list. Until the owner decides, the spec 0001 rule stands.
-2. **Which lists start folded.** The wireframe folds _Done_ by default, but lists have no "done" type; a rule is needed (for example, lists where every task is completed).
+2. **Which lists start folded.** The wireframe folds _Done_ by default, but lists have no "done" type; a rule is needed (for example, lists where every task is completed). Until then every list starts unfolded.
 
 ## Acceptance criteria
 

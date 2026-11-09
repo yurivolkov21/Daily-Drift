@@ -1,7 +1,7 @@
 import type { FormComponentRef } from '@inertiajs/core';
 import { Form } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,11 +12,36 @@ type Props = {
     listId: number;
 };
 
+/** Opens the "Add task" field of a list, from the header or the column. */
+export const ADD_TASK_EVENT = 'board:add-task';
+
+export function openAddTask(listId: number): void {
+    window.dispatchEvent(
+        new CustomEvent(ADD_TASK_EVENT, { detail: { listId } }),
+    );
+}
+
 /** "Add task" at the bottom of a column; stays open to add several in a row. */
 export function AddTask({ teamSlug, listId }: Props) {
     const [open, setOpen] = useState(false);
     const form = useRef<FormComponentRef>(null);
     const field = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        const listen = (event: Event) => {
+            if (
+                (event as CustomEvent<{ listId: number }>).detail.listId ===
+                listId
+            ) {
+                setOpen(true);
+                field.current?.focus();
+            }
+        };
+
+        window.addEventListener(ADD_TASK_EVENT, listen);
+
+        return () => window.removeEventListener(ADD_TASK_EVENT, listen);
+    }, [listId]);
 
     if (!open) {
         return (
@@ -24,7 +49,7 @@ export function AddTask({ teamSlug, listId }: Props) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setOpen(true)}
-                className="justify-start text-muted-foreground hover:bg-background/60"
+                className="justify-start rounded-xl text-muted-foreground hover:bg-card/70 hover:text-foreground"
             >
                 <Plus /> Add task
             </Button>
@@ -38,7 +63,7 @@ export function AddTask({ teamSlug, listId }: Props) {
             options={{ preserveScroll: true, preserveState: true }}
             resetOnSuccess
             onSuccess={() => field.current?.focus()}
-            className="flex flex-col gap-2 rounded-xl border bg-card p-2 shadow-xs"
+            className="flex animate-pop flex-col gap-2 rounded-[14px] border border-primary/30 bg-card p-2 shadow-[0_0_0_3px_rgb(110_91_245/0.12)]"
         >
             {({ errors, processing }) => (
                 <>

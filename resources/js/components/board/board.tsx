@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { AddList } from '@/components/board/add-list';
 import {
@@ -7,6 +7,7 @@ import {
     columnKey,
     listIdFromKey,
 } from '@/components/board/list-column';
+import type { TaskStep } from '@/components/board/task-card';
 import { TaskCard, itemKey, taskIdFromKey } from '@/components/board/task-card';
 import { TaskSheet } from '@/components/board/task-sheet';
 import type { KanbanCommitMeta } from '@/components/reui/kanban';
@@ -53,18 +54,113 @@ export function Board({ teamSlug, project }: Props) {
         setTaskInUrl(task?.id ?? null);
     };
 
+    const [folded, setFolded] = useFoldedLists(project.id);
+    const unfold = (listId: number) =>
+        setFolded((ids) => ids.filter((id) => id !== listId));
+    const toggleFold = (listId: number) =>
+        setFolded((ids) =>
+            ids.includes(listId)
+                ? ids.filter((id) => id !== listId)
+                : [...ids, listId],
+        );
+
     const saveMove = (
         url: ReturnType<typeof moveList>,
         data: Record<string, number>,
         what: string,
+        onSuccess?: () => void,
     ) =>
         router.visit(url, {
             data,
             preserveScroll: true,
             preserveState: true,
+            onSuccess,
             onError: () => toast.error(`The ${what} could not be moved.`),
             onFinish: () => setPending(null),
         });
+
+    const moveTaskTo = (
+        task: Task,
+        listId: number,
+        index: number,
+        onSuccess?: () => void,
+    ) =>
+        saveMove(
+            moveTask({ current_team: teamSlug, task: task.id }),
+            { list_id: listId, index },
+            'task',
+            onSuccess,
+        );
+
+    // A task dropped on a folded list disappears from view, so say where it
+    // went and offer to show the list or put the task back.
+    const announceFoldedDrop = (task: Task, meta: KanbanCommitMeta<Task>) => {
+        const target = lists.find(
+            (list) => columnKey(list.id) === meta.overContainer,
+        );
+
+        if (!target) {
+            return;
+        }
+
+        toast(`“${task.title}” moved to ${target.name}`, {
+            action: { label: 'Show', onClick: () => unfold(target.id) },
+            cancel: {
+                label: 'Undo',
+                onClick: () =>
+                    moveTaskTo(
+                        task,
+                        listIdFromKey(meta.activeContainer),
+                        meta.activeIndex,
+                    ),
+            },
+        });
+    };
+
+    /** Alt + arrow keys: one place up or down, or into the next unfolded list. */
+    const stepTask = (task: Task, step: TaskStep) => {
+        const position = lists.findIndex((list) => list.id === task.listId);
+        const items = columns[columnKey(task.listId)] ?? [];
+        const index = items.findIndex((item) => item.id === task.id);
+        const refocus = () =>
+            requestAnimationFrame(() =>
+                document
+                    .querySelector<HTMLElement>(`[data-task-id="${task.id}"]`)
+                    ?.focus(),
+            );
+
+        if (step === 'up' || step === 'down') {
+            const target = step === 'up' ? index - 1 : index + 1;
+
+            if (target >= 0 && target < items.length) {
+                moveTaskTo(task, task.listId, target, refocus);
+            }
+
+            return;
+        }
+
+        const direction = step === 'left' ? -1 : 1;
+
+        for (
+            let next = position + direction;
+            next >= 0 && next < lists.length;
+            next += direction
+        ) {
+            if (!folded.includes(lists[next].id)) {
+                const length = (columns[columnKey(lists[next].id)] ?? [])
+                    .length;
+
+                moveTaskTo(
+                    task,
+                    lists[next].id,
+                    Math.min(index, length),
+                    refocus,
+                );
+
+                return;
+            }
+        }
+    };
 
     const commit = (_next: Columns, meta: KanbanCommitMeta<Task>) => {
         committed.current = true;
@@ -82,16 +178,24 @@ export function Board({ teamSlug, project }: Props) {
             return;
         }
 
+        const taskId = taskIdFromKey(String(meta.event.active.id));
+        const task = Object.values(meta.previousValue)
+            .flat()
+            .find((item) => item.id === taskId);
+        const intoFolded =
+            meta.activeContainer !== meta.overContainer &&
+            folded.includes(listIdFromKey(meta.overContainer));
+
         saveMove(
-            moveTask({
-                current_team: teamSlug,
-                task: taskIdFromKey(String(meta.event.active.id)),
-            }),
+            moveTask({ current_team: teamSlug, task: taskId }),
             {
                 list_id: listIdFromKey(meta.overContainer),
                 index: meta.overIndex,
             },
             'task',
+            intoFolded && task
+                ? () => announceFoldedDrop(task, meta)
+                : undefined,
         );
     };
 
@@ -116,8 +220,8 @@ export function Board({ teamSlug, project }: Props) {
                 }}
                 onDragCancel={() => setPending(null)}
             >
-                <KanbanBoard className="-mx-4 flex snap-x scroll-px-4 items-start gap-3 overflow-x-auto px-4 pb-4 md:-mx-6 md:scroll-px-6 md:px-6">
-                    {lists.map((list) => (
+                <KanbanBoard className="flex scrollbar-thin snap-x items-start gap-3 overflow-x-auto pb-3">
+                    {lists.map((list, position) => (
                         <ListColumn
                             key={list.id}
                             teamSlug={teamSlug}
@@ -125,6 +229,13 @@ export function Board({ teamSlug, project }: Props) {
                             tasks={columns[columnKey(list.id)] ?? []}
                             canManage={canManage}
                             onOpenTask={showTask}
+                            onStepTask={stepTask}
+                            folded={folded.includes(list.id)}
+                            onToggleFold={() => toggleFold(list.id)}
+                            className="animate-rise [animation-fill-mode:backwards]"
+                            style={{
+                                animationDelay: `${160 + position * 70}ms`,
+                            }}
                         />
                     ))}
                     {canManage && (
@@ -174,6 +285,37 @@ export function Board({ teamSlug, project }: Props) {
             />
         </>
     );
+}
+
+/**
+ * The lists a person has folded on this project, kept in the browser so the
+ * board opens the way they left it.
+ */
+function useFoldedLists(projectId: number) {
+    const key = `board.folded.${projectId}`;
+    const [folded, setFolded] = useState<number[]>(() => {
+        try {
+            const stored: unknown = JSON.parse(
+                localStorage.getItem(key) ?? '[]',
+            );
+
+            return Array.isArray(stored)
+                ? stored.filter((id): id is number => typeof id === 'number')
+                : [];
+        } catch {
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(key, JSON.stringify(folded));
+        } catch {
+            // Storage can be unavailable (private windows); folding still works.
+        }
+    }, [key, folded]);
+
+    return [folded, setFolded] as const;
 }
 
 /** The preview only applies while it holds the same columns and tasks as the saved board. */

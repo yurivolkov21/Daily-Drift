@@ -71,7 +71,7 @@ export function TaskSheet({
 }: Props) {
     return (
         <Sheet open={task !== null} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent className="flex w-full flex-col gap-0 sm:max-w-lg">
+            <SheetContent className="flex w-full flex-col gap-0 overflow-hidden border-0 bg-card shadow-[0_40px_80px_-30px_rgb(23_21_59/0.55)] duration-450 ease-panel sm:inset-y-3.5 sm:right-3.5 sm:h-auto sm:max-w-lg sm:rounded-card">
                 {task && (
                     <TaskForm
                         key={task.id}

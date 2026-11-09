@@ -1,6 +1,6 @@
 # Design
 
-**Status:** Chosen; tokens, the app shell and the projects page are built · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
+**Status:** Chosen; tokens, the app shell, the projects page and the board are built · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
 
 This page describes the interface the app is being rebuilt to. It replaces the first pass, which kept the starter kit's look and was accepted only as a starting point (see [Earlier version](#earlier-version)).
 
