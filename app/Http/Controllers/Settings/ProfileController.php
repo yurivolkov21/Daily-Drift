@@ -36,9 +36,8 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
+        // The save bar on the page confirms the save, so no toast here.
         $request->user()->save();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
         return to_route('profile.edit');
     }

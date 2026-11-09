@@ -66,7 +66,11 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
 
     if (!showForm) {
         return (
-            <Button variant="outline" onClick={() => setShowForm(true)}>
+            <Button
+                variant="outline"
+                onClick={() => setShowForm(true)}
+                className="h-10 self-start rounded-[11px] px-4 text-[13.5px] font-semibold"
+            >
                 Add passkey
             </Button>
         );

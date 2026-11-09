@@ -31,13 +31,27 @@ export function passwordScore(password: string): number {
     return score;
 }
 
-/** Four segments that fill as the password gets stronger, with a label. */
-export function PasswordStrength({ password }: { password: string }) {
+/**
+ * Four segments that fill as the password gets stronger, with a label beside
+ * them, or under them when `stacked` (for narrow columns).
+ */
+export function PasswordStrength({
+    password,
+    stacked = false,
+}: {
+    password: string;
+    stacked?: boolean;
+}) {
     const score = passwordScore(password);
     const level = LEVELS[score];
 
     return (
-        <div className="flex items-center gap-2.5">
+        <div
+            className={cn(
+                'flex gap-2.5',
+                stacked ? 'flex-col gap-1.5' : 'items-center',
+            )}
+        >
             <span aria-hidden="true" className="grid flex-1 grid-cols-4 gap-1">
                 {[0, 1, 2, 3].map((index) => (
                     <span
@@ -52,7 +66,8 @@ export function PasswordStrength({ password }: { password: string }) {
             <span
                 aria-live="polite"
                 className={cn(
-                    'min-w-36 text-right text-xs font-semibold',
+                    'text-xs font-semibold',
+                    !stacked && 'min-w-36 text-right',
                     password ? level.text : 'text-muted-foreground',
                 )}
             >

@@ -24,7 +24,7 @@ Specs: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md), [
 - [x] Lists: Kanban columns per project; create, rename, recolor, reorder, delete
 - [x] Tasks: title, description, due date, priority, complete; drag and drop within and across lists
 - [x] Progress: completion percentage per list and project
-- [ ] Interface rebuild to the chosen design: tokens and shell, projects, board, sign in and settings ([spec 0002](../spec/0002-interface-rebuild.md))
+- [x] Interface rebuild to the chosen design: tokens and shell, projects, board, sign in and settings ([spec 0002](../spec/0002-interface-rebuild.md))
 - [ ] Time zone per user or team, so "today" and "overdue" follow local time
 - [x] Dashboard: overdue tasks, due today, active projects, built in the new design
 

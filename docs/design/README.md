@@ -1,6 +1,6 @@
 # Design
 
-**Status:** Chosen; everything is built except the settings pages · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
+**Status:** Chosen and built · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
 
 This page describes the interface the app is being rebuilt to. It replaces the first pass, which kept the starter kit's look and was accepted only as a starting point (see [Earlier version](#earlier-version)).
 
@@ -128,15 +128,15 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 
 ## Components by screen
 
-| Screen       | shadcn/ui components                                                                 | Other                          |
-| ------------ | ------------------------------------------------------------------------------------ | ------------------------------ |
-| App shell    | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`       |                                |
-| Dashboard    | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                               |                                |
-| Projects     | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog` |                                |
-| Board        | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`          | ReUI `kanban`                  |
-| Sign in      | `input`, `button`, `tabs`                                                            |                                |
-| Settings     | `tabs` (vertical), `input`, `switch`, `radio-group`, `input-otp`, `dropdown-menu`    |                                |
-| Empty states | `empty`                                                                              | Adapted from ReUI `c-empty-12` |
+| Screen       | shadcn/ui components                                                                  | Other                          |
+| ------------ | ------------------------------------------------------------------------------------- | ------------------------------ |
+| App shell    | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`        |                                |
+| Dashboard    | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                                |                                |
+| Projects     | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog`  |                                |
+| Board        | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`           | ReUI `kanban`                  |
+| Sign in      | `input`, `button`, `tabs`                                                             |                                |
+| Settings     | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team) | Local segmented tabs           |
+| Empty states | `empty`                                                                               | Adapted from ReUI `c-empty-12` |
 
 The small local components from the first pass (progress ring, segmented bar, hue bar) stay.
 

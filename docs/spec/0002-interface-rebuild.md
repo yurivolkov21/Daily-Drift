@@ -1,6 +1,6 @@
 # Spec 0002: Interface rebuild
 
-**Status:** In progress (shell, Motion setting, projects page, board, dashboard and sign-in pages done; settings next) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
+**Status:** Built, in review (shell, Motion setting, projects page, board, dashboard, sign-in and settings pages) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
 
 ## Goal
 
@@ -54,10 +54,10 @@ Reset password, confirm password, two-factor challenge and verify email use the 
 ## Settings
 
 - One card with vertical tabs: Profile, Security, Appearance and Team. Each tab keeps its own URL from the starter kit.
-- **Profile:** a save bar appears while a field differs from the saved value, with _Discard_ and _Save_. Deleting the account asks for the password, as today.
-- **Security:** password change with a strength meter; two-factor setup with a QR code, a 6-digit code and recovery codes hidden until shown; passkeys as today.
-- **Appearance:** theme (light, dark, match the device) and the Motion setting.
-- **Team:** name, members with a role menu (Admin, Member, Remove; the owner's role is fixed), invitations by email with a role, and pending invitations that can be cancelled.
+- **Profile:** a save bar appears while a field differs from the saved value, with _Discard_ and _Save_; it also confirms the save, so there is no toast. Deleting the account opens in place and asks for the password, as today.
+- **Security:** password change with a strength meter; two-factor setup in place (no dialog) with a QR code, a 6-digit code and recovery codes hidden until shown (they are only fetched then); passkeys as today.
+- **Appearance:** theme (light, dark, match the device) and the Motion setting, both kept in this browser.
+- **Team:** name, members with a role menu (Admin, Member, Remove; the owner's role is fixed), invitations by email with a role, and pending invitations that can be cancelled. The tab opens the current team; _All teams_ leads to the list of teams.
 
 ## Known limitations carried over
 

@@ -1,17 +1,18 @@
 import { Head, Link } from '@inertiajs/react';
-import { Eye, LogOut, Pencil, Plus } from 'lucide-react';
+import { ChevronRight, LogOut, Plus } from 'lucide-react';
 import { useState } from 'react';
 import CreateTeamModal from '@/components/create-team-modal';
-import Heading from '@/components/heading';
 import LeaveTeamModal from '@/components/leave-team-modal';
-import { Badge } from '@/components/ui/badge';
+import { BUTTON, Pill, SettingsSection } from '@/components/settings/section';
 import { Button } from '@/components/ui/button';
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { settingsCrumbs } from '@/lib/breadcrumbs';
+import { HUE_NAMES, HUES } from '@/lib/hues';
+import { cn } from '@/lib/utils';
 import { edit, index } from '@/routes/teams';
 import type { Team } from '@/types';
 
@@ -20,161 +21,115 @@ type Props = {
 };
 
 export default function TeamsIndex({ teams }: Props) {
-    const [leaveTeamDialogOpen, setLeaveTeamDialogOpen] = useState(false);
     const [teamLeaving, setTeamLeaving] = useState<Team | null>(null);
-
-    const openLeaveTeamDialog = (team: Team) => {
-        setTeamLeaving(team);
-        setLeaveTeamDialogOpen(true);
-    };
 
     return (
         <>
             <Head title="Teams" />
 
-            <h1 className="sr-only">Teams</h1>
-
-            <div className="flex flex-col space-y-6">
-                <div className="flex items-center justify-between">
-                    <Heading
-                        variant="small"
-                        title="Teams"
-                        description="Manage your teams and team memberships"
-                    />
-
+            <SettingsSection
+                id="teams"
+                title="Teams"
+                description="The teams you belong to. Open one to manage its members and invitations."
+                aside={
                     <CreateTeamModal>
-                        <Button data-test="teams-new-team-button">
+                        <Button
+                            data-test="teams-new-team-button"
+                            className={BUTTON}
+                        >
                             <Plus /> New team
                         </Button>
                     </CreateTeamModal>
-                </div>
+                }
+            >
+                {teams.length === 0 ? (
+                    <p className="rounded-2xl bg-muted p-8 text-center text-sm text-muted-foreground">
+                        You don't belong to any teams yet.
+                    </p>
+                ) : (
+                    <ul className="flex flex-col gap-1">
+                        {teams.map((team) => {
+                            const canLeave =
+                                !team.isPersonal && team.role !== 'owner';
+                            const hue = HUE_NAMES[team.id % HUE_NAMES.length];
 
-                <div className="space-y-3">
-                    {teams.map((team) => {
-                        const canLeaveTeam =
-                            !team.isPersonal && team.role !== 'owner';
-
-                        return (
-                            <div
-                                key={team.id}
-                                data-test="team-row"
-                                className="flex items-center justify-between gap-4 rounded-lg border p-4"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-medium">
-                                                {team.name}
-                                            </span>
-                                            {team.isPersonal ? (
-                                                <Badge variant="secondary">
-                                                    Personal
-                                                </Badge>
-                                            ) : null}
-                                        </div>
-                                        <span className="text-sm text-muted-foreground">
-                                            {team.roleLabel}
+                            return (
+                                <li
+                                    key={team.id}
+                                    data-test="team-row"
+                                    className="group flex items-center gap-2 rounded-[14px] transition-colors hover:bg-muted/70"
+                                >
+                                    <Link
+                                        href={edit(team.slug)}
+                                        data-test="team-edit-button"
+                                        className="flex min-w-0 flex-1 items-center gap-3.5 rounded-[14px] p-2.5 text-foreground no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    >
+                                        <span
+                                            aria-hidden="true"
+                                            className={cn(
+                                                'flex size-9 shrink-0 items-center justify-center rounded-[11px] text-sm font-bold',
+                                                HUES[hue].tile,
+                                            )}
+                                        >
+                                            {team.name.charAt(0).toUpperCase()}
                                         </span>
-                                    </div>
-                                </div>
-
-                                <TooltipProvider>
-                                    <div className="flex items-center gap-2">
-                                        {canLeaveTeam ? (
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        data-test="team-leave-button"
-                                                        onClick={() =>
-                                                            openLeaveTeamDialog(
-                                                                team,
-                                                            )
-                                                        }
-                                                    >
-                                                        <LogOut className="h-4 w-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Leave team</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        ) : null}
-
-                                        {team.role === 'member' ? (
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        data-test="team-view-button"
-                                                        asChild
-                                                    >
-                                                        <Link
-                                                            href={edit(
-                                                                team.slug,
-                                                            )}
-                                                        >
-                                                            <Eye className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>View team</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        ) : (
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        data-test="team-edit-button"
-                                                        asChild
-                                                    >
-                                                        <Link
-                                                            href={edit(
-                                                                team.slug,
-                                                            )}
-                                                        >
-                                                            <Pencil className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Edit team</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        )}
-                                    </div>
-                                </TooltipProvider>
-                            </div>
-                        );
-                    })}
-
-                    {teams.length === 0 ? (
-                        <p className="py-8 text-center text-muted-foreground">
-                            You don't belong to any teams yet.
-                        </p>
-                    ) : null}
-                </div>
-            </div>
+                                        <span className="flex min-w-0 flex-1 flex-col">
+                                            <span className="flex items-center gap-2 text-sm font-semibold">
+                                                <span className="truncate">
+                                                    {team.name}
+                                                </span>
+                                                {team.isPersonal && (
+                                                    <Pill>Personal</Pill>
+                                                )}
+                                                {team.isCurrent && (
+                                                    <Pill tone="indigo">
+                                                        Current
+                                                    </Pill>
+                                                )}
+                                            </span>
+                                            <span className="text-[12.5px] text-muted-foreground">
+                                                {team.roleLabel}
+                                            </span>
+                                        </span>
+                                        <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                                    </Link>
+                                    {canLeave && (
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    data-test="team-leave-button"
+                                                    aria-label={`Leave ${team.name}`}
+                                                    onClick={() =>
+                                                        setTeamLeaving(team)
+                                                    }
+                                                    className="mr-1.5 rounded-[10px]"
+                                                >
+                                                    <LogOut />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Leave team
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    )}
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
+            </SettingsSection>
 
             <LeaveTeamModal
                 team={teamLeaving}
-                open={leaveTeamDialogOpen}
-                onOpenChange={setLeaveTeamDialogOpen}
+                open={teamLeaving !== null}
+                onOpenChange={(open) => !open && setTeamLeaving(null)}
             />
         </>
     );
 }
 
 TeamsIndex.layout = {
-    breadcrumbs: [
-        {
-            title: 'Teams',
-            href: index(),
-        },
-    ],
+    breadcrumbs: settingsCrumbs('Teams', index()),
 };
