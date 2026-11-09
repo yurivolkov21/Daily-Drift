@@ -17,6 +17,10 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->profileRules($this->user()->id);
+        return [
+            ...$this->profileRules($this->user()->id),
+            // Empty means "match my device" (spec 0003).
+            'timezone' => ['nullable', 'string', 'timezone:all_with_bc'],
+        ];
     }
 }

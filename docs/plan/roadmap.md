@@ -14,9 +14,9 @@ From the Laravel React starter kit (teams variant), see [ADR 0001](../decisions/
 - [x] Toolchain pinned (PHP 8.4.27+, Node 24, pnpm 12), CI and Dependabot
 - [x] Full shadcn/ui component library installed
 
-## Phase 1: Core Kanban (In progress)
+## Phase 1: Core Kanban (Done)
 
-Specs: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md), [0002 Interface rebuild](../spec/0002-interface-rebuild.md) · Design: [Phase 1 screens](../design/README.md#screens-for-phase-1)
+Specs: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md), [0002 Interface rebuild](../spec/0002-interface-rebuild.md), [0003 Time zone per person](../spec/0003-user-time-zone.md) · Design: [Phase 1 screens](../design/README.md#screens-for-phase-1)
 
 - [x] UI design, first pass: screens, components and sources
 - [x] UI design, revision: chosen in three wireframe rounds ([ADR 0007](../decisions/0007-floating-shell-with-motion.md))
@@ -25,7 +25,7 @@ Specs: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md), [
 - [x] Tasks: title, description, due date, priority, complete; drag and drop within and across lists
 - [x] Progress: completion percentage per list and project
 - [x] Interface rebuild to the chosen design: tokens and shell, projects, board, sign in and settings ([spec 0002](../spec/0002-interface-rebuild.md))
-- [ ] Time zone per user or team, so "today" and "overdue" follow local time
+- [x] Time zone per person, so "today" and "overdue" follow local time ([spec 0003](../spec/0003-user-time-zone.md))
 - [x] Dashboard: overdue tasks, due today, active projects, built in the new design
 
 ## Phase 2: Collaboration (Planned)

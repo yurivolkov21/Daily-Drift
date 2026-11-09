@@ -33,7 +33,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const tabs: Tab[] = [
         {
             title: 'Profile',
-            hint: 'Name, email, delete account',
+            hint: 'Name, email, time zone',
             icon: UserRound,
             href: toUrl(editProfile()),
         },

@@ -47,6 +47,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { useLocalTime } from '@/hooks/use-local-time';
 import { HUES } from '@/lib/hues';
 import { dueState, PRIORITIES, PRIORITY_NAMES } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
@@ -106,7 +107,8 @@ function TaskForm({
     const parameters = { current_team: teamSlug, task: task.id };
     const list = project.lists.find((item) => item.id === task.listId);
     const completed = task.completedAt !== null;
-    const state = dueState({ dueOn, completedAt: task.completedAt });
+    const { today } = useLocalTime();
+    const state = dueState({ dueOn, completedAt: task.completedAt }, today);
 
     const moveTo = (listId: number) => {
         const target = project.lists.find((item) => item.id === listId);
@@ -305,6 +307,7 @@ function TaskForm({
                                         >
                                             <Calendar
                                                 mode="single"
+                                                today={parseISO(today)}
                                                 selected={
                                                     dueOn
                                                         ? parseISO(dueOn)

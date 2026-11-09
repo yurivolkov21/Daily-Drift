@@ -1,4 +1,4 @@
-import { format, isBefore, isToday, parseISO, startOfToday } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import type { Priority, Task } from '@/types';
 
 export const PRIORITY_NAMES: Priority[] = [
@@ -42,19 +42,24 @@ export const PRIORITIES: Record<
 
 export type DueState = 'none' | 'overdue' | 'today' | 'later';
 
-/** Whether an open task is overdue, due today or later, in the viewer's own day. */
-export function dueState(task: Pick<Task, 'dueOn' | 'completedAt'>): DueState {
+/**
+ * Whether an open task is overdue, due today or later. `today` is the
+ * viewer's own date (`Y-m-d`, from `useLocalTime`); dates in that form
+ * compare as strings.
+ */
+export function dueState(
+    task: Pick<Task, 'dueOn' | 'completedAt'>,
+    today: string,
+): DueState {
     if (!task.dueOn || task.completedAt) {
         return 'none';
     }
 
-    const due = parseISO(task.dueOn);
-
-    if (isToday(due)) {
+    if (task.dueOn === today) {
         return 'today';
     }
 
-    return isBefore(due, startOfToday()) ? 'overdue' : 'later';
+    return task.dueOn < today ? 'overdue' : 'later';
 }
 
 export function formatDue(dueOn: string, pattern = 'd MMM'): string {

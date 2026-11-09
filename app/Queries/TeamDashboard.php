@@ -6,13 +6,17 @@ use App\Enums\Priority;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Team;
+use App\Support\LocalTime;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
  * The numbers on a team's dashboard (spec 0001 and spec 0002), from the open
  * and recently completed tasks of its active projects. Days are calendar days
- * in the app's time zone; weeks start on Monday.
+ * in the viewer's time zone (spec 0003); weeks start on Monday.
+ *
+ * Due dates have no time, so each one is read as midnight in that zone;
+ * timestamps such as `completed_at` are instants and compare as they are.
  *
  * The tasks are counted in PHP from one query, which is plenty for the sizes
  * Phase 1 targets.
@@ -26,9 +30,9 @@ class TeamDashboard
     /** @var Collection<int, Task> */
     private Collection $tasks;
 
-    public function __construct(private readonly Team $team, ?CarbonImmutable $now = null)
+    public function __construct(private readonly Team $team, ?CarbonImmutable $now = null, ?string $zone = null)
     {
-        $this->today = ($now ?? CarbonImmutable::now())->startOfDay();
+        $this->today = ($now ?? CarbonImmutable::now())->setTimezone($zone ?? LocalTime::zone())->startOfDay();
         $this->tasks = Task::query()
             ->whereHas('project', fn ($query) => $query->whereBelongsTo($this->team)->whereNull('archived_at'))
             ->with(['project:id,name,color', 'list:id,name,color'])
@@ -43,15 +47,16 @@ class TeamDashboard
     public function toArray(): array
     {
         $open = $this->tasks->whereNull('completed_at');
-        $overdue = $open->filter(fn (Task $task) => $task->due_on !== null && $task->due_on->lt($this->today));
-        $dueToday = $open->filter(fn (Task $task) => $task->due_on?->isSameDay($this->today) === true);
-        $nextWeek = $open->filter(fn (Task $task) => $task->due_on !== null
-            && $task->due_on->gt($this->today)
-            && $task->due_on->lte($this->today->addDays(7)));
+        $overdue = $open->filter(fn (Task $task) => $this->due($task)?->lt($this->today) === true);
+        $dueToday = $open->filter(fn (Task $task) => $this->due($task)?->equalTo($this->today) === true);
+        $nextWeek = $open->filter(function (Task $task): bool {
+            $due = $this->due($task);
+
+            return $due !== null && $due->gt($this->today) && $due->lte($this->today->addDays(7));
+        });
 
         $monday = $this->today->startOfWeek(CarbonImmutable::MONDAY);
-        $dueThisWeek = $this->tasks->filter(fn (Task $task) => $task->due_on !== null
-            && $task->due_on->betweenIncluded($monday, $monday->addDays(6)));
+        $dueThisWeek = $this->tasks->filter(fn (Task $task) => $this->due($task)?->betweenIncluded($monday, $monday->addDays(6)) === true);
         $openAtMonday = $this->tasks->filter(fn (Task $task) => $task->created_at?->lt($monday)
             && ($task->completed_at === null || $task->completed_at->gte($monday)))->count();
 
@@ -76,7 +81,7 @@ class TeamDashboard
                         ->mapWithKeys(fn (Priority $priority) => [$priority->value => $dueToday->where('priority', $priority)->count()])
                         ->all(),
                     'series' => $days->map(fn (CarbonImmutable $day) => $this->tasks
-                        ->filter(fn (Task $task) => $task->due_on?->isSameDay($day) === true)->count())->all(),
+                        ->filter(fn (Task $task) => $this->due($task)?->equalTo($day) === true)->count())->all(),
                 ],
                 'overdue' => [
                     'value' => $overdue->count(),
@@ -130,15 +135,27 @@ class TeamDashboard
     {
         $end = $day->endOfDay();
 
-        return $this->tasks->filter(fn (Task $task) => $task->due_on !== null
-            && $task->due_on->lt($day)
+        return $this->tasks->filter(fn (Task $task) => $this->due($task)?->lt($day) === true
             && $task->created_at?->lte($end)
             && ($task->completed_at === null || $task->completed_at->gt($end)))->count();
     }
 
     private function completedOn(CarbonImmutable $day): int
     {
-        return $this->tasks->filter(fn (Task $task) => $task->completed_at?->isSameDay($day) === true)->count();
+        $end = $day->endOfDay();
+
+        return $this->tasks->filter(fn (Task $task) => $task->completed_at?->betweenIncluded($day, $end) === true)->count();
+    }
+
+    /**
+     * The task's due date as midnight in the viewer's time zone, so it
+     * compares with the days above.
+     */
+    private function due(Task $task): ?CarbonImmutable
+    {
+        return $task->due_on === null
+            ? null
+            : CarbonImmutable::parse($task->due_on->toDateString(), $this->today->getTimezone());
     }
 
     /**

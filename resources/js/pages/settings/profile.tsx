@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import { TimeZoneField } from '@/components/settings/time-zone-field';
 import {
     BUTTON,
     Collapse,
@@ -34,7 +35,11 @@ export default function Profile({
 }) {
     const { auth } = usePage().props;
     const getInitials = useInitials();
-    const form = useForm({ name: auth.user.name, email: auth.user.email });
+    const form = useForm({
+        name: auth.user.name,
+        email: auth.user.email,
+        timezone: auth.user.timezone,
+    });
     const verified = auth.user.email_verified_at !== null;
 
     const save = (event?: FormEvent) => {
@@ -155,6 +160,17 @@ export default function Profile({
                                 )}
                             </p>
                         )}
+                    </div>
+
+                    <div className="grid content-start gap-2">
+                        <Label htmlFor="timezone">Time zone</Label>
+                        <TimeZoneField
+                            id="timezone"
+                            value={form.data.timezone}
+                            onChange={(zone) => form.setData('timezone', zone)}
+                            invalid={Boolean(form.errors.timezone)}
+                        />
+                        <InputError message={form.errors.timezone} />
                     </div>
                 </form>
 

@@ -4,7 +4,7 @@ A collaborative task manager: teams create projects, organise work into lists an
 
 Daily-Drift is a personal remake of a team project I built in my second semester at VTC Academy, rebuilt from scratch with a current Laravel + React stack.
 
-> **Status:** Phase 1 in progress. Projects, lists, tasks with drag and drop, progress and the dashboard work, in a new design ([design notes](docs/design/README.md)). A time zone per user or team is the last Phase 1 item.
+> **Status:** Phase 1 is done: projects, lists, tasks with drag and drop, progress and the dashboard, in a new design ([design notes](docs/design/README.md)), with "today" and "overdue" in each person's time zone. Phase 2 (collaboration) is planned.
 
 ## Stack
 

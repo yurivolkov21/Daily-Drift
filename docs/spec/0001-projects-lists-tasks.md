@@ -1,6 +1,6 @@
 # Spec 0001: Projects, lists and tasks
 
-**Status:** In progress (projects, lists, tasks, progress and the dashboard are done; a per-user time zone is still open) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [Phase 1 screens](../design/README.md#screens-for-phase-1)
+**Status:** Done · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-done) · **Design:** [Phase 1 screens](../design/README.md#screens-for-phase-1)
 
 ## Goal
 
@@ -103,7 +103,7 @@ Under the starter kit's team prefix `/{current_team}`:
 
 ## Known limitations
 
-- **Time zone.** "Today", "overdue" and "due in the next 7 days" use the app's time zone, which is UTC. For someone in UTC+7, a task becomes overdue at 07:00 local time instead of midnight. A per-user or per-team time zone is needed before the dashboard ships.
+- **Time zone.** ~~"Today", "overdue" and "due in the next 7 days" use the app's time zone, which is UTC.~~ Resolved by [spec 0003](0003-user-time-zone.md): they follow each person's time zone.
 - **Keyboard moves.** Moving a card with the keyboard jumps to the nearest drop target in the arrow's direction, which is not always the next position in the list.
 
 ## Out of scope for this spec
