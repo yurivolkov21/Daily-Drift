@@ -5,6 +5,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useLocalTime } from '@/hooks/use-local-time';
 import { dueState, formatDue, initials, PRIORITIES } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import type { Priority, Task } from '@/types';
@@ -34,11 +35,13 @@ export function DueLabel({
     task: Pick<Task, 'dueOn' | 'completedAt'>;
     className?: string;
 }) {
+    const { today } = useLocalTime();
+
     if (!task.dueOn) {
         return null;
     }
 
-    const state = dueState(task);
+    const state = dueState(task, today);
 
     return (
         <span

@@ -4,6 +4,7 @@ namespace App\Data;
 
 use App\Models\Project;
 use App\Models\Task;
+use App\Support\LocalTime;
 use Illuminate\Database\Eloquent\Builder;
 
 readonly class ProjectStats
@@ -26,16 +27,17 @@ readonly class ProjectStats
 
     /**
      * The counts to load with a project query. "Due soon" means open tasks due
-     * today or within the next 7 days; "today" is the app's timezone.
+     * today or within the next 7 days; "today" is in the viewer's time zone.
      * "Recently" and "stale" mean within and before the last 7 days.
      *
      * @return array<string, callable(Builder<Task>): mixed>|array<int, string>
      */
     public static function counts(): array
     {
-        $today = now()->toDateString();
-        $week = now()->addDays(7)->toDateString();
-        $weekAgo = now()->subDays(7);
+        $now = LocalTime::now();
+        $today = $now->toDateString();
+        $week = $now->addDays(7)->toDateString();
+        $weekAgo = $now->subDays(7);
 
         return [
             'tasks',
@@ -62,7 +64,7 @@ readonly class ProjectStats
      */
     public static function oldestOverdue(): array
     {
-        $today = now()->toDateString();
+        $today = LocalTime::today();
 
         return [
             'tasks as oldest_overdue_on' => fn (Builder $query) => $query

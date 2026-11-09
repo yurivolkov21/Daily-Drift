@@ -6,6 +6,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { HueBar } from '@/components/hue-progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useCountUp } from '@/hooks/use-count-up';
+import { hourIn, useLocalTime } from '@/hooks/use-local-time';
 import { HUES } from '@/lib/hues';
 import { PRIORITIES, percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
@@ -76,6 +77,7 @@ export function GreetingCard({
     onShow: (group: 'overdue' | 'today') => void;
 }) {
     const { auth } = usePage().props;
+    const { zone } = useLocalTime();
     const firstName = auth.user.name.trim().split(/\s+/)[0] || auth.user.name;
     const overdue = data.stats.overdue.value;
     const dueToday = data.stats.dueToday.value;
@@ -108,7 +110,7 @@ export function GreetingCard({
                         id="greeting"
                         className="mt-1.5 text-[30px] leading-tight font-extrabold tracking-tight text-white"
                     >
-                        {greeting(new Date().getHours())}, {firstName}
+                        {greeting(hourIn(zone))}, {firstName}
                     </h1>
                     <p className="mt-2 text-[14.5px]">{summary}</p>
                 </div>

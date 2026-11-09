@@ -19,6 +19,21 @@
             })();
         </script>
 
+        {{-- The device's time zone, for "today" and "overdue" when no zone is picked under Profile (spec 0003) --}}
+        <script>
+            (function() {
+                try {
+                    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    if (zone) {
+                        document.cookie = 'timezone=' + encodeURIComponent(zone) + ';path=/;max-age=31536000;samesite=lax';
+                    }
+                } catch (error) {
+                    // Without the cookie the server falls back to the app's time zone.
+                }
+            })();
+        </script>
+
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {

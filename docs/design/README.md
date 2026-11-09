@@ -121,7 +121,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 ### Settings
 
 - One card with vertical tabs (Profile, Security, Appearance, Team) and a sliding indicator; the content rises in when the tab changes.
-- **Profile:** initials avatar, name and email with a _Verified_ badge. A save bar slides up while something is unsaved. _Delete account_ opens inline and asks for the password.
+- **Profile:** initials avatar, name and email with a _Verified_ badge, and the time zone (_Match my device_ or a zone picked from a searchable list). A save bar slides up while something is unsaved. _Delete account_ opens inline and asks for the password.
 - **Security:** change password with a strength meter; two-factor setup (QR code, 6-digit code, recovery codes blurred until shown); passkeys from the starter kit.
 - **Appearance:** _Light_, _Dark_ and _Match my device_ with small previews; Motion: _Match device_, _Reduced_, _Full_.
 - **Team:** name and address, members with a role menu (Admin, Member, Remove; the owner is fixed), invitations by email with a role, and pending invitations with _Cancel_.

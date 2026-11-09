@@ -14,6 +14,9 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            /** The viewer's time zone, and today's date in it (spec 0003). */
+            timeZone: string;
+            today: string;
             currentTeam: Team | null;
             teams: Team[];
             recentProjects: RecentProject[];
