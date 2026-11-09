@@ -6,6 +6,7 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
+- Phase 2 plan: the items in build order for a portfolio project (assignees and _My tasks_, activity and comments, notifications in the app, labels and search, list and calendar views), email moved to Phase 3 with the queue worker, and [spec 0004](../spec/0004-assignees-and-my-tasks.md) for assignees and _My tasks_.
 - Project docs: roadmap, Phase 1 spec, tech stack, architecture decision records and this changelog.
 - Phase 1 UI design, first pass (provisional, to be revised): screens with screenshots, color-coded projects and lists, components per screen, block sources and their licenses, and [ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md) for drag and drop.
 - Projects: create, edit, archive, restore and delete projects inside a team. A new project starts with To do, In progress and Done. Owners and admins manage projects, only owners delete them, and members can view them. The sidebar lists the five most recently updated active projects.
