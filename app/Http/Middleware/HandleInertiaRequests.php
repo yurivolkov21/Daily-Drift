@@ -52,11 +52,13 @@ class HandleInertiaRequests extends Middleware
                     ->active()
                     ->latest('updated_at')
                     ->limit(5)
+                    ->withCount(['tasks as open_tasks_count' => fn ($query) => $query->whereNull('completed_at')])
                     ->get(['id', 'name', 'color'])
                     ->map(fn (Project $project) => [
                         'id' => $project->id,
                         'name' => $project->name,
                         'color' => $project->color->value,
+                        'open' => (int) $project->getAttribute('open_tasks_count'),
                     ])
                 : [],
         ];

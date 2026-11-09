@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { Check, ChevronsUpDown, Plus, Users } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import CreateTeamModal from '@/components/create-team-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,16 +60,20 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                     className={
                         inHeader
                             ? 'h-8 gap-1 px-2'
-                            : 'w-full justify-start px-2 has-[>svg]:px-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+                            : 'h-11 w-full justify-start gap-2.5 rounded-xl border border-sidebar-border bg-white/[0.04] px-2 text-white group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0 hover:bg-sidebar-accent hover:text-white has-[>svg]:px-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
                     }
+                    aria-label={inHeader ? undefined : 'Switch team'}
                 >
-                    <Users
+                    <span
+                        aria-hidden="true"
                         className={
                             inHeader
                                 ? 'hidden'
-                                : 'hidden size-4 shrink-0 group-data-[collapsible=icon]:block'
+                                : 'flex size-7 shrink-0 items-center justify-center rounded-lg bg-fresh text-[13px] font-bold text-[#0b3b37]'
                         }
-                    />
+                    >
+                        {currentTeam?.name.charAt(0).toUpperCase() ?? '?'}
+                    </span>
                     <div
                         className={
                             inHeader
@@ -91,7 +95,7 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                         className={
                             inHeader
                                 ? 'size-4 opacity-50'
-                                : 'ml-auto group-data-[collapsible=icon]:hidden'
+                                : 'ml-auto opacity-70 group-data-[collapsible=icon]:hidden'
                         }
                     />
                 </Button>

@@ -5,6 +5,7 @@ import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { initializeScrollState } from '@/lib/scroll-state';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -33,9 +34,12 @@ void createInertiaApp({
         );
     },
     progress: {
-        color: '#4B5563',
+        color: '#6E5BF5',
     },
 });
 
 // This will set light / dark mode on load...
 initializeTheme();
+
+// Thin scrollbars show while an area scrolls.
+initializeScrollState();

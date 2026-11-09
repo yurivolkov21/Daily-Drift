@@ -1,6 +1,6 @@
 # Design
 
-**Status:** Chosen, not built yet · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
+**Status:** Chosen; tokens and the app shell are built, the screens are next · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
 
 This page describes the interface the app is being rebuilt to. It replaces the first pass, which kept the starter kit's look and was accepted only as a starting point (see [Earlier version](#earlier-version)).
 
@@ -146,7 +146,6 @@ The small local components from the first pass (progress ring, segmented bar, hu
 2. **Dark theme.** Settings offers it, but only the light theme is designed.
 3. **Phones.** The folded sidebar, folded lists and the moving sign-in board need a phone layout.
 4. **Motion tooling.** Plain CSS with `tw-animate-css` (already installed), or a library such as Motion for the sheet and list folding.
-5. **Fonts.** Download Inter and Plus Jakarta Sans from Bunny Fonts at build time, as the kit does today, or host them in the repository.
 
 ## Sources
 
