@@ -1,6 +1,6 @@
 # Spec 0002: Interface rebuild
 
-**Status:** In progress (shell, Motion setting, projects page and board done) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
+**Status:** In progress (shell, Motion setting, projects page, board and dashboard done) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [chosen design](../design/README.md) · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md)
 
 ## Goal
 

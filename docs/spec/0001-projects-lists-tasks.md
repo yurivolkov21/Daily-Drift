@@ -1,6 +1,6 @@
 # Spec 0001: Projects, lists and tasks
 
-**Status:** In progress (projects, lists, tasks and progress are done; the dashboard is next) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [Phase 1 screens](../design/README.md#screens-for-phase-1)
+**Status:** In progress (projects, lists, tasks, progress and the dashboard are done; a per-user time zone is still open) · **Phase:** 1 · **Roadmap:** [Phase 1](../plan/roadmap.md#phase-1-core-kanban-in-progress) · **Design:** [Phase 1 screens](../design/README.md#screens-for-phase-1)
 
 ## Goal
 

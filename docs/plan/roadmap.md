@@ -26,7 +26,7 @@ Specs: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md), [
 - [x] Progress: completion percentage per list and project
 - [ ] Interface rebuild to the chosen design: tokens and shell, projects, board, sign in and settings ([spec 0002](../spec/0002-interface-rebuild.md))
 - [ ] Time zone per user or team, so "today" and "overdue" follow local time
-- [ ] Dashboard: overdue tasks, due today, active projects, built in the new design
+- [x] Dashboard: overdue tasks, due today, active projects, built in the new design
 
 ## Phase 2: Collaboration (Planned)
 

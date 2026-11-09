@@ -1,6 +1,6 @@
 # Design
 
-**Status:** Chosen; tokens, the app shell, the projects page and the board are built · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
+**Status:** Chosen; tokens, the app shell, the projects page, the board and the dashboard are built · **Decided:** 2026-11-06 · **Decision:** [ADR 0007](../decisions/0007-floating-shell-with-motion.md) · **Behaviour:** [spec 0002](../spec/0002-interface-rebuild.md)
 
 This page describes the interface the app is being rebuilt to. It replaces the first pass, which kept the starter kit's look and was accepted only as a starting point (see [Earlier version](#earlier-version)).
 
@@ -87,7 +87,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 
 - **Greeting card:** date, "Good afternoon, {first name}", a one-line summary, the links _Review overdue_ and _Plan my day_, and a ring with the share of this week's tasks done.
 - **Due today:** a card with checkable rows.
-- **Stat cards:** open tasks, due today, overdue and done this week, each with a count-up, a 7-day sparkline and a line of context.
+- **Stat cards:** open tasks, due today, overdue and done in the last 7 days, each with a count-up, a 7-day sparkline and a line of context.
 - **Throughput:** tasks completed per day as a line chart, 7 or 14 days, compared with the period before.
 - **Projects:** a progress bar per active project and a link to all projects.
 - **My focus:** tabs _Overdue_, _Today_ and _Next 7 days_ with counts; rows with a checkbox, project dot, list, priority and due date.
