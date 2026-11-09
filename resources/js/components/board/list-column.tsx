@@ -1,14 +1,18 @@
 import { Form, router } from '@inertiajs/react';
 import {
     Check,
+    ChevronRight,
+    ChevronsLeft,
     MoreHorizontal,
     Palette,
     Pencil,
+    Plus,
     Trash2,
     X,
 } from 'lucide-react';
 import { useState } from 'react';
-import { AddTask } from '@/components/board/add-task';
+import { AddTask, openAddTask } from '@/components/board/add-task';
+import type { TaskStep } from '@/components/board/task-card';
 import { TaskCard } from '@/components/board/task-card';
 import { ProgressRing } from '@/components/hue-progress';
 import InputError from '@/components/input-error';
@@ -60,7 +64,13 @@ type Props = {
     tasks: Task[];
     canManage: boolean;
     onOpenTask?: (task: Task) => void;
+    onStepTask?: (task: Task, step: TaskStep) => void;
+    /** Folded to a narrow strip; it still takes dropped tasks. */
+    folded?: boolean;
+    onToggleFold?: () => void;
     isOverlay?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
 };
 
 export function ListColumn({
@@ -69,7 +79,12 @@ export function ListColumn({
     tasks,
     canManage,
     onOpenTask,
+    onStepTask,
+    folded = false,
+    onToggleFold,
     isOverlay = false,
+    className,
+    style,
 }: Props) {
     const [renaming, setRenaming] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -83,9 +98,9 @@ export function ListColumn({
             <ProgressRing value={progress} hue={list.color} />
             <span className="truncate text-sm font-semibold">{list.name}</span>
             <span
+                key={tasks.length}
                 className={cn(
-                    'rounded-full px-2 py-px text-xs font-medium tabular-nums',
-                    HUES[list.color].pill,
+                    'animate-bump rounded-full bg-card/70 px-2 py-px text-xs font-semibold text-muted-foreground tabular-nums',
                 )}
             >
                 {tasks.length}
@@ -93,18 +108,57 @@ export function ListColumn({
         </>
     );
 
+    if (folded && !isOverlay) {
+        return (
+            <KanbanColumn
+                value={columnKey(list.id)}
+                disabled={!canManage}
+                aria-label={`${list.name}, folded`}
+                style={style}
+                className={cn(
+                    'w-[52px] shrink-0 self-stretch rounded-[20px] border-0 transition-[background-color,box-shadow] duration-300',
+                    HUES[list.color].column,
+                    className,
+                )}
+            >
+                <button
+                    type="button"
+                    onClick={onToggleFold}
+                    aria-expanded={false}
+                    aria-label={`Show the ${list.name} list, ${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'}`}
+                    title={`Show ${list.name}`}
+                    className="flex h-full min-h-60 w-full flex-col items-center gap-3 rounded-[20px] py-4 outline-none hover:bg-card/40 focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                    <ChevronRight className="size-4 text-muted-foreground" />
+                    <ProgressRing value={progress} hue={list.color} />
+                    <span className="text-sm font-bold [writing-mode:vertical-rl]">
+                        {list.name}
+                    </span>
+                    <span
+                        key={tasks.length}
+                        className="animate-bump rounded-full bg-card px-1.5 py-px text-xs font-bold tabular-nums"
+                    >
+                        {tasks.length}
+                    </span>
+                </button>
+            </KanbanColumn>
+        );
+    }
+
     return (
         <KanbanColumn
             value={columnKey(list.id)}
             disabled={!canManage}
             aria-label={list.name}
+            style={style}
             className={cn(
-                'flex w-[19rem] shrink-0 snap-start flex-col gap-2 rounded-2xl border p-2',
+                'flex w-[17.5rem] shrink-0 snap-start flex-col gap-2.5 rounded-[20px] border-0 p-3 pr-2',
                 HUES[list.color].column,
-                isOverlay && 'shadow-lg',
+                isOverlay && 'shadow-[0_24px_44px_-20px_rgb(23_21_59/0.5)]',
+                className,
             )}
         >
-            <div className="flex min-h-8 items-center gap-2 px-1.5 pt-1">
+            <div className="flex min-h-8 items-center gap-1.5 pr-1 pl-0.5">
                 {renaming ? (
                     <RenameListForm
                         teamSlug={teamSlug}
@@ -128,13 +182,41 @@ export function ListColumn({
                                 {title}
                             </div>
                         )}
+                        {!isOverlay && (
+                            <span className="ml-auto flex items-center">
+                                {canManage && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        className="rounded-lg text-muted-foreground hover:bg-card/70"
+                                        aria-label={`Add a task to ${list.name}`}
+                                        onClick={() => openAddTask(list.id)}
+                                    >
+                                        <Plus />
+                                    </Button>
+                                )}
+                                {onToggleFold && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        className="rounded-lg text-muted-foreground hover:bg-card/70"
+                                        aria-label={`Fold the ${list.name} list`}
+                                        aria-expanded
+                                        title={`Fold ${list.name}`}
+                                        onClick={onToggleFold}
+                                    >
+                                        <ChevronsLeft />
+                                    </Button>
+                                )}
+                            </span>
+                        )}
                         {canManage && !isOverlay && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"
                                         size="icon-sm"
-                                        className="ml-auto"
+                                        className="rounded-lg text-muted-foreground hover:bg-card/70"
                                         aria-label={`Actions for ${list.name}`}
                                     >
                                         <MoreHorizontal />
@@ -196,7 +278,7 @@ export function ListColumn({
 
             <KanbanColumnContent
                 value={columnKey(list.id)}
-                className="flex min-h-20 flex-col gap-2 p-0.5"
+                className="-mx-1 flex scrollbar-thin max-h-[calc(100svh-22rem)] min-h-20 flex-col gap-2 overflow-y-auto px-1 py-1 pr-1.5"
             >
                 {tasks.map((task) => (
                     <TaskCard
@@ -205,11 +287,12 @@ export function ListColumn({
                         task={task}
                         canManage={canManage}
                         onOpen={onOpenTask}
+                        onStep={onStepTask}
                         isOverlay={isOverlay}
                     />
                 ))}
                 {tasks.length === 0 && (
-                    <p className="flex min-h-20 flex-1 items-center justify-center rounded-xl border border-dashed border-current/10 text-xs text-muted-foreground">
+                    <p className="flex min-h-20 flex-1 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-foreground/15 text-xs text-muted-foreground">
                         {canManage ? 'Drop a task here' : 'No tasks'}
                     </p>
                 )}
