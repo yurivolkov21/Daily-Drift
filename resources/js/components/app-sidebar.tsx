@@ -53,6 +53,7 @@ export function AppSidebar() {
                       title: 'Projects',
                       href: projectsIndex(teamSlug),
                       icon: FolderKanban,
+                      badge: page.props.activeProjectCount,
                   },
                   {
                       title: 'Team',

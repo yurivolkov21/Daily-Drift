@@ -18,6 +18,7 @@ import { percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { index, restore, show } from '@/routes/projects';
 import type { Project } from '@/types';
+import { teamCrumb } from '@/lib/breadcrumbs';
 
 type Props = {
     project: Project;
@@ -154,10 +155,11 @@ function Chip({
 }
 
 ProjectShow.layout = (props: {
-    currentTeam?: { slug: string } | null;
+    currentTeam?: { name: string; slug: string } | null;
     project: Project;
 }) => ({
     breadcrumbs: [
+        ...teamCrumb(props.currentTeam),
         {
             title: 'Projects',
             href: props.currentTeam ? index(props.currentTeam.slug) : '/',

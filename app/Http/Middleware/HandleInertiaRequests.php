@@ -47,6 +47,11 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'teamPeople' => fn () => $user?->currentTeam ? [
+                'total' => $user->currentTeam->members()->count(),
+                'names' => $user->currentTeam->members()->orderBy('team_members.created_at')->limit(4)->pluck('name')->all(),
+            ] : null,
+            'activeProjectCount' => fn () => $user?->currentTeam ? $user->currentTeam->projects()->active()->count() : 0,
             'recentProjects' => fn () => $user?->currentTeam
                 ? $user->currentTeam->projects()
                     ->active()
