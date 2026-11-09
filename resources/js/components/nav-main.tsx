@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import {
     SidebarGroup,
     SidebarMenu,
+    SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
@@ -34,6 +35,11 @@ export function NavMain({ items }: { items: NavItem[] }) {
                                 <span>{item.title}</span>
                             </Link>
                         </SidebarMenuButton>
+                        {item.badge !== undefined && (
+                            <SidebarMenuBadge className="rounded-full bg-white/10 px-2 text-xs text-sidebar-foreground peer-hover/menu-button:text-white peer-data-[active=true]/menu-button:bg-white/20 peer-data-[active=true]/menu-button:text-white peer-data-[size=default]/menu-button:top-2.5">
+                                {item.badge}
+                            </SidebarMenuBadge>
+                        )}
                     </SidebarMenuItem>
                 ))}
             </SidebarMenu>

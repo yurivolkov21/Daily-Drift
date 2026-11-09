@@ -17,6 +17,9 @@ declare module '@inertiajs/core' {
             currentTeam: Team | null;
             teams: Team[];
             recentProjects: RecentProject[];
+            /** The first members of the current team, for the header. */
+            teamPeople: { total: number; names: string[] } | null;
+            activeProjectCount: number;
             [key: string]: unknown;
         };
     }

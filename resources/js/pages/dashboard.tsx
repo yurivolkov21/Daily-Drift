@@ -4,6 +4,7 @@ import PendingInvitationsModal from '@/components/pending-invitations-modal';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard } from '@/routes';
 import type { DashboardInvitation } from '@/types';
+import { teamCrumb } from '@/lib/breadcrumbs';
 
 type Props = {
     pendingInvitations?: DashboardInvitation[];
@@ -42,8 +43,11 @@ export default function Dashboard({ pendingInvitations = [] }: Props) {
     );
 }
 
-Dashboard.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+Dashboard.layout = (props: {
+    currentTeam?: { name: string; slug: string } | null;
+}) => ({
     breadcrumbs: [
+        ...teamCrumb(props.currentTeam),
         {
             title: 'Dashboard',
             href: props.currentTeam ? dashboard(props.currentTeam.slug) : '/',
