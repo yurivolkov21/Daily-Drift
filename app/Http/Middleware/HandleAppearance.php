@@ -17,7 +17,18 @@ class HandleAppearance
     public function handle(Request $request, Closure $next): Response
     {
         View::share('appearance', $request->cookie('appearance') ?? 'system');
+        View::share('motion', self::motion($request));
 
         return $next($request);
+    }
+
+    /**
+     * The Motion setting from its cookie: `system` (the default), `reduced` or `full`.
+     */
+    public static function motion(Request $request): string
+    {
+        $motion = $request->cookie('motion');
+
+        return in_array($motion, ['reduced', 'full'], true) ? $motion : 'system';
     }
 }

@@ -54,4 +54,7 @@ export type Project = {
     can: ProjectAbilities;
 };
 
-export type RecentProject = Pick<Project, 'id' | 'name' | 'color'>;
+export type RecentProject = Pick<Project, 'id' | 'name' | 'color'> & {
+    /** Open (not completed) tasks. */
+    open: number;
+};

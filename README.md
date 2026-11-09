@@ -50,9 +50,10 @@ pnpm run check         # frontend lint and formatting
 pnpm run types:check   # TypeScript
 ```
 
-The production build downloads the Instrument Sans font from `fonts.bunny.net`, so it needs network access to that host.
+Fonts (Inter and Plus Jakarta Sans) are installed as npm packages and served by the app, so building needs no access to a font service.
 
 ## Credits
 
 - Built on the [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit) (teams variant), MIT licensed.
-- UI components from [shadcn/ui](https://ui.shadcn.com) and the Kanban component from [ReUI](https://reui.io), both MIT licensed. Other design sources and their licenses are listed in the [design notes](docs/design/README.md#sources).
+- UI components from [shadcn/ui](https://ui.shadcn.com) and the Kanban component from [ReUI](https://reui.io), both MIT licensed.
+- [Inter](https://rsms.me/inter/) and [Plus Jakarta Sans](https://github.com/tokotype/PlusJakartaSans) through [Fontsource](https://fontsource.org), under the SIL Open Font License 1.1. Other design sources and their licenses are listed in the [design notes](docs/design/README.md#sources).

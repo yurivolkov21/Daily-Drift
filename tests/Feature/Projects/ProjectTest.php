@@ -5,6 +5,7 @@ namespace Tests\Feature\Projects;
 use App\Enums\Hue;
 use App\Enums\TeamRole;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\TaskList;
 use App\Models\Team;
 use App\Models\User;
@@ -265,6 +266,9 @@ class ProjectTest extends TestCase
         foreach (range(1, 6) as $day) {
             Project::factory()->for($team)->create(['name' => "Project {$day}", 'updated_at' => now()->subDays($day)]);
         }
+        $list = TaskList::factory()->for(Project::query()->where('name', 'Project 1')->firstOrFail())->create();
+        Task::factory()->count(2)->for($list, 'list')->create();
+        Task::factory()->for($list, 'list')->completed()->create();
         Project::factory()->for($team)->archived()->create(['name' => 'Archived', 'updated_at' => now()]);
         Project::factory()->create(['name' => 'Other team', 'updated_at' => now()]);
 
@@ -273,6 +277,8 @@ class ProjectTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->has('recentProjects', 5)
                 ->where('recentProjects.0.name', 'Project 1')
+                ->where('recentProjects.0.open', 2)
+                ->where('recentProjects.1.open', 0)
                 ->where('recentProjects.4.name', 'Project 5')
             );
     }
