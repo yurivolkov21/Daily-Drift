@@ -100,6 +100,18 @@ class Team extends Model
     }
 
     /**
+     * Unassign a person from the tasks of this team's projects, for when
+     * they leave or are removed (spec 0004).
+     */
+    public function unassignTasksOf(User $user): void
+    {
+        Task::query()
+            ->whereIn('project_id', $this->projects()->select('id'))
+            ->where('assignee_id', $user->id)
+            ->update(['assignee_id' => null]);
+    }
+
+    /**
      * Get all projects of this team.
      *
      * @return HasMany<Project, $this>

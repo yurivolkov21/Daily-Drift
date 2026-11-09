@@ -1,4 +1,5 @@
 import { SegmentedTabs } from '@/components/segmented-tabs';
+import { Switch } from '@/components/ui/switch';
 import type { Hue } from '@/lib/hues';
 import { HUE_NAMES, HUES } from '@/lib/hues';
 import { cn } from '@/lib/utils';
@@ -11,8 +12,8 @@ type Props = {
 };
 
 /**
- * Health and color filters in a row that slides open under the toolbar.
- * Health only applies to the Active tab.
+ * Health, color and "Assigned to me" filters in a row that slides open under
+ * the toolbar. Health only applies to the Active tab.
  */
 export function FilterPanel({ open, filters, onChange }: Props) {
     const toggleColor = (hue: Hue) =>
@@ -21,7 +22,8 @@ export function FilterPanel({ open, filters, onChange }: Props) {
                 ? filters.colors.filter((color) => color !== hue)
                 : [...filters.colors, hue],
         });
-    const narrowed = filters.health !== null || filters.colors.length > 0;
+    const narrowed =
+        filters.health !== null || filters.colors.length > 0 || filters.mine;
 
     return (
         <div
@@ -91,9 +93,19 @@ export function FilterPanel({ open, filters, onChange }: Props) {
                             })}
                         </div>
                     </fieldset>
+                    <label className="flex items-center gap-2.5 text-sm font-semibold">
+                        <Switch
+                            checked={filters.mine}
+                            onCheckedChange={(mine) => onChange({ mine })}
+                            data-test="filter-mine"
+                        />
+                        Assigned to me
+                    </label>
                     <button
                         type="button"
-                        onClick={() => onChange({ health: null, colors: [] })}
+                        onClick={() =>
+                            onChange({ health: null, colors: [], mine: false })
+                        }
                         disabled={!narrowed}
                         className="ml-auto text-sm font-semibold text-primary transition-opacity disabled:opacity-35"
                     >

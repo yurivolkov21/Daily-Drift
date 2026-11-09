@@ -16,7 +16,7 @@ Rebuild the shell and the Phase 1 screens to the chosen design, and add the beha
 
 - **View:** `grid` (default) or `list`.
 - **Sort:** `updated` (most recently updated first), `name` (A to Z), `progress` (least done first), `overdue` (most overdue tasks first, then most recently updated).
-- **Filters:** health and color (any of the ten hues). "Assigned to me" waits for assignees in Phase 2.
+- **Filters:** health and color (any of the ten hues), and _Assigned to me_ since [spec 0004](0004-assignees-and-my-tasks.md).
 - Tab, view, sort and filters are kept in the query string (`?status=archived&view=list&sort=name&health=attention&color=indigo,teal`), so a link reopens the same page. Unknown values fall back to the defaults. The last view is also kept in the `projects_view` cookie and used when the link has none.
 - **Health** of an active project:
     - **Needs attention** when it has at least one open task past its due date, or when it has open tasks created more than 7 days ago and none was completed in the last 7 days. (Counting only tasks older than a week keeps a project that was just set up from being flagged.)

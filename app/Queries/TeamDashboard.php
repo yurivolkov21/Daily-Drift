@@ -6,6 +6,7 @@ use App\Enums\Priority;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Team;
+use App\Models\User;
 use App\Support\LocalTime;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -30,8 +31,16 @@ class TeamDashboard
     /** @var Collection<int, Task> */
     private Collection $tasks;
 
-    public function __construct(private readonly Team $team, ?CarbonImmutable $now = null, ?string $zone = null)
-    {
+    /**
+     * With a viewer, _My focus_ keeps their tasks and unassigned ones
+     * (spec 0004); the other numbers stay team-wide.
+     */
+    public function __construct(
+        private readonly Team $team,
+        ?CarbonImmutable $now = null,
+        ?string $zone = null,
+        private readonly ?User $viewer = null,
+    ) {
         $this->today = ($now ?? CarbonImmutable::now())->setTimezone($zone ?? LocalTime::zone())->startOfDay();
         $this->tasks = Task::query()
             ->whereHas('project', fn ($query) => $query->whereBelongsTo($this->team)->whereNull('archived_at'))
@@ -103,10 +112,11 @@ class TeamDashboard
                 'previous7' => $this->completedBetween(13, 7),
                 'previous14' => $this->completedBetween(27, 14),
             ],
+            'dueToday' => $this->rows($dueToday),
             'focus' => [
-                'overdue' => $this->rows($overdue),
-                'today' => $this->rows($dueToday),
-                'week' => $this->rows($nextWeek),
+                'overdue' => $this->rows($overdue->filter($this->isMineOrUnassigned(...))),
+                'today' => $this->rows($dueToday->filter($this->isMineOrUnassigned(...))),
+                'week' => $this->rows($nextWeek->filter($this->isMineOrUnassigned(...))),
             ],
             'projects' => $this->team->projects()
                 ->active()
@@ -123,6 +133,11 @@ class TeamDashboard
                 ])
                 ->all(),
         ];
+    }
+
+    private function isMineOrUnassigned(Task $task): bool
+    {
+        return $this->viewer === null || $task->assignee_id === null || $task->assignee_id === $this->viewer->id;
     }
 
     private function openAt(CarbonImmutable $moment): int

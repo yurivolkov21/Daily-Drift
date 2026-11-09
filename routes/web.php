@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Lists\TaskListController;
+use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
 use App\Http\Controllers\Tasks\TaskController;
@@ -15,6 +16,7 @@ Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
     ->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
+        Route::get('my-tasks', MyTasksController::class)->name('my-tasks');
 
         Route::scopeBindings()->group(function () {
             Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');

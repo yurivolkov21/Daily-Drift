@@ -75,6 +75,7 @@ class ProjectListTest extends TestCase
                 'sort' => 'updated',
                 'health' => null,
                 'colors' => [],
+                'mine' => false,
             ])
         );
     }
@@ -214,6 +215,7 @@ class ProjectListTest extends TestCase
                     'sort' => 'updated',
                     'health' => null,
                     'colors' => [],
+                    'mine' => false,
                 ])
             );
     }

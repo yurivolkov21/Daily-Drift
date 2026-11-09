@@ -7,6 +7,7 @@ export const DEFAULT_FILTERS: ProjectFilters = {
     sort: 'updated',
     health: null,
     colors: [],
+    mine: false,
 };
 
 export const SORTS: {
@@ -70,12 +71,20 @@ export function filtersToQuery(
         query.color = filters.colors.join(',');
     }
 
+    if (filters.mine) {
+        query.mine = '1';
+    }
+
     return query;
 }
 
 /** The number of filters that narrow the list (health counts as one). */
 export function activeFilterCount(filters: ProjectFilters): number {
-    return (filters.health ? 1 : 0) + filters.colors.length;
+    return (
+        (filters.health ? 1 : 0) +
+        filters.colors.length +
+        (filters.mine ? 1 : 0)
+    );
 }
 
 export function openTasks(project: Project): number {

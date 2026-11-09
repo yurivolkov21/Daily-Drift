@@ -130,9 +130,13 @@ class TeamController extends Controller
             ? $user->fallbackTeam($team)
             : null;
 
-        $team->memberships()
-            ->where('user_id', $user->id)
-            ->delete();
+        DB::transaction(function () use ($team, $user) {
+            $team->memberships()
+                ->where('user_id', $user->id)
+                ->delete();
+
+            $team->unassignTasksOf($user);
+        });
 
         if ($fallbackTeam) {
             $user->switchTeam($fallbackTeam);
