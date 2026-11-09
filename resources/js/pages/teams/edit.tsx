@@ -1,31 +1,40 @@
-import { Form, Head, router } from '@inertiajs/react';
-import { ChevronDown, Mail, UserPlus, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import CancelInvitationModal from '@/components/cancel-invitation-modal';
+import { Form, Head, Link, router, usePage } from '@inertiajs/react';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import { Check, ChevronDown, Mail } from 'lucide-react';
+import { useState } from 'react';
 import DeleteTeamModal from '@/components/delete-team-modal';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import InviteMemberModal from '@/components/invite-member-modal';
 import RemoveMemberModal from '@/components/remove-member-modal';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { SegmentedTabs } from '@/components/segmented-tabs';
+import {
+    BUTTON,
+    DANGER,
+    Divider,
+    FIELD,
+    Pill,
+    SettingsSection,
+    SubHeading,
+} from '@/components/settings/section';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Spinner } from '@/components/ui/spinner';
 import { useInitials } from '@/hooks/use-initials';
+import { settingsCrumbs } from '@/lib/breadcrumbs';
+import { HUE_NAMES, HUES } from '@/lib/hues';
+import { cn } from '@/lib/utils';
 import { edit, index, update } from '@/routes/teams';
+import {
+    destroy as cancelInvitation,
+    store as storeInvitation,
+} from '@/routes/teams/invitations';
 import { update as updateMember } from '@/routes/teams/members';
 import type {
     RoleOption,
@@ -43,6 +52,20 @@ type Props = {
     availableRoles: RoleOption[];
 };
 
+const YOU_ARE: Record<string, string> = {
+    owner: 'You are the owner',
+    admin: 'You are an admin',
+    member: 'You are a member',
+};
+
+/** Invitations offer the everyday role first. */
+const INVITE_ORDER = ['member', 'admin'];
+
+const ROLE_HINTS: Record<string, string> = {
+    admin: 'Renames the team, invites people and manages projects',
+    member: 'Works on boards, cannot manage the team',
+};
+
 export default function TeamEdit({
     team,
     members,
@@ -50,346 +73,416 @@ export default function TeamEdit({
     permissions,
     availableRoles,
 }: Props) {
-    const getInitials = useInitials();
-
-    const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
+    const { auth } = usePage().props;
     const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(
         null,
     );
-    const [cancelInvitationDialogOpen, setCancelInvitationDialogOpen] =
-        useState(false);
-    const [invitationToCancel, setInvitationToCancel] =
-        useState<TeamInvitation | null>(null);
-
-    const pageTitle = useMemo(
-        () =>
-            permissions.canUpdateTeam
-                ? `Edit ${team.name}`
-                : `View ${team.name}`,
-        [permissions.canUpdateTeam, team.name],
-    );
-
-    const updateMemberRole = (member: TeamMember, newRole: string) => {
-        router.visit(updateMember([team.slug, member.id]), {
-            data: { role: newRole },
-            preserveScroll: true,
-        });
-    };
-
-    const confirmRemoveMember = (member: TeamMember) => {
-        setMemberToRemove(member);
-        setRemoveMemberDialogOpen(true);
-    };
-
-    const confirmCancelInvitation = (invitation: TeamInvitation) => {
-        setInvitationToCancel(invitation);
-        setCancelInvitationDialogOpen(true);
-    };
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const me = members.find((member) => member.id === auth.user.id);
+    const canManageMembers =
+        permissions.canUpdateMember || permissions.canRemoveMember;
+    const canDelete = permissions.canDeleteTeam && !team.isPersonal;
 
     return (
         <>
-            <Head title={pageTitle} />
+            <Head title={team.name} />
 
-            <h1 className="sr-only">{pageTitle}</h1>
-
-            <div className="flex flex-col space-y-10">
-                <div className="space-y-6">
-                    {permissions.canUpdateTeam ? (
-                        <>
-                            <Heading
-                                variant="small"
-                                title="Team settings"
-                                description="Update your team name and settings"
-                            />
-
-                            <Form
-                                {...update.form(team.slug)}
-                                className="space-y-6"
-                            >
-                                {({ errors, processing }) => (
-                                    <>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="name">
-                                                Team name
-                                            </Label>
-                                            <Input
-                                                id="name"
-                                                name="name"
-                                                data-test="team-name-input"
-                                                defaultValue={team.name}
-                                                required
-                                            />
-                                            <InputError message={errors.name} />
-                                        </div>
-
-                                        <div className="flex items-center gap-4">
-                                            <Button
-                                                type="submit"
-                                                data-test="team-save-button"
-                                                disabled={processing}
-                                            >
-                                                Save
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
-                            </Form>
-                        </>
-                    ) : (
-                        <>
-                            <Heading variant="small" title={team.name} />
-                        </>
-                    )}
-                </div>
-
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <Heading
-                            variant="small"
-                            title="Team members"
-                            description={
-                                permissions.canCreateInvitation
-                                    ? 'Manage who belongs to this team'
-                                    : ''
-                            }
-                        />
-
-                        {permissions.canCreateInvitation ? (
-                            <Button
-                                data-test="invite-member-button"
-                                onClick={() => setInviteDialogOpen(true)}
-                            >
-                                <UserPlus /> Invite member
-                            </Button>
-                        ) : null}
+            <SettingsSection
+                id="team"
+                title={`Team · ${team.name}`}
+                description="Owners and admins can manage the team. Everyone can see every board."
+                aside={
+                    <div className="flex items-center gap-3">
+                        {me && <Pill tone="indigo">{YOU_ARE[me.role]}</Pill>}
+                        <Link
+                            href={index()}
+                            className="text-[13px] font-semibold text-primary no-underline"
+                        >
+                            All teams →
+                        </Link>
                     </div>
+                }
+            >
+                {permissions.canUpdateTeam && (
+                    <Form
+                        {...update.form(team.slug)}
+                        options={{ preserveScroll: true }}
+                        className="grid max-w-[420px] gap-2"
+                    >
+                        {({ errors, processing, isDirty }) => (
+                            <>
+                                <Label htmlFor="team-name">Team name</Label>
+                                <div className="flex gap-2.5">
+                                    <Input
+                                        id="team-name"
+                                        name="name"
+                                        data-test="team-name-input"
+                                        defaultValue={team.name}
+                                        required
+                                        className={FIELD}
+                                    />
+                                    <Button
+                                        type="submit"
+                                        data-test="team-save-button"
+                                        disabled={processing || !isDirty}
+                                        className={cn(BUTTON, 'h-11')}
+                                    >
+                                        {processing && <Spinner />}
+                                        Save
+                                    </Button>
+                                </div>
+                                <span className="text-[12.5px] text-muted-foreground">
+                                    Address:{' '}
+                                    <strong className="font-semibold text-foreground">
+                                        /{team.slug}
+                                    </strong>
+                                    . Renaming the team changes it.
+                                </span>
+                                <InputError message={errors.name} />
+                            </>
+                        )}
+                    </Form>
+                )}
 
-                    <div className="space-y-3">
+                {permissions.canUpdateTeam && <Divider />}
+
+                <div className="flex flex-col gap-1">
+                    <h3 className="mb-1.5 text-[14.5px] font-bold">
+                        Members{' '}
+                        <span className="font-medium text-muted-foreground">
+                            {members.length}
+                        </span>
+                    </h3>
+                    <ul className="flex flex-col gap-1">
                         {members.map((member) => (
-                            <div
+                            <MemberRow
                                 key={member.id}
-                                data-test="member-row"
-                                className="flex items-center justify-between rounded-lg border p-4"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <Avatar className="h-10 w-10">
-                                        {member.avatar ? (
-                                            <AvatarImage
-                                                src={member.avatar}
-                                                alt={member.name}
-                                            />
-                                        ) : null}
-                                        <AvatarFallback>
-                                            {getInitials(member.name)}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <div className="font-medium">
-                                            {member.name}
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            {member.email}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    {member.role !== 'owner' &&
-                                    permissions.canUpdateMember ? (
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    data-test="member-role-trigger"
-                                                >
-                                                    {member.role_label}
-                                                    <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent>
-                                                {availableRoles.map((role) => (
-                                                    <DropdownMenuItem
-                                                        key={role.value}
-                                                        data-test="member-role-option"
-                                                        onSelect={() =>
-                                                            updateMemberRole(
-                                                                member,
-                                                                role.value,
-                                                            )
-                                                        }
-                                                    >
-                                                        {role.label}
-                                                    </DropdownMenuItem>
-                                                ))}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    ) : (
-                                        <Badge variant="secondary">
-                                            {member.role_label}
-                                        </Badge>
-                                    )}
-
-                                    {member.role !== 'owner' &&
-                                    permissions.canRemoveMember ? (
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        data-test="member-remove-button"
-                                                        onClick={() =>
-                                                            confirmRemoveMember(
-                                                                member,
-                                                            )
-                                                        }
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Remove member</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    ) : null}
-                                </div>
-                            </div>
+                                member={member}
+                                isYou={member.id === auth.user.id}
+                                roles={availableRoles}
+                                canChangeRole={permissions.canUpdateMember}
+                                canRemove={permissions.canRemoveMember}
+                                menu={canManageMembers}
+                                onRole={(role) =>
+                                    router.visit(
+                                        updateMember([team.slug, member.id]),
+                                        {
+                                            data: { role },
+                                            preserveScroll: true,
+                                        },
+                                    )
+                                }
+                                onRemove={() => setMemberToRemove(member)}
+                            />
                         ))}
-                    </div>
+                    </ul>
                 </div>
 
-                {invitations.length > 0 ? (
-                    <div className="space-y-6">
-                        <Heading
-                            variant="small"
-                            title="Pending invitations"
-                            description="Invitations that haven't been accepted yet"
-                        />
+                {(permissions.canCreateInvitation ||
+                    invitations.length > 0) && (
+                    <Invitations
+                        team={team}
+                        invitations={invitations}
+                        roles={availableRoles}
+                        canInvite={permissions.canCreateInvitation}
+                        canCancel={permissions.canCancelInvitation}
+                    />
+                )}
 
-                        <div className="space-y-3">
-                            {invitations.map((invitation) => (
-                                <div
-                                    key={invitation.code}
-                                    data-test="invitation-row"
-                                    className="flex items-center justify-between rounded-lg border p-4"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                                            <Mail className="h-5 w-5 text-muted-foreground" />
-                                        </div>
-                                        <div>
-                                            <div className="font-medium">
-                                                {invitation.email}
-                                            </div>
-                                            <div className="text-sm text-muted-foreground">
-                                                {invitation.role_label}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {permissions.canCancelInvitation ? (
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        data-test="invitation-cancel-button"
-                                                        onClick={() =>
-                                                            confirmCancelInvitation(
-                                                                invitation,
-                                                            )
-                                                        }
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Cancel invitation</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    ) : null}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ) : null}
-
-                {permissions.canDeleteTeam && !team.isPersonal ? (
-                    <div className="space-y-6">
-                        <Heading
-                            variant="small"
-                            title="Delete team"
-                            description="Permanently delete your team"
-                        />
-                        <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                            <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                                <p className="font-medium">Warning</p>
-                                <p className="text-sm">
-                                    Please proceed with caution, this cannot be
-                                    undone.
-                                </p>
-                            </div>
+                {canDelete && (
+                    <>
+                        <Divider />
+                        <div className="flex flex-wrap items-center justify-between gap-3.5">
+                            <SubHeading
+                                title={
+                                    <span className="text-rose-700 dark:text-rose-400">
+                                        Delete team
+                                    </span>
+                                }
+                                description="Removes the team with its projects, lists and tasks. This cannot be undone."
+                            />
                             <Button
-                                variant="destructive"
+                                type="button"
                                 data-test="delete-team-button"
-                                onClick={() => setDeleteDialogOpen(true)}
+                                onClick={() => setDeleteOpen(true)}
+                                className={cn(BUTTON, DANGER)}
                             >
                                 Delete team
                             </Button>
                         </div>
-                    </div>
-                ) : null}
-            </div>
-
-            {permissions.canCreateInvitation ? (
-                <InviteMemberModal
-                    team={team}
-                    availableRoles={availableRoles}
-                    open={inviteDialogOpen}
-                    onOpenChange={setInviteDialogOpen}
-                />
-            ) : null}
+                    </>
+                )}
+            </SettingsSection>
 
             <RemoveMemberModal
                 team={team}
                 member={memberToRemove}
-                open={removeMemberDialogOpen}
-                onOpenChange={setRemoveMemberDialogOpen}
+                open={memberToRemove !== null}
+                onOpenChange={(open) => !open && setMemberToRemove(null)}
             />
 
-            <CancelInvitationModal
-                team={team}
-                invitation={invitationToCancel}
-                open={cancelInvitationDialogOpen}
-                onOpenChange={setCancelInvitationDialogOpen}
-            />
-
-            {permissions.canDeleteTeam && !team.isPersonal ? (
+            {canDelete && (
                 <DeleteTeamModal
                     team={team}
-                    open={deleteDialogOpen}
-                    onOpenChange={setDeleteDialogOpen}
+                    open={deleteOpen}
+                    onOpenChange={setDeleteOpen}
                 />
-            ) : null}
+            )}
         </>
     );
 }
 
+function MemberRow({
+    member,
+    isYou,
+    roles,
+    canChangeRole,
+    canRemove,
+    menu,
+    onRole,
+    onRemove,
+}: {
+    member: TeamMember;
+    isYou: boolean;
+    roles: RoleOption[];
+    canChangeRole: boolean;
+    canRemove: boolean;
+    menu: boolean;
+    onRole: (role: string) => void;
+    onRemove: () => void;
+}) {
+    const getInitials = useInitials();
+    const hue = HUE_NAMES[member.id % HUE_NAMES.length];
+    const fixed = member.role === 'owner' || !menu;
+
+    return (
+        <li
+            data-test="member-row"
+            className="flex items-center gap-3.5 rounded-[14px] p-2.5 transition-colors hover:bg-muted/70"
+        >
+            <span
+                aria-hidden="true"
+                className={cn(
+                    'flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                    HUES[hue].tile,
+                )}
+            >
+                {getInitials(member.name)}
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-sm font-semibold">
+                    {member.name}
+                    {isYou && (
+                        <span className="font-normal text-muted-foreground">
+                            {' '}
+                            (you)
+                        </span>
+                    )}
+                </span>
+                <span className="truncate text-[12.5px] text-muted-foreground">
+                    {member.email}
+                </span>
+            </span>
+            {fixed ? (
+                <span
+                    className={cn(
+                        'flex h-[34px] items-center rounded-[10px] px-3 text-[13px] font-semibold',
+                        member.role === 'owner'
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-muted-foreground',
+                    )}
+                >
+                    {member.role_label}
+                </span>
+            ) : (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button
+                            type="button"
+                            data-test="member-role-trigger"
+                            aria-label={`Role for ${member.name}: ${member.role_label}`}
+                            className="group flex h-[34px] items-center gap-1.5 rounded-[10px] border bg-card pr-2.5 pl-3 text-[13px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:border-primary"
+                        >
+                            {member.role_label}
+                            <ChevronDown className="size-3.5 transition-transform duration-300 group-data-[state=open]:rotate-180" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        align="end"
+                        className="w-60 rounded-[14px] p-1.5"
+                    >
+                        {canChangeRole &&
+                            roles.map((role) => (
+                                <DropdownMenuItem
+                                    key={role.value}
+                                    data-test="member-role-option"
+                                    onSelect={() =>
+                                        role.value !== member.role &&
+                                        onRole(role.value)
+                                    }
+                                    className="items-start gap-2.5 rounded-[10px] px-2.5 py-2"
+                                >
+                                    <span className="flex flex-1 flex-col gap-0.5">
+                                        <span className="text-[13.5px] font-semibold">
+                                            {role.label}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">
+                                            {ROLE_HINTS[role.value]}
+                                        </span>
+                                    </span>
+                                    <Check
+                                        className={cn(
+                                            'mt-0.5 size-[15px] text-primary',
+                                            role.value !== member.role &&
+                                                'opacity-0',
+                                        )}
+                                    />
+                                </DropdownMenuItem>
+                            ))}
+                        {canChangeRole && canRemove && (
+                            <DropdownMenuSeparator />
+                        )}
+                        {canRemove && (
+                            <DropdownMenuItem
+                                data-test="member-remove-button"
+                                onSelect={onRemove}
+                                className="flex-col items-start gap-0.5 rounded-[10px] px-2.5 py-2"
+                            >
+                                <span className="text-[13.5px] font-semibold text-rose-700 dark:text-rose-400">
+                                    Remove from team
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    They lose access to every board
+                                </span>
+                            </DropdownMenuItem>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )}
+        </li>
+    );
+}
+
+function Invitations({
+    team,
+    invitations,
+    roles,
+    canInvite,
+    canCancel,
+}: {
+    team: Team;
+    invitations: TeamInvitation[];
+    roles: RoleOption[];
+    canInvite: boolean;
+    canCancel: boolean;
+}) {
+    const [role, setRole] = useState<RoleOption['value']>('member');
+
+    return (
+        <div className="flex flex-col gap-3 rounded-2xl bg-muted p-4">
+            <h3 className="text-[14.5px] font-bold">
+                {canInvite ? 'Invite people' : 'Pending invitations'}
+            </h3>
+            {canInvite && (
+                <Form
+                    {...storeInvitation.form(team.slug)}
+                    options={{ preserveScroll: true }}
+                    resetOnSuccess={['email']}
+                    className="flex flex-col gap-2"
+                >
+                    {({ errors, processing }) => (
+                        <>
+                            <div className="flex flex-wrap gap-2.5">
+                                <Input
+                                    name="email"
+                                    type="email"
+                                    required
+                                    data-test="invite-email"
+                                    aria-label="Email to invite"
+                                    placeholder="name@example.com"
+                                    aria-invalid={Boolean(errors.email)}
+                                    className="h-11 min-w-0 flex-[1_1_16rem] rounded-xl bg-card"
+                                />
+                                <input type="hidden" name="role" value={role} />
+                                <SegmentedTabs
+                                    label="Invite as"
+                                    options={[...roles]
+                                        .sort(
+                                            (a, b) =>
+                                                INVITE_ORDER.indexOf(a.value) -
+                                                INVITE_ORDER.indexOf(b.value),
+                                        )
+                                        .map((option) => ({
+                                            value: option.value,
+                                            label: option.label,
+                                        }))}
+                                    value={role}
+                                    onChange={setRole}
+                                />
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    data-test="invite-submit"
+                                    className={cn(BUTTON, 'h-11')}
+                                >
+                                    {processing && <Spinner />}
+                                    Send invite
+                                </Button>
+                            </div>
+                            <InputError message={errors.email || errors.role} />
+                        </>
+                    )}
+                </Form>
+            )}
+            {invitations.length > 0 && (
+                <ul className="flex flex-col gap-2">
+                    {invitations.map((invitation) => (
+                        <li
+                            key={invitation.code}
+                            data-test="invitation-row"
+                            className="flex animate-pop items-center gap-3 rounded-xl border border-dashed border-primary/30 bg-card px-3 py-2.5"
+                        >
+                            <Mail className="size-4 shrink-0 text-primary" />
+                            <span className="min-w-0 flex-1 truncate text-[13.5px]">
+                                {invitation.email}{' '}
+                                <span className="text-muted-foreground">
+                                    · {invitation.role_label} · sent{' '}
+                                    {formatDistanceToNow(
+                                        parseISO(invitation.created_at),
+                                        { addSuffix: true },
+                                    )}
+                                </span>
+                            </span>
+                            {canCancel && (
+                                <Form
+                                    {...cancelInvitation.form([
+                                        team.slug,
+                                        invitation.code,
+                                    ])}
+                                    options={{ preserveScroll: true }}
+                                >
+                                    {({ processing }) => (
+                                        <Button
+                                            type="submit"
+                                            variant="outline"
+                                            disabled={processing}
+                                            data-test="invitation-cancel-button"
+                                            aria-label={`Cancel the invitation to ${invitation.email}`}
+                                            className={cn(BUTTON, 'h-8 px-2.5')}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    )}
+                                </Form>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+}
+
 TeamEdit.layout = (props: { team: { name: string; slug: string } }) => ({
-    breadcrumbs: [
-        {
-            title: 'Teams',
-            href: index(),
-        },
-        {
-            title: props.team.name,
-            href: edit(props.team.slug),
-        },
-    ],
+    breadcrumbs: settingsCrumbs('Team', edit(props.team.slug)),
 });

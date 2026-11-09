@@ -39,6 +39,7 @@
     --animate-grow: grow 0.9s var(--ease-slide) both;
     --animate-fade: fade 1.2s ease both;
     --animate-shake: shake 0.45s ease both;
+    --animate-pane: pane 0.45s var(--ease-out-soft) both;
     --animate-lane-up: lane-up 40s linear infinite;
     --animate-lane-down: lane-down 46s linear infinite;
 
@@ -64,6 +65,14 @@
     @keyframes draw {
         from {
             stroke-dashoffset: var(--ring-length);
+        }
+    }
+
+    /* A settings tab coming in. */
+    @keyframes pane {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
         }
     }
 
