@@ -18,6 +18,7 @@ readonly class TaskData
         public ?string $creatorName,
         public ?int $assigneeId,
         public ?string $assigneeName,
+        public int $commentCount,
         public ?string $createdAt,
         public ?string $updatedAt,
     ) {
@@ -41,6 +42,7 @@ readonly class TaskData
             creatorName: $task->creator?->name,
             assigneeId: $task->assignee_id,
             assigneeName: $task->assignee?->name,
+            commentCount: (int) ($task->getAttribute('comments_count') ?? 0),
             createdAt: $task->created_at?->toISOString(),
             updatedAt: $task->updated_at?->toISOString(),
         );

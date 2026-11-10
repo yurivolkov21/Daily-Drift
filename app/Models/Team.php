@@ -105,10 +105,17 @@ class Team extends Model
      */
     public function unassignTasksOf(User $user): void
     {
-        Task::query()
+        $tasks = Task::query()
             ->whereIn('project_id', $this->projects()->select('id'))
             ->where('assignee_id', $user->id)
-            ->update(['assignee_id' => null]);
+            ->get();
+
+        // Nobody made this change, so the event has no actor (spec 0005).
+        foreach ($tasks as $task) {
+            Activity::record($task, Activity::TASK_UNASSIGNED, ['id' => $user->id, 'name' => $user->name], actor: false);
+        }
+
+        Task::query()->whereKey($tasks->modelKeys())->update(['assignee_id' => null]);
     }
 
     /**

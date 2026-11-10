@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { PriorityPill } from '@/components/board/task-badges';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useLocalTime } from '@/hooks/use-local-time';
+import { dayIn, useLocalTime } from '@/hooks/use-local-time';
 import { teamCrumb } from '@/lib/breadcrumbs';
 import { HUES } from '@/lib/hues';
 import { cn } from '@/lib/utils';
@@ -57,13 +57,6 @@ const GROUPS: {
         pill: 'bg-muted text-muted-foreground',
     },
 ];
-
-/** The task's local date (`Y-m-d`) in a time zone. */
-function dayIn(iso: string, zone: string): string {
-    return new Intl.DateTimeFormat('en-CA', { timeZone: zone }).format(
-        new Date(iso),
-    );
-}
 
 function plural(count: number, word: string): string {
     return `${count} ${word}${count === 1 ? '' : 's'}`;

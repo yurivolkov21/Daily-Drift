@@ -141,6 +141,17 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - The task sheet's _Assignee_ row opens a menu with a search field: _Assign to me_ first (with how many open tasks of this project you already have), then the other members, then _Unassigned_. Picking someone saves at once.
 - Cards show the assignee's initials avatar, which pops in when it changes. The creator moves to the sheet's _Created by_ row.
 
+### Task activity
+
+- Under the description, the task sheet lists the comments, oldest first. The changes made between two comments fold into one dashed pill ("2 changes · Minh · 10 Nov") that opens to show each change with an icon, who made it and when.
+- The composer sits under the list: typing `@` offers the team's members, Ctrl + Enter sends. Your own comments show _Edit_ and _Delete_ on hover or focus; an edited comment is marked.
+- Cards show a comment count.
+
+### Activity card
+
+- The dashboard's _Activity_ card lists the team's latest events under _Today_, _Yesterday_ and earlier dates: who, what, the task (a link), the project and the time. A comment shows its first line.
+- A segmented filter keeps _All_, _Comments_ or _Completed_ and reloads only the card.
+
 ## Components by screen
 
 | Screen       | shadcn/ui components                                                                  | Other                          |
@@ -153,6 +164,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 | Settings     | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team) | Local segmented tabs           |
 | My tasks     | `checkbox`, `sonner` (toast with _Undo_)                                              |                                |
 | Assignee     | `popover`, `command`                                                                  |                                |
+| Activity     | `textarea`, `button`                                                                  | Local segmented tabs           |
 | Empty states | `empty`                                                                               | Adapted from ReUI `c-empty-12` |
 
 The small local components from the first pass (progress ring, segmented bar, hue bar) stay.
