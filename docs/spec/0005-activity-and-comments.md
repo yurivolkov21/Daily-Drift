@@ -1,6 +1,6 @@
 # Spec 0005: Activity history and comments
 
-**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** wireframes in round 5
+**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 5](../design/README.md#how-it-was-chosen)
 
 ## Goal
 
@@ -66,9 +66,9 @@ One row per thing that happened. Rows are never edited.
 
 ## Where it shows
 
-- **Task sheet:** the task's comments and events, oldest first, with a composer at the bottom. How the two are arranged (one timeline, tabs, or folded changes) is the choice of wireframe round 5. They are loaded when the sheet opens, not with the board.
+- **Task sheet:** comments come first, oldest first, with a composer at the bottom. The changes between two comments fold into one pill ("2 changes · Giang · 6 Nov") that opens to show them. They are loaded when the sheet opens, not with the board.
 - **Board card:** a comment count when the task has comments.
-- **Dashboard, _Activity_:** the placeholder from [spec 0002](0002-interface-rebuild.md#dashboard) becomes the team's latest 10 events in its active projects, newest first, each with who, what, the task (a link while it exists), the project and when. Times are relative; days follow the viewer's time zone ([spec 0003](0003-user-time-zone.md)).
+- **Dashboard, _Activity_:** the placeholder from [spec 0002](0002-interface-rebuild.md#dashboard) becomes the team's latest 10 events in its active projects, newest first and grouped by day (_Today_, _Yesterday_, then the date), each with who, what, the task (a link while it exists), the project and when. A comment shows its first line. A filter keeps _All_, _Comments_ or _Completed_. Times are relative; days follow the viewer's time zone ([spec 0003](0003-user-time-zone.md)).
 
 ## Permissions
 
@@ -93,11 +93,11 @@ Under `/{current_team}`:
 - Events for projects and lists (created, renamed, archived). The log can take them later without a schema change.
 - Undoing a change from the history.
 
-## Open questions
+## Decisions
 
-1. **How comments and changes share the task sheet.** Decided by wireframe round 5.
-2. **Mentions now or with notifications.** Proposed: now, so comments written before notifications ship already carry their mentions.
-3. **History before this feature.** Tasks created earlier have no events. Proposed: show "History starts on _date_" instead of inventing events.
+1. **How comments and changes share the task sheet:** comments first with the changes folded between them; the dashboard card is grouped by day (the owner, wireframe round 5, 10 November).
+2. **Mentions:** in this spec, so comments written before notifications ship already carry their mentions.
+3. **History before this feature:** tasks created earlier have no events; the sheet says "History starts on _date_" instead of inventing them.
 
 ## Acceptance criteria
 

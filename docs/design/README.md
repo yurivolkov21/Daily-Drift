@@ -14,6 +14,7 @@ The owner asked for a modern SaaS dashboard with smooth motion. Each round showe
 | 2     | Projects, board               | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
 | 3     | Sign in and sign up, settings | A glass card over a moving board; tabs inside one card                                                 |
 | 4     | My tasks, assignee field      | A grouped list; a searchable menu in the task sheet                                                    |
+| 5     | Task activity, Activity card  | Comments first with the changes folded between them; a feed grouped by day                             |
 
 The wireframes live in the owner's private design canvas. Screenshots of the built screens will be added here as each screen ships.
 
