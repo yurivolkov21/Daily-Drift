@@ -16,6 +16,7 @@ export type Task = {
     /** One team member or nobody (spec 0004). */
     assigneeId: number | null;
     assigneeName: string | null;
+    commentCount: number;
     createdAt: string | null;
     updatedAt: string | null;
 };

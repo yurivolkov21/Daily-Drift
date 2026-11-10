@@ -39,7 +39,7 @@ The numbers of spec 0001 stay. The chosen design adds:
 - **This week:** of the tasks due this week (Monday to Sunday), the share that is completed. Shown as a ring in the greeting card.
 - **Sparklines:** each stat card shows its value for each of the last 7 days, computed from `created_at`, `due_on` and `completed_at`. Deleted tasks are not counted.
 - **Throughput:** tasks completed per day, with a 7-day or 14-day range.
-- The _Activity_ card waits for comments and history in Phase 2.
+- The _Activity_ card shows the team's latest events since [spec 0005](0005-activity-and-comments.md).
 
 ## Sign in and sign up
 

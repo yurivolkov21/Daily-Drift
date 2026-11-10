@@ -3,23 +3,29 @@ import { format, parseISO } from 'date-fns';
 import { AlarmClock, CalendarClock, CheckCheck, ListTodo } from 'lucide-react';
 import { useState } from 'react';
 import {
-    ActivityCard,
     DueTodayCard,
     GreetingCard,
     ProjectsCard,
     StatCard,
 } from '@/components/dashboard/cards';
+import { ActivityCard } from '@/components/dashboard/activity-card';
 import { FocusCard } from '@/components/dashboard/focus-card';
 import { ThroughputChart } from '@/components/dashboard/throughput-chart';
 import PendingInvitationsModal from '@/components/pending-invitations-modal';
 import { teamCrumb } from '@/lib/breadcrumbs';
 import { PRIORITY_NAMES, PRIORITIES } from '@/lib/tasks';
 import { dashboard } from '@/routes';
-import type { DashboardData, DashboardInvitation, FocusGroup } from '@/types';
+import type {
+    DashboardData,
+    DashboardInvitation,
+    FocusGroup,
+    TeamFeed,
+} from '@/types';
 
 type Props = {
     pendingInvitations?: DashboardInvitation[];
     dashboard: DashboardData | null;
+    activity: TeamFeed | null;
 };
 
 const TONES = {
@@ -48,6 +54,7 @@ const TONES = {
 export default function Dashboard({
     pendingInvitations = [],
     dashboard: data,
+    activity: feed,
 }: Props) {
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
@@ -168,7 +175,9 @@ export default function Dashboard({
                             group={group}
                             onGroupChange={setGroup}
                         />
-                        <ActivityCard />
+                        {feed && (
+                            <ActivityCard teamSlug={teamSlug} feed={feed} />
+                        )}
                     </section>
                 </div>
             ) : (

@@ -1,7 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { format, parseISO } from 'date-fns';
 import type { LucideIcon } from 'lucide-react';
-import { History } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { HueBar } from '@/components/hue-progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -400,28 +399,6 @@ export function ProjectsCard({
                     })}
                 </ul>
             )}
-        </Card>
-    );
-}
-
-export function ActivityCard() {
-    return (
-        <Card delay={500}>
-            <CardTitle
-                aside={
-                    <span className="rounded-full border border-dashed px-2 py-0.5 text-[11px] text-muted-foreground">
-                        Phase 2
-                    </span>
-                }
-            >
-                Activity
-            </CardTitle>
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-2xl bg-muted p-6 text-center">
-                <History className="size-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                    Comments and history from your team will show here.
-                </p>
-            </div>
         </Card>
     );
 }

@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\Priority;
+use App\Observers\TaskObserver;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -29,6 +32,7 @@ use Illuminate\Support\Carbon;
  * @property-read User|null $creator
  * @property-read User|null $assignee
  */
+#[ObservedBy(TaskObserver::class)]
 #[Fillable(['title', 'description', 'priority', 'due_on', 'completed_at', 'position', 'assignee_id'])]
 class Task extends Model
 {
@@ -80,6 +84,26 @@ class Task extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assignee_id');
+    }
+
+    /**
+     * Get the task's comments, oldest first.
+     *
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->oldest()->orderBy('id');
+    }
+
+    /**
+     * Get what happened to the task, oldest first.
+     *
+     * @return HasMany<Activity, $this>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class)->oldest()->orderBy('id');
     }
 
     /**

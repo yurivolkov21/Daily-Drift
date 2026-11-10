@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { MessageSquare } from 'lucide-react';
 import { KanbanItem, KanbanItemHandle } from '@/components/reui/kanban';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
@@ -131,6 +132,13 @@ export function TaskCard({
                 <div className="flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1 pl-6.5">
                     {!completed && <PriorityPill priority={task.priority} />}
                     <DueLabel task={task} />
+                    {task.commentCount > 0 && (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                            <MessageSquare className="size-3.5" />
+                            <span className="sr-only">Comments: </span>
+                            {task.commentCount}
+                        </span>
+                    )}
                     {task.assigneeId !== null && task.assigneeName && (
                         <AssigneeAvatar
                             key={task.assigneeId}

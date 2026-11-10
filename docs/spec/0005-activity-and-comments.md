@@ -1,6 +1,6 @@
 # Spec 0005: Activity history and comments
 
-**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 5](../design/README.md#how-it-was-chosen)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 5](../design/README.md#how-it-was-chosen)
 
 ## Goal
 

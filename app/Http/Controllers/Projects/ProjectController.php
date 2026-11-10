@@ -72,7 +72,7 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $project->load(['creator', 'lists.tasks.creator', 'lists.tasks.assignee', 'team'])
+        $project->load(['creator', 'lists.tasks' => fn ($query) => $query->withCount('comments'), 'lists.tasks.creator', 'lists.tasks.assignee', 'team'])
             ->loadCount(ProjectStats::counts())
             ->loadMin(ProjectStats::oldestOverdue(), 'due_on');
 

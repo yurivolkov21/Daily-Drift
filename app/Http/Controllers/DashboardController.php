@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TeamInvitation;
 use App\Queries\TeamDashboard;
+use App\Queries\TeamFeed;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,10 +34,12 @@ class DashboardController extends Controller
             ]);
 
         $team = $request->user()->currentTeam;
+        $filter = in_array($request->query('activity'), TeamFeed::FILTERS, true) ? (string) $request->query('activity') : 'all';
 
         return Inertia::render('dashboard', [
             'pendingInvitations' => $pendingInvitations,
             'dashboard' => $team ? (new TeamDashboard($team, viewer: $request->user()))->toArray() : null,
+            'activity' => $team ? (new TeamFeed($team, $filter))->toArray() : null,
         ]);
     }
 }

@@ -56,6 +56,7 @@ import { complete, destroy, move, update } from '@/routes/tasks';
 import type { Priority, Project, Task } from '@/types';
 import type { Member } from './assignee-field';
 import { AssigneeField } from './assignee-field';
+import { TaskActivity } from './task-activity';
 import { CreatorAvatar } from './task-badges';
 
 type Props = {
@@ -425,6 +426,12 @@ function TaskForm({
                             />
                             <InputError message={errors.description} />
                         </div>
+
+                        <TaskActivity
+                            teamSlug={teamSlug}
+                            taskId={task.id}
+                            members={members}
+                        />
                     </div>
 
                     <SheetFooter className="flex-row justify-between border-t">

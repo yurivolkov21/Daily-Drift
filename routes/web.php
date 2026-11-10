@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Lists\TaskListController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
+use App\Http\Controllers\Tasks\TaskActivityController;
 use App\Http\Controllers\Tasks\TaskController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
@@ -37,6 +39,12 @@ Route::prefix('{current_team}')
             Route::patch('tasks/{task}/move', [TaskController::class, 'move'])->name('tasks.move');
             Route::patch('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
             Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+            Route::get('tasks/{task}/activity', TaskActivityController::class)->name('tasks.activity');
+            Route::post('tasks/{task}/comments', [CommentController::class, 'store'])->name('comments.store');
+            // A team has no direct relation to comments; the controller checks the team.
+            Route::patch('comments/{comment}', [CommentController::class, 'update'])->withoutScopedBindings()->name('comments.update');
+            Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->withoutScopedBindings()->name('comments.destroy');
         });
     });
 

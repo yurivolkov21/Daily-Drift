@@ -34,3 +34,14 @@ export function hourIn(zone: string): number {
         return new Date().getHours();
     }
 }
+
+/** The local date (`Y-m-d`) of a moment in a time zone. */
+export function dayIn(iso: string, zone: string): string {
+    try {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: zone }).format(
+            new Date(iso),
+        );
+    } catch {
+        return iso.slice(0, 10);
+    }
+}
