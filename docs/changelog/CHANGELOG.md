@@ -6,6 +6,7 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
+- [Spec 0005](../spec/0005-activity-and-comments.md) for activity history and task comments: one event log, comments with mentions, the task sheet's history and the dashboard's _Activity_ card. Planned; the layout waits for wireframe round 5.
 - Assignees and _My tasks_ ([spec 0004](../spec/0004-assignees-and-my-tasks.md)), the first Phase 2 feature. A task has one assignee or none, picked from a searchable menu in the task sheet; cards show the assignee. _My tasks_ lists your open tasks in Overdue, Today, Next 7 days, Later and No due date groups (in your own day), with project chips, checkboxes with _Undo_ and a _Done lately_ group; the sidebar counts them. _My focus_ on the dashboard now shows your tasks and unassigned ones, and the projects page can show only projects with a task assigned to you. Leaving or being removed from a team unassigns your tasks there.
 - Phase 2 plan: the items in build order for a portfolio project (assignees and _My tasks_, activity and comments, notifications in the app, labels and search, list and calendar views), email moved to Phase 3 with the queue worker, and [spec 0004](../spec/0004-assignees-and-my-tasks.md) for assignees and _My tasks_.
 - Project docs: roadmap, Phase 1 spec, tech stack, architecture decision records and this changelog.
