@@ -1,6 +1,6 @@
 import { Form, Head, Link, router, usePage } from '@inertiajs/react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { Check, ChevronDown, Mail } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Mail } from 'lucide-react';
 import { useState } from 'react';
 import DeleteTeamModal from '@/components/delete-team-modal';
 import InputError from '@/components/input-error';
@@ -96,9 +96,13 @@ export default function TeamEdit({
                         {me && <Pill tone="indigo">{YOU_ARE[me.role]}</Pill>}
                         <Link
                             href={index()}
-                            className="text-[13px] font-semibold text-primary no-underline"
+                            className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary no-underline"
                         >
-                            All teams →
+                            All teams{' '}
+                            <ArrowRight
+                                className="size-3.5"
+                                aria-hidden="true"
+                            />
                         </Link>
                     </div>
                 }

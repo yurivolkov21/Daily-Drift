@@ -5,6 +5,7 @@ import {
     ArchiveRestore,
     CalendarClock,
     CheckCheck,
+    ChevronsLeft,
     ListTodo,
     Plus,
 } from 'lucide-react';
@@ -155,8 +156,11 @@ export default function ProjectShow({ project }: Props) {
                         Alt
                     </kbd>{' '}
                     + arrow keys. Fold a list with{' '}
-                    <strong className="font-semibold">«</strong>: it still takes
-                    dropped cards and keeps its count.
+                    <ChevronsLeft
+                        className="inline size-3.5 align-[-2px] text-foreground"
+                        aria-label="the fold button"
+                    />
+                    : it still takes dropped cards and keeps its count.
                 </p>
             </div>
         </>
