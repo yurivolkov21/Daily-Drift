@@ -75,6 +75,7 @@ export function TaskActivity({
     const [failed, setFailed] = useState(false);
     const [open, setOpen] = useState<Record<number, boolean>>({});
     const [editing, setEditing] = useState<number | null>(null);
+    const [focused, setFocused] = useState<number | null>(null);
 
     const load = useCallback(async () => {
         try {
@@ -92,6 +93,36 @@ export function TaskActivity({
     useEffect(() => {
         void load();
     }, [load]);
+
+    // Opened from a mention (spec 0006): scroll to the comment and
+    // highlight it once, then drop `comment` from the address.
+    useEffect(() => {
+        if (!data) {
+            return;
+        }
+
+        const id = commentFromUrl(taskId);
+
+        if (id === null) {
+            return;
+        }
+
+        const url = new URL(window.location.href);
+        url.searchParams.delete('comment');
+        window.history.replaceState(window.history.state, '', url);
+
+        const element = document.querySelector(`[data-comment-id="${id}"]`);
+
+        if (!element) {
+            return;
+        }
+
+        element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        setFocused(id);
+        const timer = window.setTimeout(() => setFocused(null), 2600);
+
+        return () => window.clearTimeout(timer);
+    }, [data, taskId]);
 
     const blocks = useMemo<Block[]>(() => {
         if (!data) {
@@ -204,6 +235,7 @@ export function TaskActivity({
                                     key={`c${block.comment.id}`}
                                     teamSlug={teamSlug}
                                     comment={block.comment}
+                                    focused={focused === block.comment.id}
                                     members={members}
                                     editing={editing === block.comment.id}
                                     onEdit={(on) =>
@@ -359,6 +391,7 @@ function Changes({
 function CommentItem({
     teamSlug,
     comment,
+    focused,
     members,
     editing,
     onEdit,
@@ -367,6 +400,7 @@ function CommentItem({
 }: {
     teamSlug: string;
     comment: TaskComment;
+    focused: boolean;
     members: Member[];
     editing: boolean;
     onEdit: (on: boolean) => void;
@@ -378,7 +412,11 @@ function CommentItem({
         .map((member) => member.name);
 
     return (
-        <li data-test="comment" className="flex animate-pop gap-2.5">
+        <li
+            data-test="comment"
+            data-comment-id={comment.id}
+            className="flex animate-pop scroll-mt-24 gap-2.5"
+        >
             {comment.author ? (
                 <MemberAvatar
                     id={comment.author.id}
@@ -388,7 +426,12 @@ function CommentItem({
             ) : (
                 <span className="size-7 shrink-0 rounded-full bg-muted" />
             )}
-            <div className="group flex min-w-0 flex-1 flex-col gap-1 rounded-[4px_14px_14px_14px] bg-muted px-3 py-2.5">
+            <div
+                className={cn(
+                    'group flex min-w-0 flex-1 flex-col gap-1 rounded-[4px_14px_14px_14px] bg-muted px-3 py-2.5 transition-shadow duration-500',
+                    focused && 'shadow-[0_0_0_2px_var(--color-primary)]',
+                )}
+            >
                 <div className="flex flex-wrap items-baseline gap-x-2 text-[13px]">
                     <strong>{comment.author?.name ?? 'Former member'}</strong>
                     <time
@@ -666,4 +709,16 @@ function Composer({
             </div>
         </div>
     );
+}
+
+/** The comment to scroll to, when the address names this task and one. */
+function commentFromUrl(taskId: number): number | null {
+    const params = new URLSearchParams(window.location.search);
+    const id = Number(params.get('comment'));
+
+    return Number(params.get('task')) === taskId &&
+        Number.isInteger(id) &&
+        id > 0
+        ? id
+        : null;
 }

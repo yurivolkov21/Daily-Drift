@@ -1,6 +1,6 @@
 # Spec 0006: Notifications in the app
 
-**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 6](../design/README.md#how-it-was-chosen)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 6](../design/README.md#how-it-was-chosen)
 
 ## Goal
 
@@ -20,7 +20,7 @@ Tell people when something needs them: a task was assigned to them, someone ment
 
 ## Data model
 
-Laravel's database notifications (`php artisan make:notifications-table`), so Phase 3 can add the mail channel to the same notification classes.
+Laravel's database notifications, so Phase 3 can add the mail channel to the same notification classes (`App\Notifications\TaskAssigned` and `MentionedInComment`). They are sent through a small channel that also writes `team_id`, at once and not queued, since Phase 2 has no queue worker.
 
 ### `notifications`
 
@@ -99,11 +99,8 @@ Under `/{current_team}`:
 
 1. **The panel:** two tabs, _Updates_ and _Due soon_, with one line per item; clicking leads to the related page instead of showing details in the panel (the owner, wireframe round 6, 12 November).
 2. **How much the panel holds:** the latest 10 updates, with _View all_ always shown, leading to a notifications page laid out like a mail app, with a timeline list and a detail pane (the owner, 12 November; the page's wireframes for desktop and phone were approved the same day). The page's layout follows the Mail example from earlier shadcn/ui releases, rebuilt with this project's components.
-
-## Open questions
-
-1. **Tomorrow in _Due soon_.** Proposed: today and tomorrow, so a task due first thing in the morning is seen the day before.
-2. **A mention in a task assigned to you.** Proposed: one _Mentioned_ notification, no extra one for the assignee.
+3. **Tomorrow in _Due soon_:** today and tomorrow, so a task due first thing in the morning is seen the day before (proposed in this spec; the owner kept it when the build started, 12 November).
+4. **A mention in a task assigned to you:** one _Mentioned_ notification, no extra one for the assignee (as above).
 
 ## Acceptance criteria
 

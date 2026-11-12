@@ -6,11 +6,12 @@ use App\Models\Activity;
 use App\Models\Task;
 use App\Models\TaskList;
 use App\Models\User;
+use App\Notifications\TaskAssigned;
 
 /**
  * Writes the event log (spec 0005) as tasks change: one event per changed
  * field, and nothing for a reorder inside a list or a save that changes
- * nothing.
+ * nothing. A new assignee is also notified (spec 0006).
  */
 class TaskObserver
 {
@@ -83,10 +84,19 @@ class TaskObserver
             return;
         }
 
+        $assignee = User::query()->find($task->assignee_id);
+
         Activity::record($task, Activity::TASK_ASSIGNED, [
             'id' => $task->assignee_id,
-            'name' => User::query()->whereKey($task->assignee_id)->value('name'),
+            'name' => $assignee?->name,
         ]);
+
+        // Spec 0006: tell the assignee, unless they assigned it to themselves.
+        $actor = auth()->user();
+
+        if ($assignee && $actor instanceof User && $actor->isNot($assignee)) {
+            $assignee->notify(new TaskAssigned($task, $actor));
+        }
     }
 
     private function listName(mixed $id): ?string

@@ -349,6 +349,7 @@ function setTaskInUrl(id: number | null): void {
 
     if (id === null) {
         url.searchParams.delete('task');
+        url.searchParams.delete('comment');
     } else {
         url.searchParams.set('task', String(id));
     }
