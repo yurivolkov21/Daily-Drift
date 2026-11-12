@@ -7,6 +7,7 @@ import {
     CircleCheck,
     Columns3,
     Flag,
+    Tag,
     Trash2,
     User,
     UserRoundCheck,
@@ -15,6 +16,7 @@ import {
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
+import { LabelField } from '@/components/labels/label-field';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -382,6 +384,14 @@ function TaskForm({
                                     onChange={assign}
                                 />
                                 <InputError message={errors.assignee_id} />
+                            </Property>
+
+                            <Property icon={<Tag />} label="Labels">
+                                <LabelField
+                                    teamSlug={teamSlug}
+                                    task={task}
+                                    disabled={!canManage}
+                                />
                             </Property>
 
                             <Property icon={<User />} label="Created by">

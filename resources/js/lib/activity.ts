@@ -43,6 +43,10 @@ export function describeEvent(event: TaskEvent): string {
             return 'completed it';
         case 'task.reopened':
             return 'reopened it';
+        case 'task.labeled':
+            return `added the label ${name ?? ''}`.trim();
+        case 'task.unlabeled':
+            return `removed the label ${name ?? ''}`.trim();
         default:
             return 'changed it';
     }
@@ -86,6 +90,10 @@ export function feedPhrase(event: TaskEvent): { verb: string; tail: string } {
             return { verb: 'reopened', tail: '' };
         case 'task.deleted':
             return { verb: 'deleted', tail: '' };
+        case 'task.labeled':
+            return { verb: `added the label ${name ?? ''} to`, tail: '' };
+        case 'task.unlabeled':
+            return { verb: `removed the label ${name ?? ''} from`, tail: '' };
         case 'comment.added':
             return { verb: 'commented on', tail: '' };
         default:

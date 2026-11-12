@@ -43,6 +43,10 @@ class Activity extends Model
 
     public const string TASK_DUE_CHANGED = 'task.due_changed';
 
+    public const string TASK_LABELED = 'task.labeled';
+
+    public const string TASK_UNLABELED = 'task.unlabeled';
+
     public const string TASK_COMPLETED = 'task.completed';
 
     public const string TASK_REOPENED = 'task.reopened';

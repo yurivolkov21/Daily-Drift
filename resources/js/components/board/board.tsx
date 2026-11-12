@@ -12,6 +12,9 @@ import { TaskCard, itemKey, taskIdFromKey } from '@/components/board/task-card';
 import { TaskSheet } from '@/components/board/task-sheet';
 import type { KanbanCommitMeta } from '@/components/reui/kanban';
 import { Kanban, KanbanBoard, KanbanOverlay } from '@/components/reui/kanban';
+import type { BoardFilters } from '@/lib/board-filters';
+import { filtersOn, matches } from '@/lib/board-filters';
+import { rememberRecent } from '@/lib/recent';
 import { move as moveList } from '@/routes/lists';
 import { move as moveTask } from '@/routes/tasks';
 import type { Project, Task } from '@/types';
@@ -21,13 +24,53 @@ type Columns = Record<string, Task[]>;
 type Props = {
     teamSlug: string;
     project: Project;
+    /** The board's filters (spec 0007); cards that fail them are hidden. */
+    filters?: BoardFilters;
+    me?: number;
+    today?: string;
 };
 
-export function Board({ teamSlug, project }: Props) {
+export function Board({
+    teamSlug,
+    project,
+    filters,
+    me = 0,
+    today = '',
+}: Props) {
     const canManage = project.can.manageLists;
-    const saved: Columns = Object.fromEntries(
+    const all: Columns = Object.fromEntries(
         project.lists.map((list) => [columnKey(list.id), list.tasks ?? []]),
     );
+    const filtering = filters !== undefined && filtersOn(filters);
+    const saved: Columns = filtering
+        ? Object.fromEntries(
+              Object.entries(all).map(([key, tasks]) => [
+                  key,
+                  tasks.filter((task) => matches(task, filters, me, today)),
+              ]),
+          )
+        : all;
+
+    /**
+     * Where a card lands in the whole list when some cards are hidden: right
+     * after the visible card above it, so hidden cards keep their order.
+     */
+    const fullIndex = (
+        listKey: string,
+        visibleOrder: Task[],
+        taskId: number,
+    ): number => {
+        const at = visibleOrder.findIndex((item) => item.id === taskId);
+
+        if (!filtering) {
+            return at;
+        }
+
+        const above = at > 0 ? visibleOrder[at - 1] : null;
+        const rest = (all[listKey] ?? []).filter((item) => item.id !== taskId);
+
+        return above ? rest.findIndex((item) => item.id === above.id) + 1 : 0;
+    };
 
     // The board as shown while a drag is on its way to the server. Back to
     // null when the request ends: the new props then hold the saved board,
@@ -52,6 +95,16 @@ export function Board({ teamSlug, project }: Props) {
     const showTask = (task: Task | null) => {
         setOpenTaskId(task?.id ?? null);
         setTaskInUrl(task?.id ?? null);
+
+        if (task) {
+            rememberRecent(teamSlug, {
+                kind: 'task',
+                id: task.id,
+                title: task.title,
+                projectId: project.id,
+                projectName: project.name,
+            });
+        }
     };
 
     const [folded, setFolded] = useFoldedLists(project.id);
@@ -111,7 +164,11 @@ export function Board({ teamSlug, project }: Props) {
                     moveTaskTo(
                         task,
                         listIdFromKey(meta.activeContainer),
-                        meta.activeIndex,
+                        fullIndex(
+                            meta.activeContainer,
+                            meta.previousValue[meta.activeContainer] ?? [],
+                            task.id,
+                        ),
                     ),
             },
         });
@@ -133,7 +190,14 @@ export function Board({ teamSlug, project }: Props) {
             const target = step === 'up' ? index - 1 : index + 1;
 
             if (target >= 0 && target < items.length) {
-                moveTaskTo(task, task.listId, target, refocus);
+                const order = items.filter((item) => item.id !== task.id);
+                order.splice(target, 0, task);
+                moveTaskTo(
+                    task,
+                    task.listId,
+                    fullIndex(columnKey(task.listId), order, task.id),
+                    refocus,
+                );
             }
 
             return;
@@ -147,13 +211,14 @@ export function Board({ teamSlug, project }: Props) {
             next += direction
         ) {
             if (!folded.includes(lists[next].id)) {
-                const length = (columns[columnKey(lists[next].id)] ?? [])
-                    .length;
+                const key = columnKey(lists[next].id);
+                const order = [...(columns[key] ?? [])];
+                order.splice(Math.min(index, order.length), 0, task);
 
                 moveTaskTo(
                     task,
                     lists[next].id,
-                    Math.min(index, length),
+                    fullIndex(key, order, task.id),
                     refocus,
                 );
 
@@ -162,7 +227,7 @@ export function Board({ teamSlug, project }: Props) {
         }
     };
 
-    const commit = (_next: Columns, meta: KanbanCommitMeta<Task>) => {
+    const commit = (next: Columns, meta: KanbanCommitMeta<Task>) => {
         committed.current = true;
 
         if (meta.kind === 'column') {
@@ -190,7 +255,13 @@ export function Board({ teamSlug, project }: Props) {
             moveTask({ current_team: teamSlug, task: taskId }),
             {
                 list_id: listIdFromKey(meta.overContainer),
-                index: meta.overIndex,
+                index: filtering
+                    ? fullIndex(
+                          meta.overContainer,
+                          next[meta.overContainer] ?? [],
+                          taskId,
+                      )
+                    : meta.overIndex,
             },
             'task',
             intoFolded && task
@@ -227,6 +298,11 @@ export function Board({ teamSlug, project }: Props) {
                             teamSlug={teamSlug}
                             list={list}
                             tasks={columns[columnKey(list.id)] ?? []}
+                            total={
+                                filtering
+                                    ? (all[columnKey(list.id)] ?? []).length
+                                    : undefined
+                            }
                             canManage={canManage}
                             onOpenTask={showTask}
                             onStepTask={stepTask}

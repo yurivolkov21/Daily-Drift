@@ -67,6 +67,8 @@ type Props = {
     onStepTask?: (task: Task, step: TaskStep) => void;
     /** Folded to a narrow strip; it still takes dropped tasks. */
     folded?: boolean;
+    /** While board filters are on (spec 0007): how many tasks the list really has. */
+    total?: number;
     onToggleFold?: () => void;
     isOverlay?: boolean;
     className?: string;
@@ -81,6 +83,7 @@ export function ListColumn({
     onOpenTask,
     onStepTask,
     folded = false,
+    total,
     onToggleFold,
     isOverlay = false,
     className,
@@ -92,18 +95,23 @@ export function ListColumn({
 
     const done = tasks.filter((task) => task.completedAt !== null).length;
     const progress = percent(done, tasks.length);
+    const filtered = total !== undefined;
+    const countText = filtered
+        ? `${tasks.length} of ${total}`
+        : String(tasks.length);
 
     const title = (
         <>
             <ProgressRing value={progress} hue={list.color} />
             <span className="truncate text-sm font-semibold">{list.name}</span>
             <span
-                key={tasks.length}
+                key={countText}
                 className={cn(
                     'animate-bump rounded-full bg-card/70 px-2 py-px text-xs font-semibold text-muted-foreground tabular-nums',
+                    filtered && 'text-primary',
                 )}
             >
-                {tasks.length}
+                {countText}
             </span>
         </>
     );
@@ -292,8 +300,12 @@ export function ListColumn({
                     />
                 ))}
                 {tasks.length === 0 && (
-                    <p className="flex min-h-20 flex-1 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-foreground/15 text-xs text-muted-foreground">
-                        {canManage ? 'Drop a task here' : 'No tasks'}
+                    <p className="flex min-h-20 flex-1 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-foreground/15 px-3 text-center text-xs text-muted-foreground">
+                        {filtered && total > 0
+                            ? 'No cards match the filters.'
+                            : canManage
+                              ? 'Drop a task here'
+                              : 'No tasks'}
                     </p>
                 )}
             </KanbanColumnContent>

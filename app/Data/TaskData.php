@@ -19,6 +19,8 @@ readonly class TaskData
         public ?int $assigneeId,
         public ?string $assigneeName,
         public int $commentCount,
+        /** @var array<int, int> */
+        public array $labelIds,
         public ?string $createdAt,
         public ?string $updatedAt,
     ) {
@@ -43,6 +45,7 @@ readonly class TaskData
             assigneeId: $task->assignee_id,
             assigneeName: $task->assignee?->name,
             commentCount: (int) ($task->getAttribute('comments_count') ?? 0),
+            labelIds: $task->relationLoaded('labels') ? $task->labels->pluck('id')->map(intval(...))->all() : [],
             createdAt: $task->created_at?->toISOString(),
             updatedAt: $task->updated_at?->toISOString(),
         );

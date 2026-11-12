@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { MessageSquare } from 'lucide-react';
+import { LabelBadge, useTeamLabels } from '@/components/labels/label-badge';
 import { KanbanItem, KanbanItemHandle } from '@/components/reui/kanban';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
@@ -46,6 +47,8 @@ export function TaskCard({
     isOverlay = false,
 }: Props) {
     const completed = task.completedAt !== null;
+    const { byId } = useTeamLabels();
+    const labels = task.labelIds.flatMap((id) => byId.get(id) ?? []);
     // Keys pressed on the checkbox or title must not start a keyboard drag.
     const keepKeys = (event: React.KeyboardEvent) => event.stopPropagation();
 
@@ -128,6 +131,24 @@ export function TaskCard({
                     <p className="line-clamp-2 pl-6.5 text-xs whitespace-pre-line text-muted-foreground">
                         {task.description}
                     </p>
+                )}
+                {labels.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1 pl-6.5">
+                        {labels.slice(0, 3).map((label) => (
+                            <LabelBadge key={label.id} label={label} />
+                        ))}
+                        {labels.length > 3 && (
+                            <span
+                                title={labels
+                                    .slice(3)
+                                    .map((label) => label.name)
+                                    .join(', ')}
+                                className="inline-flex h-[22px] items-center rounded-md bg-muted px-1.5 text-[11px] font-bold text-muted-foreground"
+                            >
+                                +{labels.length - 3}
+                            </span>
+                        )}
+                    </div>
                 )}
                 <div className="flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1 pl-6.5">
                     {!completed && <PriorityPill priority={task.priority} />}

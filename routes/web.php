@@ -2,13 +2,16 @@
 
 use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Labels\LabelController;
 use App\Http\Controllers\Lists\TaskListController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Tasks\TaskActivityController;
 use App\Http\Controllers\Tasks\TaskController;
+use App\Http\Controllers\Tasks\TaskLabelController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +29,9 @@ Route::prefix('{current_team}')
         Route::get('notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->whereUuid('notification')->name('notifications.read');
         Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+
+        // Spec 0007: the Ctrl K search box.
+        Route::get('search', SearchController::class)->name('search');
 
         Route::scopeBindings()->group(function () {
             Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
@@ -47,11 +53,17 @@ Route::prefix('{current_team}')
             Route::patch('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
             Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
+            Route::put('tasks/{task}/labels', [TaskLabelController::class, 'update'])->name('tasks.labels.update');
             Route::get('tasks/{task}/activity', TaskActivityController::class)->name('tasks.activity');
             Route::post('tasks/{task}/comments', [CommentController::class, 'store'])->name('comments.store');
             // A team has no direct relation to comments; the controller checks the team.
             Route::patch('comments/{comment}', [CommentController::class, 'update'])->withoutScopedBindings()->name('comments.update');
             Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->withoutScopedBindings()->name('comments.destroy');
+
+            // Spec 0007: the team's labels.
+            Route::post('labels', [LabelController::class, 'store'])->name('labels.store');
+            Route::patch('labels/{label}', [LabelController::class, 'update'])->name('labels.update');
+            Route::delete('labels/{label}', [LabelController::class, 'destroy'])->name('labels.destroy');
         });
     });
 
