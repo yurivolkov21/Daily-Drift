@@ -8,14 +8,18 @@ This page describes the interface the app is being rebuilt to. It replaces the f
 
 The owner asked for a modern SaaS dashboard with smooth motion. Each round showed at least three interactive wireframes built after studying blocks from the [sources](#sources) below. The owner picked one or asked for a merge, and only the chosen frames were kept.
 
-| Round | Screens                       | Chosen                                                                                                 |
-| ----- | ----------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 1     | Dashboard, scrollbars         | A merge of two options ("indigo rail" and "floating canvas"); thin scrollbars shown on hover or scroll |
-| 2     | Projects, board               | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
-| 3     | Sign in and sign up, settings | A glass card over a moving board; tabs inside one card                                                 |
-| 4     | My tasks, assignee field      | A grouped list; a searchable menu in the task sheet                                                    |
-| 5     | Task activity, Activity card  | Comments first with the changes folded between them; a feed grouped by day                             |
-| 6     | Notifications                 | A bell panel with _Updates_ and _Due soon_ tabs, one line per item; a page with a timeline and details |
+| Round         | Screens                                                           | Chosen                                                                                                 |
+| ------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1             | Dashboard, scrollbars                                             | A merge of two options ("indigo rail" and "floating canvas"); thin scrollbars shown on hover or scroll |
+| 2             | Projects, board                                                   | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
+| 3             | Sign in and sign up, settings                                     | A glass card over a moving board; tabs inside one card                                                 |
+| 4             | My tasks, assignee field                                          | A grouped list; a searchable menu in the task sheet                                                    |
+| 5             | Task activity, Activity card                                      | Comments first with the changes folded between them; a feed grouped by day                             |
+| 6             | Notifications                                                     | A bell panel with _Updates_ and _Due soon_ tabs, one line per item; a page with a timeline and details |
+| Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox` | Lucide icons for labels                                                                                |
+| Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                |                                                                                                        |
+| Search        | `command` (dialog), `kbd`                                         |                                                                                                        |
+| 7             | Labels, board filters, search                                     | Outline label badges with an icon (no color); one button per filter; a centered command box (Ctrl K)   |
 
 The wireframes live in the owner's private design canvas. Screenshots of the built screens will be added here as each screen ships.
 
@@ -25,6 +29,7 @@ The wireframes live in the owner's private design canvas. Screenshots of the bui
 - Motion shows what changed (something arrived, moved, opened or finished) and never delays work. Everything has a reduced-motion path.
 - Color carries meaning, not decoration: every project and list has a hue from one palette, and that hue tints its tile, column, pills and progress.
 - Color is never the only signal: priorities, due states, health and lists always carry a text label.
+- No arrow characters typed as text in buttons, links or hints (a left or right arrow, a return sign, a double chevron): use an icon (Lucide `ChevronLeft`, `ArrowRight`, `ChevronsLeft`) next to the words. A _Back_ button is an icon and the word.
 - Every action works with the keyboard, including drag and drop.
 - Phones get the same features; the folded sidebar and folded lists still need a phone layout (see [Open questions](#open-questions)).
 
@@ -157,6 +162,12 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 
 - The bell's panel has two tabs, _Updates_ and _Due soon_. Each item is one line: an avatar, a short sentence and a relative time, with a dot when unread. Clicking closes the panel and opens the task on its board; a mention scrolls to the comment and highlights it.
 - _View all_ opens the notifications page: a list grouped by day with a timeline line on the left, and the selected notification on the right (the sentence, the task as it is now with _Open task_, the comment for a mention, and the task's recent activity). On a phone the two panes become two steps.
+
+### Labels, filters and search
+
+- Labels are outline badges with an icon and the name, in the text color; cards show up to 3, then "+n". The task sheet's _Labels_ row opens a menu with a search field and a checkbox per label; creating a label opens an icon picker with a search field, six groups and a grid of 79 icons.
+- The board's header card has a filter bar: a text field and one button each for _Labels_, _Assignee_, _Due_ and _Priority_, each with a checklist; list headers read "3 of 8" while filters are on.
+- Ctrl K (⌘K on a Mac) opens a centered search box: _Recent_ and _Go to_ before typing, then _Tasks_ and _Projects_ with the match highlighted.
 
 ## Components by screen
 
