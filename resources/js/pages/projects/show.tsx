@@ -10,14 +10,27 @@ import {
     Plus,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { openAddTask } from '@/components/board/add-task';
+import { FilterBar } from '@/components/board/filter-bar';
 import { Board } from '@/components/board/board';
+import type { Member } from '@/components/board/assignee-field';
 import { HeaderActions } from '@/components/header-actions';
+import { useTeamLabels } from '@/components/labels/label-badge';
+import { useLocalTime } from '@/hooks/use-local-time';
+import type { BoardFilters } from '@/lib/board-filters';
+import {
+    matches,
+    NO_FILTERS,
+    readFilters,
+    writeFilters,
+} from '@/lib/board-filters';
 import { HueBar } from '@/components/hue-progress';
 import { ProjectMenu } from '@/components/projects/project-menu';
 import { Button } from '@/components/ui/button';
 import { teamCrumb } from '@/lib/breadcrumbs';
 import { HUES } from '@/lib/hues';
+import { rememberRecent } from '@/lib/recent';
 import { percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { index, restore, show } from '@/routes/projects';
@@ -28,8 +41,35 @@ type Props = {
 };
 
 export default function ProjectShow({ project }: Props) {
-    const { currentTeam } = usePage().props;
+    const { currentTeam, auth } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
+    const { today } = useLocalTime();
+    const { labels } = useTeamLabels();
+    const members = (usePage().props.members as Member[] | undefined) ?? [];
+    // The board's filters live in the address (spec 0007).
+    const [filters, setFilters] = useState<BoardFilters>(() =>
+        typeof window === 'undefined'
+            ? NO_FILTERS
+            : readFilters(window.location.search),
+    );
+    const changeFilters = (next: BoardFilters) => {
+        setFilters(next);
+        writeFilters(next);
+    };
+    const allTasks = project.lists.flatMap((list) => list.tasks ?? []);
+    const shown = allTasks.filter((task) =>
+        matches(task, filters, auth.user.id, today),
+    ).length;
+
+    // The search box lists what was opened lately (spec 0007).
+    useEffect(() => {
+        rememberRecent(teamSlug, {
+            kind: 'project',
+            id: project.id,
+            title: project.name,
+            color: project.color,
+        });
+    }, [teamSlug, project.id, project.name, project.color]);
     const firstList = project.lists[0];
     const { stats } = project;
     const progress = percent(stats.completed, stats.tasks);
@@ -115,6 +155,16 @@ export default function ProjectShow({ project }: Props) {
                         variant="outline"
                         className="rounded-xl"
                     />
+                    <FilterBar
+                        filters={filters}
+                        onChange={changeFilters}
+                        tasks={allTasks}
+                        labels={labels}
+                        members={members}
+                        me={auth.user.id}
+                        today={today}
+                        shown={shown}
+                    />
                 </section>
 
                 {project.archivedAt && (
@@ -148,7 +198,13 @@ export default function ProjectShow({ project }: Props) {
                     </div>
                 )}
 
-                <Board teamSlug={teamSlug} project={project} />
+                <Board
+                    teamSlug={teamSlug}
+                    project={project}
+                    filters={filters}
+                    me={auth.user.id}
+                    today={today}
+                />
 
                 <p className="animate-rise px-1 text-[12.5px] text-muted-foreground [animation-delay:500ms]">
                     Drag a card to move it, or press{' '}

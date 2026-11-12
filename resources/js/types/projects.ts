@@ -17,6 +17,8 @@ export type Task = {
     assigneeId: number | null;
     assigneeName: string | null;
     commentCount: number;
+    /** Team labels on the task, up to 5 (spec 0007). */
+    labelIds: number[];
     createdAt: string | null;
     updatedAt: string | null;
 };

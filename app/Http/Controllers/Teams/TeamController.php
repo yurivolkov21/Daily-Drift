@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Teams;
 
 use App\Actions\Teams\CreateTeam;
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teams\DeleteTeamRequest;
 use App\Http\Requests\Teams\SaveTeamRequest;
+use App\Models\Label;
 use App\Models\Membership;
 use App\Models\Team;
 use App\Models\User;
@@ -80,6 +82,13 @@ class TeamController extends Controller
                     'role_label' => $invitation->role->label(),
                     'created_at' => $invitation->created_at->toISOString(),
                 ]),
+            // Spec 0007: owners and admins rename, change the icon of and delete labels.
+            'labels' => $team->labels()
+                ->withCount('tasks')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Label $label) => [...$label->toSummary(), 'taskCount' => (int) $label->getAttribute('tasks_count')]),
+            'canManageLabels' => $user->hasTeamPermission($team, TeamPermission::ManageLabels),
             'permissions' => $user->toTeamPermissions($team),
             'availableRoles' => TeamRole::assignable(),
         ]);

@@ -10,6 +10,7 @@ import {
     Pencil,
     Plus,
     RotateCcw,
+    Tag,
     Trash2,
     UserRound,
 } from 'lucide-react';
@@ -40,6 +41,8 @@ const EVENT_ICONS: Record<string, LucideIcon> = {
     'task.due_changed': CalendarDays,
     'task.completed': Check,
     'task.reopened': RotateCcw,
+    'task.labeled': Tag,
+    'task.unlabeled': Tag,
 };
 
 type Block =

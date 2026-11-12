@@ -4,6 +4,7 @@ import { ArrowRight, Check, ChevronDown, Mail } from 'lucide-react';
 import { useState } from 'react';
 import DeleteTeamModal from '@/components/delete-team-modal';
 import InputError from '@/components/input-error';
+import { TeamLabels } from '@/components/labels/team-labels';
 import RemoveMemberModal from '@/components/remove-member-modal';
 import { SegmentedTabs } from '@/components/segmented-tabs';
 import {
@@ -41,6 +42,7 @@ import type {
     Team,
     TeamInvitation,
     TeamMember,
+    TeamLabel,
     TeamPermissions,
 } from '@/types';
 
@@ -50,6 +52,8 @@ type Props = {
     invitations: TeamInvitation[];
     permissions: TeamPermissions;
     availableRoles: RoleOption[];
+    labels: TeamLabel[];
+    canManageLabels: boolean;
 };
 
 const YOU_ARE: Record<string, string> = {
@@ -72,6 +76,8 @@ export default function TeamEdit({
     invitations,
     permissions,
     availableRoles,
+    labels,
+    canManageLabels,
 }: Props) {
     const { auth } = usePage().props;
     const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(
@@ -192,6 +198,13 @@ export default function TeamEdit({
                         canCancel={permissions.canCancelInvitation}
                     />
                 )}
+
+                <Divider />
+                <TeamLabels
+                    teamSlug={team.slug}
+                    labels={labels}
+                    canManage={canManageLabels}
+                />
 
                 {canDelete && (
                     <>

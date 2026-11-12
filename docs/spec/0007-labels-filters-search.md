@@ -1,6 +1,6 @@
 # Spec 0007: Labels, filters and search
 
-**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 7](../design/README.md#how-it-was-chosen)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 7](../design/README.md#how-it-was-chosen)
 
 ## Goal
 
@@ -49,7 +49,7 @@ The stored value is the icon's name; anything outside this list fails validation
 - **Creating:** when the search field matches no label, the menu offers _Create "Bug"_. It opens an icon picker in the same menu: a search field, the six groups as tabs and a grid of icons. The first icon is a guess from the name ("bug" picks the bug icon, "perf" the gauge, anything else the tag), and the person can pick another. _Back_ returns to the list; _Create and add_ saves the label and ticks it on the task.
 - **Board card:** up to 3 labels under the title, then "+2". Each label is an outline badge with its icon and name, in the text color: no fill and no color, like shadcn/ui's _outline_ badge with an icon. The task sheet shows the same badges, a little larger.
 - **Managing:** the team's settings page gets a _Labels_ section: each label with its icon, how many tasks use it, and _Rename_, _Change icon_ and _Delete_. Deleting asks first and takes the label off every task.
-- A new team has no labels. The demo seeder adds a few (_Bug_, _Feature_, _Design_, _Docs_).
+- A new team has no labels.
 - Archived projects stay read-only: their labels show but cannot be changed.
 - **History:** adding and removing a label record `task.labeled` and `task.unlabeled` in the event log ([spec 0005](0005-activity-and-comments.md#events)), with a copy of the label's name and icon. Renaming a label, changing its icon or deleting it records nothing on the tasks.
 

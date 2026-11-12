@@ -8,6 +8,7 @@ use App\Data\ProjectFilters;
 use App\Data\ProjectStats;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Projects\SaveProjectRequest;
+use App\Models\Label;
 use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
@@ -72,7 +73,7 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $project->load(['creator', 'lists.tasks' => fn ($query) => $query->withCount('comments'), 'lists.tasks.creator', 'lists.tasks.assignee', 'team'])
+        $project->load(['creator', 'lists.tasks' => fn ($query) => $query->withCount('comments'), 'lists.tasks.creator', 'lists.tasks.assignee', 'lists.tasks.labels:id', 'team'])
             ->loadCount(ProjectStats::counts())
             ->loadMin(ProjectStats::oldestOverdue(), 'due_on');
 
@@ -83,6 +84,13 @@ class ProjectController extends Controller
                 ->orderBy('name')
                 ->get(['users.id', 'users.name'])
                 ->map(fn (User $member) => ['id' => $member->id, 'name' => $member->name])
+                ->values(),
+            // The team's labels, with how many tasks use each (spec 0007).
+            'labels' => $current_team->labels()
+                ->withCount('tasks')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Label $label) => [...$label->toSummary(), 'taskCount' => (int) $label->getAttribute('tasks_count')])
                 ->values(),
         ]);
     }

@@ -17,4 +17,6 @@ enum TeamPermission: string
     case CreateProject = 'project:create';
     case UpdateProject = 'project:update';
     case DeleteProject = 'project:delete';
+
+    case ManageLabels = 'label:manage';
 }

@@ -1,6 +1,7 @@
 export type * from './auth';
 export type * from './activity';
 export type * from './dashboard';
+export type * from './labels';
 export type * from './navigation';
 export type * from './projects';
 export type * from './my-tasks';

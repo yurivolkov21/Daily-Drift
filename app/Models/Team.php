@@ -90,6 +90,16 @@ class Team extends Model
     }
 
     /**
+     * The team's labels, shared by every project (spec 0007).
+     *
+     * @return HasMany<Label, $this>
+     */
+    public function labels(): HasMany
+    {
+        return $this->hasMany(Label::class);
+    }
+
+    /**
      * Get all invitations for this team.
      *
      * @return HasMany<TeamInvitation, $this>
