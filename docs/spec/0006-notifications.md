@@ -98,7 +98,7 @@ Under `/{current_team}`:
 ## Decisions
 
 1. **The panel:** two tabs, _Updates_ and _Due soon_, with one line per item; clicking leads to the related page instead of showing details in the panel (the owner, wireframe round 6, 12 November).
-2. **How much the panel holds:** the latest 10 updates, with _View all_ always shown, leading to a notifications page laid out like a mail app, with a timeline list and a detail pane (the owner, 12 November). The page's layout follows the Mail example from earlier shadcn/ui releases, rebuilt with this project's components.
+2. **How much the panel holds:** the latest 10 updates, with _View all_ always shown, leading to a notifications page laid out like a mail app, with a timeline list and a detail pane (the owner, 12 November; the page's wireframes for desktop and phone were approved the same day). The page's layout follows the Mail example from earlier shadcn/ui releases, rebuilt with this project's components.
 
 ## Open questions
 
