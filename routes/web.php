@@ -4,6 +4,7 @@ use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Lists\TaskListController;
 use App\Http\Controllers\MyTasksController;
+use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
 use App\Http\Controllers\Tasks\TaskActivityController;
@@ -19,6 +20,12 @@ Route::prefix('{current_team}')
     ->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::get('my-tasks', MyTasksController::class)->name('my-tasks');
+
+        // Spec 0006. A notification belongs to a person, not to the team's models, so these are not scoped.
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
+        Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->whereUuid('notification')->name('notifications.read');
+        Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
 
         Route::scopeBindings()->group(function () {
             Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');

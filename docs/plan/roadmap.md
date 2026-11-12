@@ -34,7 +34,7 @@ Daily-Drift is mainly a portfolio project, so Phase 2 favours features that show
 
 - [x] Assignees and a _My tasks_ page, which also covers the "Today" view: it opens on what needs attention today ([spec 0004](../spec/0004-assignees-and-my-tasks.md))
 - [x] Activity history and task comments: one event log feeds the task sheet, the dashboard's _Activity_ card and notifications ([spec 0005](../spec/0005-activity-and-comments.md))
-- [ ] Notifications in the app: assigned to you, mentioned in a comment, due soon. They refresh when a page loads (no realtime); "due soon" is worked out at that moment, so no scheduler is needed ([spec 0006](../spec/0006-notifications.md))
+- [x] Notifications in the app: assigned to you, mentioned in a comment, due soon. They refresh when a page loads (no realtime); "due soon" is worked out at that moment, so no scheduler is needed ([spec 0006](../spec/0006-notifications.md))
 - [ ] Labels, filters and search (⌘K)
 - [ ] Views: list and calendar, next to the board
 

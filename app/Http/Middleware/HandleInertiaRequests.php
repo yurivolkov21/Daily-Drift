@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Project;
 use App\Models\Task;
+use App\Queries\NotificationFeed;
 use App\Support\LocalTime;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -65,6 +66,8 @@ class HandleInertiaRequests extends Middleware
                     ->whereHas('project', fn ($query) => $query->whereBelongsTo($user->currentTeam)->whereNull('archived_at'))
                     ->count()
                 : 0,
+            // The bell's badge: the viewer's unread notifications in the current team (spec 0006).
+            'unreadNotifications' => fn () => $user?->currentTeam ? (new NotificationFeed($user->currentTeam, $user))->unreadCount() : 0,
             'recentProjects' => fn () => $user?->currentTeam
                 ? $user->currentTeam->projects()
                     ->active()

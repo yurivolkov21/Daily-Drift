@@ -25,6 +25,8 @@ declare module '@inertiajs/core' {
             activeProjectCount: number;
             /** Open tasks assigned to the viewer in the current team. */
             myOpenTaskCount: number;
+            /** Unread notifications of the viewer in the current team (spec 0006). */
+            unreadNotifications: number;
             [key: string]: unknown;
         };
     }

@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { HEADER_ACTIONS_ID } from '@/components/header-actions';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useInitials } from '@/hooks/use-initials';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
@@ -14,7 +15,8 @@ const AVATAR_COLORS = [
 
 /**
  * The header bar: a white card above the page with the breadcrumbs, the
- * team's people and the page's main action (see HeaderActions). On phones it
+ * team's people, the notification bell and the page's main action (see
+ * HeaderActions). On phones it
  * also opens the sidebar, which folds on desktop from its own foot.
  */
 export function AppSidebarHeader({
@@ -52,6 +54,7 @@ export function AppSidebarHeader({
                         )}
                     </div>
                 )}
+                <NotificationBell />
                 <div
                     id={HEADER_ACTIONS_ID}
                     className="flex items-center gap-2 empty:hidden"
