@@ -1,6 +1,6 @@
 # Spec 0007: Labels, filters and search
 
-**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** wireframes in round 7
+**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 7](../design/README.md#how-it-was-chosen)
 
 ## Goal
 
@@ -10,13 +10,13 @@ Help a team find work once there is a lot of it. Labels say what kind of work a 
 
 ### `labels`
 
-| Column     | Type                | Notes                                           |
-| ---------- | ------------------- | ----------------------------------------------- |
-| `id`       | id                  |                                                 |
-| `team_id`  | foreign key → teams | cascade on delete                               |
-| `name`     | string(24)          | required; unique in the team, ignoring case     |
-| `color`    | string              | one of the ten hues used for projects and lists |
-| timestamps |                     |                                                 |
+| Column     | Type                | Notes                                       |
+| ---------- | ------------------- | ------------------------------------------- |
+| `id`       | id                  |                                             |
+| `team_id`  | foreign key → teams | cascade on delete                           |
+| `name`     | string(24)          | required; unique in the team, ignoring case |
+| `icon`     | string(32)          | one of the label icons below                |
+| timestamps |                     |                                             |
 
 ### `label_task`
 
@@ -28,19 +28,34 @@ Help a team find work once there is a lot of it. Labels say what kind of work a 
 
 The pair is the primary key. Labels belong to the **team**, so one set serves every project, the board filters and search.
 
+### Label icons
+
+A label has an icon instead of a color, so cards stay calm next to the tinted lists. The icons are [Lucide](https://lucide.dev) icons, 79 of them in six groups:
+
+| Group  | Icons                                                                                                                                                                                |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Work   | tag, flag, target, star, bookmark, briefcase, calendar, clock, inbox, archive, pin, paperclip, list, circle-check, trophy, chart-column                                              |
+| Build  | bug, sparkles, code, terminal, git-branch, server, database, cloud, cpu, monitor, smartphone, globe, package, layers, settings, wrench, key, link, flask-conical, rocket, zap, gauge |
+| Design | palette, pen, brush, image, layout-panel-top, type, eye, crop                                                                                                                        |
+| Talk   | book-open, file-text, message-circle, mail, megaphone, video, mic, circle-help, info, users, user                                                                                    |
+| Status | triangle-alert, shield, lock, flame, hourglass, circle-x, ban, thumbs-up, refresh-cw, lightbulb                                                                                      |
+| Life   | heart, smile, coffee, house, map-pin, gift, dollar-sign, music, graduation-cap, leaf, plane, puzzle                                                                                  |
+
+The stored value is the icon's name; anything outside this list fails validation.
+
 ## Labels
 
 - **Applying:** the task sheet gets a _Labels_ row under _Assignee_. It opens a menu with a search field and a checkbox per label, so several can be ticked; each tick saves at once. A task has **up to 5 labels**, which keeps cards readable.
-- **Creating:** when the search field matches no label, the menu offers _Create "Bug"_. The new label takes the first hue no label of the team uses yet, then cycles.
-- **Board card:** up to 3 label chips (a colored dot and the name) under the title, then "+2".
-- **Managing:** the team's settings page gets a _Labels_ section: each label with its color, how many tasks use it, and _Rename_, _Recolor_ and _Delete_. Deleting asks first and takes the label off every task.
+- **Creating:** when the search field matches no label, the menu offers _Create "Bug"_. It opens an icon picker in the same menu: a search field, the six groups as tabs and a grid of icons. The first icon is a guess from the name ("bug" picks the bug icon, "perf" the gauge, anything else the tag), and the person can pick another. _Back_ returns to the list; _Create and add_ saves the label and ticks it on the task.
+- **Board card:** up to 3 labels under the title, then "+2". Each label is an outline badge with its icon and name, in the text color: no fill and no color, like shadcn/ui's _outline_ badge with an icon. The task sheet shows the same badges, a little larger.
+- **Managing:** the team's settings page gets a _Labels_ section: each label with its icon, how many tasks use it, and _Rename_, _Change icon_ and _Delete_. Deleting asks first and takes the label off every task.
 - A new team has no labels. The demo seeder adds a few (_Bug_, _Feature_, _Design_, _Docs_).
 - Archived projects stay read-only: their labels show but cannot be changed.
-- **History:** adding and removing a label record `task.labeled` and `task.unlabeled` in the event log ([spec 0005](0005-activity-and-comments.md#events)), with a copy of the label's name and color. Renaming, recoloring or deleting a label records nothing on the tasks.
+- **History:** adding and removing a label record `task.labeled` and `task.unlabeled` in the event log ([spec 0005](0005-activity-and-comments.md#events)), with a copy of the label's name and icon. Renaming a label, changing its icon or deleting it records nothing on the tasks.
 
 ## Board filters
 
-- A filter bar above the board, in the project's header card:
+- A filter bar above the board, in the project's header card: a text field, then one button per filter that opens a list of choices with checkboxes and counts. A button shows how many of its choices are on.
     - **Text:** cards whose title contains the words typed.
     - **Labels:** any of the chosen labels.
     - **Assignee:** _Me_, a member or _Unassigned_.
@@ -65,12 +80,12 @@ The pair is the primary key. Labels belong to the **team**, so one set serves ev
 
 ## Permissions
 
-| Action                            | Owner | Admin | Member |
-| --------------------------------- | :---: | :---: | :----: |
-| Apply and remove labels on tasks  |  ✅   |  ✅   |   ✅   |
-| Create a label                    |  ✅   |  ✅   |   ✅   |
-| Rename, recolor or delete a label |  ✅   |  ✅   |   ❌   |
-| Filter a board, search the team   |  ✅   |  ✅   |   ✅   |
+| Action                                    | Owner | Admin | Member |
+| ----------------------------------------- | :---: | :---: | :----: |
+| Apply and remove labels on tasks          |  ✅   |  ✅   |   ✅   |
+| Create a label                            |  ✅   |  ✅   |   ✅   |
+| Rename, change the icon or delete a label |  ✅   |  ✅   |   ❌   |
+| Filter a board, search the team           |  ✅   |  ✅   |   ✅   |
 
 ## Routes
 
@@ -92,19 +107,16 @@ Under `/{current_team}`:
 ## Decisions
 
 1. **Labels per team:** the same _Bug_ works on every board, in filters and in search (the owner kept the proposal, 12 November).
-2. **Who manages labels:** everyone creates and applies them, as with assignees; owners and admins rename, recolor and delete, since that changes every project (as above).
+2. **Who manages labels:** everyone creates and applies them, as with assignees; owners and admins rename, change and delete them, since that changes every project (as above).
 3. **Up to 5 labels per task** (as above).
-
-## Open questions
-
-1. **Layout:** the label menu and the card chips, the filter bar, and the ⌘K box. Decided by wireframe round 7.
+4. **Layout** (the owner, wireframe round 7, 12 November): the label menu is a list with checkboxes; labels have an icon and no color, shown as outline badges; the icon set was widened to 79 icons with search and groups. The board filters are one button per filter; search is a centered command box.
 
 ## Acceptance criteria
 
-- A member can create a label; a second label with the same name in any case fails validation; a member cannot rename, recolor or delete one, an owner or admin can.
+- A member can create a label with an icon from the list; an unknown icon fails validation; a second label with the same name in any case fails validation; a member cannot rename it, change its icon or delete it, an owner or admin can.
 - Deleting a label takes it off every task of the team.
 - A task takes up to 5 labels, only from its own team; a sixth or another team's label fails validation; archived projects refuse changes.
-- Adding and removing a label each record one event with the label's name and color.
+- Adding and removing a label each record one event with the label's name and icon.
 - The board page sends the team's labels and each task's label ids.
 - Search finds tasks by title, description and label name, and projects by name, in the current team only, in the order above; one character returns nothing.
 - Someone outside the team gets a 404 from every route above.
