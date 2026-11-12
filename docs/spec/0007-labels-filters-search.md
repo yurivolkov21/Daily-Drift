@@ -89,12 +89,15 @@ Under `/{current_team}`:
 - Searching comments, and search syntax such as `label:bug` or `is:done`.
 - Accent-insensitive search (with PostgreSQL in Phase 3).
 
+## Decisions
+
+1. **Labels per team:** the same _Bug_ works on every board, in filters and in search (the owner kept the proposal, 12 November).
+2. **Who manages labels:** everyone creates and applies them, as with assignees; owners and admins rename, recolor and delete, since that changes every project (as above).
+3. **Up to 5 labels per task** (as above).
+
 ## Open questions
 
-1. **Labels per team or per project.** Proposed: per team, so the same _Bug_ works on every board, in filters and in search.
-2. **Who manages labels.** Proposed: everyone creates and applies them, as with assignees; owners and admins rename, recolor and delete, since that changes every project.
-3. **How many labels per task.** Proposed: 5.
-4. **Layout:** the label menu and the card chips, the filter bar, and the ⌘K box. Decided by wireframe round 7.
+1. **Layout:** the label menu and the card chips, the filter bar, and the ⌘K box. Decided by wireframe round 7.
 
 ## Acceptance criteria
 
