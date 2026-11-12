@@ -29,6 +29,7 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Changed
 
+- Links and hints use icons instead of arrow characters: _All_ on the dashboard's Projects card and _All teams_ in the team settings end with an arrow icon, the board's fold hint shows the fold icon, and the notifications page's key hints and its project-to-list separator are icons.
 - Docs brought up to date: README status, roadmap, the status and known limitations of spec 0001, and a workflow section in the docs index.
 - People outside a team get 404 instead of 403 on its pages ([ADR 0006](../decisions/0006-not-found-for-non-members.md)).
 - PHPUnit 13.

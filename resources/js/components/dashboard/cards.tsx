@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { format, parseISO } from 'date-fns';
+import { ArrowRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { HueBar } from '@/components/hue-progress';
@@ -344,9 +345,10 @@ export function ProjectsCard({
                 aside={
                     <Link
                         href={projectsIndex(teamSlug)}
-                        className="text-[13px] font-semibold text-primary no-underline"
+                        className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary no-underline"
                     >
-                        All →
+                        All{' '}
+                        <ArrowRight className="size-3.5" aria-hidden="true" />
                     </Link>
                 }
             >

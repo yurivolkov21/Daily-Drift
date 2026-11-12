@@ -7,11 +7,14 @@ import {
     usePage,
 } from '@inertiajs/react';
 import {
+    ArrowDown,
     ArrowLeft,
     ArrowRight,
+    ArrowUp,
     AtSign,
     Bell,
     ChevronDown,
+    ChevronRight,
     ChevronUp,
     Trash2,
     UserPlus,
@@ -281,8 +284,13 @@ export default function Notifications({
                         <ChevronDown className="size-4" />
                     </StepButton>
                     <span className="ml-1.5 hidden items-center gap-1 lg:flex">
-                        <Kbd>↑</Kbd>
-                        <Kbd>↓</Kbd> move <Kbd>Enter</Kbd> open
+                        <Kbd label="Up arrow">
+                            <ArrowUp className="size-3" />
+                        </Kbd>
+                        <Kbd label="Down arrow">
+                            <ArrowDown className="size-3" />
+                        </Kbd>{' '}
+                        move <Kbd>Enter</Kbd> open
                     </span>
                 </span>
             </div>
@@ -646,7 +654,10 @@ function Detail({
                                     )}
                                 />
                                 {task.project.name}
-                                <span aria-hidden="true">›</span>
+                                <ChevronRight
+                                    aria-hidden="true"
+                                    className="size-3.5 text-muted-foreground/60"
+                                />
                                 {task.list}
                             </div>
                             <h3
@@ -858,9 +869,13 @@ function StepButton({
     );
 }
 
-function Kbd({ children }: { children: string }) {
+/** A key cap. Arrow keys get an icon and a label, never an arrow character. */
+function Kbd({ children, label }: { children: ReactNode; label?: string }) {
     return (
-        <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-b-2 bg-card px-1 font-sans text-[11px] font-semibold text-foreground/75">
+        <kbd
+            aria-label={label}
+            className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-b-2 bg-card px-1 font-sans text-[11px] font-semibold text-foreground/75"
+        >
             {children}
         </kbd>
     );
