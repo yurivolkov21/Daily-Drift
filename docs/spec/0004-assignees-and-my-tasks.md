@@ -1,6 +1,6 @@
 # Spec 0004: Assignees and My tasks
 
-**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 4](../design/README.md#screens-for-phase-2)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-done) · **Design:** [round 4](../design/README.md#screens-for-phase-2)
 
 ## Goal
 

@@ -1,6 +1,6 @@
 # Spec 0006: Notifications in the app
 
-**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 6](../design/README.md#how-it-was-chosen)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-done) · **Design:** [round 6](../design/README.md#how-it-was-chosen)
 
 ## Goal
 

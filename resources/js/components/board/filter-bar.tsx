@@ -71,6 +71,8 @@ export function FilterBar({
     me,
     today,
     shown,
+    leading,
+    noun = 'card',
 }: {
     filters: BoardFilters;
     onChange: (filters: BoardFilters) => void;
@@ -82,6 +84,10 @@ export function FilterBar({
     today: string;
     /** How many cards pass the filters. */
     shown: number;
+    /** Shown first in the row: the view switch (spec 0008). */
+    leading?: ReactNode;
+    /** What the result counts: cards on the board, tasks in the other views. */
+    noun?: 'card' | 'task';
 }) {
     const toggle = <K extends 'labels' | 'assignee' | 'due' | 'priority'>(
         key: K,
@@ -171,6 +177,15 @@ export function FilterBar({
             className="flex w-full basis-full flex-wrap items-center gap-2"
             data-test="filter-bar"
         >
+            {leading && (
+                <>
+                    {leading}
+                    <span
+                        aria-hidden="true"
+                        className="mx-0.5 hidden h-6 w-px bg-border sm:block"
+                    />
+                </>
+            )}
             <label className="flex h-10 min-w-48 flex-[0_1_260px] items-center gap-2 rounded-xl border bg-secondary/50 px-3 text-muted-foreground focus-within:ring-2 focus-within:ring-ring">
                 <Search className="size-4 shrink-0" aria-hidden="true" />
                 <input
@@ -178,8 +193,8 @@ export function FilterBar({
                     onChange={(event) =>
                         onChange({ ...filters, q: event.target.value })
                     }
-                    placeholder="Filter cards"
-                    aria-label="Filter cards by title"
+                    placeholder={`Filter ${noun}s`}
+                    aria-label={`Filter ${noun}s by title`}
                     data-test="filter-text"
                     className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                 />
@@ -226,7 +241,7 @@ export function FilterBar({
             <span className="ml-auto flex items-center gap-3 text-[13px] text-muted-foreground">
                 <span data-test="filter-result">
                     {shown} of {tasks.length}{' '}
-                    {tasks.length === 1 ? 'card' : 'cards'}
+                    {tasks.length === 1 ? noun : `${noun}s`}
                 </span>
                 {filtersOn(filters) && (
                     <button
