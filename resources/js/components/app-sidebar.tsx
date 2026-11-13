@@ -94,7 +94,7 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent className="scrollbar-thin gap-5 px-1 pt-2 scrollbar-on-dark">
+            <SidebarContent className="thin-scrollbar gap-5 px-1 pt-2 scrollbar-on-dark">
                 <NavMain items={mainNavItems} />
                 {teamSlug && recentProjects.length > 0 && (
                     <SidebarGroup className="px-2 py-0">

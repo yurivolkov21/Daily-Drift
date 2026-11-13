@@ -286,7 +286,7 @@ export function ListColumn({
 
             <KanbanColumnContent
                 value={columnKey(list.id)}
-                className="-mx-1 flex scrollbar-thin max-h-[calc(100svh-22rem)] min-h-20 flex-col gap-2 overflow-y-auto px-1 py-1 pr-1.5"
+                className="-mx-1 flex thin-scrollbar max-h-[calc(100svh-22rem)] min-h-20 flex-col gap-2 overflow-y-auto px-1 py-1 pr-1.5"
             >
                 {tasks.map((task) => (
                     <TaskCard

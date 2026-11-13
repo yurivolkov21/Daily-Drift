@@ -188,7 +188,7 @@ export function LabelField({
                                     }
                                     placeholder="Search or create a label"
                                 />
-                                <CommandList className="max-h-72">
+                                <CommandList className="thin-scrollbar max-h-72">
                                     {shown.length > 0 && (
                                         <CommandGroup>
                                             {shown.map((label) => {

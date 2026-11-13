@@ -232,7 +232,7 @@ export function SearchBox() {
                                 Esc
                             </kbd>
                         </div>
-                        <CommandList className="max-h-[min(460px,60vh)] border-t px-1.5 py-1.5">
+                        <CommandList className="thin-scrollbar max-h-[min(460px,60vh)] border-t px-1.5 py-1.5">
                             {!typing && (
                                 <>
                                     {query.trim().length === 1 && (

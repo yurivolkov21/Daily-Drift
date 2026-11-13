@@ -134,7 +134,7 @@ export function TimeZoneField({
                 >
                     <Command>
                         <CommandInput placeholder="Search time zones…" />
-                        <CommandList className="scrollbar-thin max-h-72">
+                        <CommandList className="thin-scrollbar max-h-72">
                             <CommandEmpty>No time zone matches.</CommandEmpty>
                             <CommandGroup>
                                 <CommandItem

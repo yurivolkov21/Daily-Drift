@@ -83,6 +83,9 @@ With reduced motion there are no entrance animations or count-ups, and transitio
 
 A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or white at 45 % on dark surfaces. It shows while the area is hovered or scrolled and fades 0.9 s after scrolling stops. The gutter is stable so content does not shift, scrolling does not chain to the page, and Firefox gets `scrollbar-width: thin`.
 
+- **Every scrolling area** looks this way, menus and text areas from the component library included: a base rule styles them all, and the areas the app lays out also take the `thin-scrollbar` utility for the stable gutter and the fade.
+- **Not `scrollbar-thin`:** Tailwind ships a utility of that name (`scrollbar-width: thin`). In Chromium that property turns off the styled thumb and leaves the browser's grey scrollbar, so the project's utility has another name.
+
 ## App shell
 
 - **Sidebar:** a floating night-blue card, 256 px wide, that folds to a 76 px icon rail with its button or Ctrl/⌘ + B; the choice is remembered. It holds the logo, the team switcher, _Dashboard_, _Projects_ (with a count), _My tasks_ (Phase 2) and _Team_, then _Recent_: the five most recently updated active projects as colored letter tiles with their open task counts, and the user at the bottom. On the rail, labels fade out, items show tooltips and counts become dots.

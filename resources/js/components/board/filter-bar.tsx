@@ -307,7 +307,7 @@ function FilterButton<T extends string | number>({
                         role="listbox"
                         aria-multiselectable="true"
                         aria-label={name}
-                        className="flex max-h-72 flex-col gap-px overflow-y-auto"
+                        className="flex thin-scrollbar max-h-72 flex-col gap-px overflow-y-auto"
                     >
                         {options.map((option) => {
                             const on = chosen.includes(option.value);
