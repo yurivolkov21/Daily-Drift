@@ -38,9 +38,9 @@ Daily-Drift is mainly a portfolio project, so Phase 2 favours features that show
 - [x] Labels, filters and search (⌘K): team labels on tasks, filters on the board kept in the link, and a search box for every task and project of the team ([spec 0007](../spec/0007-labels-filters-search.md))
 - [x] Views: list and calendar, next to the board, with the same filters and task sheet ([spec 0008](../spec/0008-list-and-calendar-views.md))
 
-## Phase 3: Advanced (Planned)
+## Phase 3: Advanced (In progress)
 
-- [ ] Sign in with Google and GitHub
+- [ ] Sign in with Google and GitHub, connected to existing accounts from the settings ([spec 0009](../spec/0009-sign-in-with-google-and-github.md))
 - [ ] AI helpers: split a task into subtasks, draft a project plan from a description, weekly progress summary
 - [ ] Attachments, checklists inside a task, recurring tasks
 - [ ] Production readiness: PostgreSQL, queue worker, cloud file storage, rate limiting, deployment
