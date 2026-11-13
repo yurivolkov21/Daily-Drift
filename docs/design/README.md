@@ -8,18 +8,16 @@ This page describes the interface the app is being rebuilt to. It replaces the f
 
 The owner asked for a modern SaaS dashboard with smooth motion. Each round showed at least three interactive wireframes built after studying blocks from the [sources](#sources) below. The owner picked one or asked for a merge, and only the chosen frames were kept.
 
-| Round         | Screens                                                           | Chosen                                                                                                 |
-| ------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 1             | Dashboard, scrollbars                                             | A merge of two options ("indigo rail" and "floating canvas"); thin scrollbars shown on hover or scroll |
-| 2             | Projects, board                                                   | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
-| 3             | Sign in and sign up, settings                                     | A glass card over a moving board; tabs inside one card                                                 |
-| 4             | My tasks, assignee field                                          | A grouped list; a searchable menu in the task sheet                                                    |
-| 5             | Task activity, Activity card                                      | Comments first with the changes folded between them; a feed grouped by day                             |
-| 6             | Notifications                                                     | A bell panel with _Updates_ and _Due soon_ tabs, one line per item; a page with a timeline and details |
-| Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox` | Lucide icons for labels                                                                                |
-| Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                |                                                                                                        |
-| Search        | `command` (dialog), `kbd`                                         |                                                                                                        |
-| 7             | Labels, board filters, search                                     | Outline label badges with an icon (no color); one button per filter; a centered command box (Ctrl K)   |
+| Round | Screens                       | Chosen                                                                                                 |
+| ----- | ----------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1     | Dashboard, scrollbars         | A merge of two options ("indigo rail" and "floating canvas"); thin scrollbars shown on hover or scroll |
+| 2     | Projects, board               | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
+| 3     | Sign in and sign up, settings | A glass card over a moving board; tabs inside one card                                                 |
+| 4     | My tasks, assignee field      | A grouped list; a searchable menu in the task sheet                                                    |
+| 5     | Task activity, Activity card  | Comments first with the changes folded between them; a feed grouped by day                             |
+| 6     | Notifications                 | A bell panel with _Updates_ and _Due soon_ tabs, one line per item; a page with a timeline and details |
+| 7     | Labels, board filters, search | Outline label badges with an icon (no color); one button per filter; a centered command box (Ctrl K)   |
+| 8     | List and calendar views       | Two-line rows in tinted list sections; a month with a side panel; the view switch in the filter row    |
 
 The wireframes live in the owner's private design canvas. Screenshots of the built screens will be added here as each screen ships.
 
@@ -169,21 +167,33 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - The board's header card has a filter bar: a text field and one button each for _Labels_, _Assignee_, _Due_ and _Priority_, each with a checklist; list headers read "3 of 8" while filters are on.
 - Ctrl K (⌘K on a Mac) opens a centered search box: _Recent_ and _Go to_ before typing, then _Tasks_ and _Projects_ with the match highlighted.
 
+### List and calendar views
+
+- The header card's filter row starts with a segmented control, _Board_, _List_ and _Calendar_ with icons, then a divider and the filters.
+- **List:** one section per list, tinted like its board column, with a fold button, the count and a _+_ button. One header bar above them sorts by _Task_, _Due date_ or _Priority_. Rows are white cards with two lines: the title, then the labels and the comment count; the due date (with a calendar icon), a priority pill with a colored dot and the avatar sit on the right. Each section ends with a dashed _Add task_ button.
+- **Calendar:** a side panel that folds, with a mini month (a dot marks days with open tasks), a checkbox per list to show or hide it on the calendar, and _No due date_ tasks to drag onto a day. The month grid starts on Monday; chips are tinted with their list's color and carry a dot, the title and the avatar; a day shows three lines at most, the last one "+n more" when needed. Overdue dates are red, weekends and other months shaded.
+- **Phones:** the list keeps its sections with two-line rows; the calendar becomes an agenda by day, scrolled to today, and a bottom sheet changes the due date with _Today_, _Tomorrow_, next Monday or _No date_.
+
 ## Components by screen
 
-| Screen        | shadcn/ui components                                                                  | Other                                   |
-| ------------- | ------------------------------------------------------------------------------------- | --------------------------------------- |
-| App shell     | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`        |                                         |
-| Dashboard     | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                                |                                         |
-| Projects      | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog`  |                                         |
-| Board         | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`           | ReUI `kanban`                           |
-| Sign in       | `input`, `button`, `tabs`                                                             |                                         |
-| Settings      | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team) | Local segmented tabs                    |
-| My tasks      | `checkbox`, `sonner` (toast with _Undo_)                                              |                                         |
-| Assignee      | `popover`, `command`                                                                  |                                         |
-| Activity      | `textarea`, `button`                                                                  | Local segmented tabs                    |
-| Notifications | `popover`, `tabs`, `resizable`, `scroll-area`, `item`, `avatar`, `kbd`, `empty`       | Pattern from the shadcn/ui Mail example |
-| Empty states  | `empty`                                                                               | Adapted from ReUI `c-empty-12`          |
+| Screen        | shadcn/ui components                                                                                | Other                                   |
+| ------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| App shell     | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`                      |                                         |
+| Dashboard     | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                                              |                                         |
+| Projects      | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog`                |                                         |
+| Board         | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`                         | ReUI `kanban`                           |
+| Sign in       | `input`, `button`, `tabs`                                                                           |                                         |
+| Settings      | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team)               | Local segmented tabs                    |
+| My tasks      | `checkbox`, `sonner` (toast with _Undo_)                                                            |                                         |
+| Assignee      | `popover`, `command`                                                                                |                                         |
+| Activity      | `textarea`, `button`                                                                                | Local segmented tabs                    |
+| Notifications | `popover`, `tabs`, `resizable`, `scroll-area`, `item`, `avatar`, `kbd`, `empty`                     | Pattern from the shadcn/ui Mail example |
+| Empty states  | `empty`                                                                                             | Adapted from ReUI `c-empty-12`          |
+| Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox`                                   | Lucide icons for labels                 |
+| Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                                                  |                                         |
+| Search        | `command` (dialog), `kbd`                                                                           |                                         |
+| List view     | `checkbox`, `badge`, `avatar`, `collapsible`                                                        | Local segmented view switch             |
+| Calendar      | `calendar` (mini month), `checkbox`, `tooltip`, `popover` ("+n more", _Add task_), `drawer` (phone) | Drag and drop as on the board           |
 
 The small local components from the first pass (progress ring, segmented bar, hue bar) stay.
 
@@ -198,13 +208,15 @@ The small local components from the first pass (progress ring, segmented bar, hu
 
 Code is taken only from free items, in their Radix versions. Paid blocks were looked at for layout ideas only; none of their code is used.
 
-| Source                                    | License of free items                                                  | Code used                                                                                                                                                                     | Ideas from paid previews                                                               |
-| ----------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [shadcn/ui](https://ui.shadcn.com)        | MIT                                                                    | All components above, including `chart`; the Mail example from earlier releases (list and reading pane) as a pattern for the notifications page.                              | None                                                                                   |
-| [ReUI](https://reui.io)                   | MIT                                                                    | `kanban` component, installed as is ([ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md)); `c-kanban-6` (save on drop with rollback) and `c-empty-12` as patterns. | None                                                                                   |
-| [ShadcnUIKit](https://shadcnuikit.com)    | Free items: personal and commercial use; no redistribution as a UI kit | `stat-card1` (stat card with footer), `todo-app1` (task rows), both adapted.                                                                                                  | _Kanban Board 2_ (task card fields), _Stat Card 2_ (segmented pipeline bar)            |
-| [shadcn/studio](https://shadcnstudio.com) | MIT with Commons Clause: no resale or redistribution unmodified        | `dashboard-dialog-22` (destructive confirmation), adapted.                                                                                                                    | _Widget 24_ (project card with stats and members), _Kanban App 04/05_ (tinted columns) |
-| [Shadcn Space](https://shadcnspace.com)   | Free license; do not present the components as your own                | `kanban-application-01`: status icons in column headers and the inline _Add task_ form, as patterns.                                                                          | `kanban-application-02` (color-coded columns)                                          |
+| Source                                    | License of free items                                                  | Code used                                                                                                                                                                     | Ideas from paid previews                                                                                                                                                                                                  |
+| ----------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [shadcn/ui](https://ui.shadcn.com)        | MIT                                                                    | All components above, including `chart`; the Mail example from earlier releases (list and reading pane) as a pattern for the notifications page.                              | None                                                                                                                                                                                                                      |
+| [ReUI](https://reui.io)                   | MIT                                                                    | `kanban` component, installed as is ([ADR 0005](../decisions/0005-reui-kanban-for-drag-and-drop.md)); `c-kanban-6` (save on drop with rollback) and `c-empty-12` as patterns. | None                                                                                                                                                                                                                      |
+| [ShadcnUIKit](https://shadcnuikit.com)    | Free items: personal and commercial use; no redistribution as a UI kit | `stat-card1` (stat card with footer), `todo-app1` (task rows), both adapted.                                                                                                  | _Kanban Board 2_ (task card fields), _Stat Card 2_ (segmented pipeline bar); _Todo App 2_ (two-line task rows), _Kanban Board 6_ (list sections), _Event Calendar 2_ (side panel with a mini month and calendars to tick) |
+| [shadcn/studio](https://shadcnstudio.com) | MIT with Commons Clause: no resale or redistribution unmodified        | `dashboard-dialog-22` (destructive confirmation), adapted.                                                                                                                    | _Widget 24_ (project card with stats and members), _Kanban App 04/05_ (tinted columns)                                                                                                                                    |
+| [Shadcn Space](https://shadcnspace.com)   | Free license; do not present the components as your own                | `kanban-application-01`: status icons in column headers and the inline _Add task_ form, as patterns.                                                                          | `kanban-application-02` (color-coded columns)                                                                                                                                                                             |
+
+Round 8 also looked at ReUI's _Event Calendar_ blocks (month chips with an avatar, a side panel with a mini month) for layout only. Whether the calendar is built on ReUI's free `event-calendar` component or on a small grid of our own is decided when the view is coded.
 
 ## Installing from these registries
 
