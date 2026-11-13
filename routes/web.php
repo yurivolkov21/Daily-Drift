@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Labels\LabelController;
@@ -17,6 +18,10 @@ use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Spec 0009: sign in, sign up or connect with Google or GitHub.
+Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->middleware('throttle:10,1')->name('social.callback');
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])

@@ -40,7 +40,7 @@ Daily-Drift is mainly a portfolio project, so Phase 2 favours features that show
 
 ## Phase 3: Advanced (In progress)
 
-- [ ] Sign in with Google and GitHub, connected to existing accounts from the settings ([spec 0009](../spec/0009-sign-in-with-google-and-github.md))
+- [x] Sign in with Google and GitHub, connected to existing accounts from the settings ([spec 0009](../spec/0009-sign-in-with-google-and-github.md))
 - [ ] AI helpers: split a task into subtasks, draft a project plan from a description, weekly progress summary
 - [ ] Attachments, checklists inside a task, recurring tasks
 - [ ] Production readiness: PostgreSQL, queue worker, cloud file storage, rate limiting, deployment

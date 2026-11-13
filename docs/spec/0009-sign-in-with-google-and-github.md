@@ -1,6 +1,6 @@
 # Spec 0009: Sign in with Google and GitHub
 
-**Status:** Planned · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** [round 9](../design/README.md#how-it-was-chosen)
+**Status:** Done · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** [round 9](../design/README.md#how-it-was-chosen)
 
 ## Goal
 
@@ -11,6 +11,7 @@ Let people sign up and sign in with a Google or GitHub account instead of a pass
 - [Laravel Socialite](https://laravel.com/docs/socialite), the first-party package, runs the OAuth exchange with Google and GitHub. Only the provider's user id, email and name are read; no access token is kept, since the app never calls the providers again.
 - A provider shows on the pages only when its client id and secret are set (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`). Without them the app looks and works as today.
 - GitHub is asked for the `user:email` scope, so a person whose email is private still has one: their primary, verified address.
+- Getting the keys from Google and GitHub, step by step: [setting up sign in with Google and GitHub](../guides/social-sign-in.md).
 
 ## Signing in and up
 

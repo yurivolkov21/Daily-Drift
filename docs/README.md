@@ -10,6 +10,7 @@ Everything about the project beyond the code: what we are building, why, and how
 | [`tech-stack/`](tech-stack/) | Tools and versions in use, and the minimum versions required.                        |
 | [`decisions/`](decisions/)   | Architecture decision records (ADRs): one short file per decision and its reasoning. |
 | [`changelog/`](changelog/)   | What changed, newest first.                                                          |
+| [`guides/`](guides/)         | Step-by-step setup outside the code, such as the Google and GitHub sign-in keys.     |
 
 ## Conventions
 

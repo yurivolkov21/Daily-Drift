@@ -4,7 +4,7 @@ A collaborative task manager: teams create projects, organise work into lists an
 
 Daily-Drift is a personal remake of a team project I built in my second semester at VTC Academy, rebuilt from scratch with a current Laravel + React stack.
 
-> **Status:** Phase 1 is done: projects, lists, tasks with drag and drop, progress and the dashboard, in a new design ([design notes](docs/design/README.md)), with "today" and "overdue" in each person's time zone. Phase 2 (collaboration) is done: tasks can be assigned, each person has a _My tasks_ page, tasks have comments and a history, a bell tells you when you are assigned or mentioned, tasks have labels, board filters and a Ctrl K search, and a project can be seen as a board, a list or a calendar.
+> **Status:** Phase 1 is done: projects, lists, tasks with drag and drop, progress and the dashboard, in a new design ([design notes](docs/design/README.md)), with "today" and "overdue" in each person's time zone. Phase 2 (collaboration) is done: tasks can be assigned, each person has a _My tasks_ page, tasks have comments and a history, a bell tells you when you are assigned or mentioned, tasks have labels, board filters and a Ctrl K search, and a project can be seen as a board, a list or a calendar. Phase 3 (advanced) has started: people can sign in with Google or GitHub.
 
 ## Stack
 

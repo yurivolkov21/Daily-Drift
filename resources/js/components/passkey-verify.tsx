@@ -15,6 +15,8 @@ type Props = {
     label?: string;
     loadingLabel?: string;
     separator?: string;
+    /** A small link under Google and GitHub (spec 0009) instead of a full button with its own divider. */
+    variant?: 'button' | 'link';
 };
 
 export default function PasskeyVerify({
@@ -22,6 +24,7 @@ export default function PasskeyVerify({
     label,
     loadingLabel,
     separator,
+    variant = 'button',
 }: Props = {}) {
     const { verify, isLoading, error, isSupported } = usePasskeyVerify({
         ...(routes && {
@@ -37,6 +40,29 @@ export default function PasskeyVerify({
 
     if (!isSupported) {
         return null;
+    }
+
+    if (variant === 'link') {
+        return (
+            <div className="grid justify-items-center gap-1">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={verify}
+                    disabled={isLoading}
+                    className="text-muted-foreground"
+                >
+                    {isLoading ? <Spinner /> : <KeyRound className="size-4" />}
+                    {isLoading
+                        ? (loadingLabel ?? 'Authenticating...')
+                        : (label ?? 'Sign in with a passkey')}
+                </Button>
+                {error && (
+                    <InputError message={error} className="text-center" />
+                )}
+            </div>
+        );
     }
 
     return (
