@@ -36,7 +36,7 @@ Daily-Drift is mainly a portfolio project, so Phase 2 favours features that show
 - [x] Activity history and task comments: one event log feeds the task sheet, the dashboard's _Activity_ card and notifications ([spec 0005](../spec/0005-activity-and-comments.md))
 - [x] Notifications in the app: assigned to you, mentioned in a comment, due soon. They refresh when a page loads (no realtime); "due soon" is worked out at that moment, so no scheduler is needed ([spec 0006](../spec/0006-notifications.md))
 - [x] Labels, filters and search (⌘K): team labels on tasks, filters on the board kept in the link, and a search box for every task and project of the team ([spec 0007](../spec/0007-labels-filters-search.md))
-- [ ] Views: list and calendar, next to the board
+- [ ] Views: list and calendar, next to the board, with the same filters and task sheet ([spec 0008](../spec/0008-list-and-calendar-views.md))
 
 ## Phase 3: Advanced (Planned)
 
