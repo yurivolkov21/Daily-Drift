@@ -17,7 +17,7 @@ Let people sign up and sign in with a Google or GitHub account instead of a pass
 - The sign-in and sign-up cards get _Continue with Google_ and _Continue with GitHub_ buttons. Both pages do the same thing: the provider decides whether this is a new account.
 - **A connected account** signs its person in.
 - **A new email** creates an account, as signing up does: the name and email from the provider, the email marked verified, no password, and a personal team. The time zone follows the device, as for any new account ([spec 0003](0003-user-time-zone.md)).
-- **An email that already has an account** but no connection to this provider: see [Open questions](#open-questions) 1.
+- **An email that already has an account** but no connection to this provider: connected and signed in when the provider says the email is verified, otherwise refused with a line asking to sign in with the password and connect from _Settings_ ([Decisions](#decisions) 1).
 - **Two-factor authentication** still applies: a person who turned it on is asked for a code after the provider sends them back, as after a password.
 - **The page they wanted** opens afterwards, so an invitation link still leads to its invitation.
 - **When it fails** (the person cancels, the provider is down, or GitHub returns no verified email), the sign-in page says so in one sentence and nothing is created.
@@ -33,7 +33,7 @@ Let people sign up and sign in with a Google or GitHub account instead of a pass
 - An account made with a provider has no password. Its _Security_ page shows _Set a password_ (a new password twice, no current password) instead of _Change password_.
 - The _Security_ page asks to confirm the password before it opens. An account without one has nothing to confirm, so the page opens directly; otherwise it could never set a password.
 - _Forgot password_ also works for it: the email's link sets a first password.
-- Turning on two-factor authentication, adding a passkey and deleting the account ask to confirm the password today. Without one, see [Open questions](#open-questions) 2.
+- Turning on two-factor authentication, adding a passkey and deleting the account ask to confirm the password today. Without one, they first ask to _Set a password_ ([Decisions](#decisions) 2).
 
 ## Data model
 
@@ -65,11 +65,14 @@ Anyone can sign in or sign up with a provider, as with a password. Only the sign
 - Calling Google or GitHub after sign-in (importing repositories, calendars or contacts).
 - Signing in with a provider on the invitation page itself; the invitation link already leads back to it after any sign-in.
 
+## Decisions
+
+1. **An email that already has an account:** connect and sign in when the provider says the email is verified (Google's and GitHub's primary email both are), and remember the provider from then on; otherwise ask to sign in with the password and connect from _Settings_ (the owner kept the proposal, 13 November).
+2. **Confirming without a password:** turning on two-factor authentication, adding a passkey and deleting the account first ask to _Set a password_, with one line saying why; the _Security_ page itself opens without a confirmation (as above).
+
 ## Open questions
 
-1. **An email that already has an account.** Proposed: connect and sign in when the provider says the email is verified (Google and GitHub's primary email both are), and remember the provider from then on; otherwise ask to sign in with the password and connect from _Settings_. The alternative always asks to sign in first, which is safer if a provider ever returns an unverified email, but adds a step for everyone.
-2. **Confirming without a password.** Proposed: those actions first ask to _Set a password_, with one line saying why, and the _Security_ page itself opens without a confirmation. The alternative confirms by signing in with the provider again, which is stricter but needs a second trip through the provider each time.
-3. **Layout:** the provider buttons on the sign-in and sign-up cards, and the _Connected accounts_ block. Decided by wireframe round 9.
+1. **Layout:** the provider buttons on the sign-in and sign-up cards, and the _Connected accounts_ block. Decided by wireframe round 9.
 
 ## Acceptance criteria
 
