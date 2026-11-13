@@ -1,6 +1,6 @@
 # Spec 0009: Sign in with Google and GitHub
 
-**Status:** Planned · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** wireframes in round 9
+**Status:** Planned · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** [round 9](../design/README.md#how-it-was-chosen)
 
 ## Goal
 
@@ -69,10 +69,7 @@ Anyone can sign in or sign up with a provider, as with a password. Only the sign
 
 1. **An email that already has an account:** connect and sign in when the provider says the email is verified (Google's and GitHub's primary email both are), and remember the provider from then on; otherwise ask to sign in with the password and connect from _Settings_ (the owner kept the proposal, 13 November).
 2. **Confirming without a password:** turning on two-factor authentication, adding a passkey and deleting the account first ask to _Set a password_, with one line saying why; the _Security_ page itself opens without a confirmation (as above).
-
-## Open questions
-
-1. **Layout:** the provider buttons on the sign-in and sign-up cards, and the _Connected accounts_ block. Decided by wireframe round 9.
+3. **Layout** (the owner, wireframe round 9, 13 November): on the sign-in and sign-up cards the email form comes first, then _or continue with_ and two side-by-side buttons, Google and GitHub, with _Sign in with a passkey_ as a small link under them. In _Settings → Security_, _Connected accounts_ is a block under the password, one row per provider with a _Connected_ badge; two-factor authentication and passkeys stay where they are.
 
 ## Acceptance criteria
 
