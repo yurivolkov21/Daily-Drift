@@ -18,7 +18,8 @@ class PasswordUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'current_password' => $this->currentPasswordRules(),
+            // An account made with Google or GitHub sets its first password without one (spec 0009).
+            'current_password' => $this->user()?->hasPassword() ? $this->currentPasswordRules() : ['prohibited'],
             'password' => $this->passwordRules(),
         ];
     }

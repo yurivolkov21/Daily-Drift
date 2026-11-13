@@ -175,6 +175,14 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - **Calendar:** a side panel that folds, with a mini month (a dot marks days with open tasks), a checkbox per list to show or hide it on the calendar, and _No due date_ tasks to drag onto a day. The month grid starts on Monday; chips are tinted with their list's color and carry a dot, the title and the avatar; a day shows three lines at most, the last one "+n more" when needed. Overdue dates are red, weekends and other months shaded.
 - **Phones:** the list keeps its sections with two-line rows; the calendar becomes an agenda by day, scrolled to today, and a bottom sheet changes the due date with _Today_, _Tomorrow_, next Monday or _No date_.
 
+## Screens for Phase 3
+
+### Sign in with Google and GitHub
+
+- The sign-in and sign-up cards keep the email form first. Under it, _or continue with_ leads to Google and GitHub side by side, each with its own mark, and the sign-in card adds _Sign in with a passkey_ as a small link. The sign-up card says that only the name and email are read. A try that failed shows one amber line above the form.
+- _Settings → Security_ shows _Connected accounts_ under the password: one row per provider with its mark, a green _Connected_ badge, the email and when it was connected, and _Connect_ or _Disconnect_. When an account is the only way left to sign in, _Disconnect_ is dimmed and a line with a lock says why.
+- An account without a password sees _Set a password_ (two fields, no current password) with a short note, and the two-factor, passkey and delete-account actions each say to set a password first.
+
 ## Components by screen
 
 | Screen        | shadcn/ui components                                                                               | Other                                   |
@@ -193,6 +201,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 | Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox`                                  | Lucide icons for labels                 |
 | Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                                                 |                                         |
 | Search        | `command` (dialog), `kbd`                                                                          |                                         |
+| Sign in       | `button`, `spinner`; Google and GitHub marks drawn in SVG                                          | Local _Set a password_ note             |
 | List view     | `checkbox`, `tooltip` (assignee), label badges                                                     | Local segmented view switch             |
 | Calendar      | `calendar` (mini month), `popover` ("+n more", _Add task_), `drawer` and `checkbox` (phone agenda) | Native drag and drop on the days        |
 

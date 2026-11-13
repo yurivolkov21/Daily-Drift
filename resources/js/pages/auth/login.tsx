@@ -13,18 +13,25 @@ import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import PasskeyVerify from '@/components/passkey-verify';
+import type { SocialProvider } from '@/components/auth/social-sign-in';
+import { SocialError, SocialSignIn } from '@/components/auth/social-sign-in';
 import type { TeamInvitationContext } from '@/types';
 
 type Props = {
     status?: string;
     canResetPassword: boolean;
     teamInvitation?: TeamInvitationContext | null;
+    /** Google and GitHub when configured (spec 0009). */
+    socialProviders?: SocialProvider[];
+    socialError?: string | null;
 };
 
 export default function Login({
     status,
     canResetPassword,
     teamInvitation,
+    socialProviders = [],
+    socialError,
 }: Props) {
     return (
         <>
@@ -39,7 +46,7 @@ export default function Login({
 
             <AuthTabs current="login" invitation={teamInvitation?.code} />
 
-            <PasskeyVerify />
+            <SocialError message={socialError} />
 
             <Form
                 {...store.form()}
@@ -112,6 +119,10 @@ export default function Login({
                                 Sign in
                             </Button>
                         </div>
+
+                        <SocialSignIn providers={socialProviders} mode="login">
+                            <PasskeyVerify variant="link" />
+                        </SocialSignIn>
 
                         <div className="text-center text-sm text-muted-foreground">
                             New to Daily-Drift?{' '}

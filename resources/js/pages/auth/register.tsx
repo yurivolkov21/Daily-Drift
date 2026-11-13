@@ -13,14 +13,22 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
+import type { SocialProvider } from '@/components/auth/social-sign-in';
+import { SocialSignIn } from '@/components/auth/social-sign-in';
 import type { TeamInvitationContext } from '@/types';
 
 type Props = {
     passwordRules: string;
     teamInvitation?: TeamInvitationContext | null;
+    /** Google and GitHub when configured (spec 0009). */
+    socialProviders?: SocialProvider[];
 };
 
-export default function Register({ passwordRules, teamInvitation }: Props) {
+export default function Register({
+    passwordRules,
+    teamInvitation,
+    socialProviders = [],
+}: Props) {
     const [password, setPassword] = useState('');
     const [confirmation, setConfirmation] = useState('');
 
@@ -136,6 +144,11 @@ export default function Register({ passwordRules, teamInvitation }: Props) {
                                 Create account
                             </Button>
                         </div>
+
+                        <SocialSignIn
+                            providers={socialProviders}
+                            mode="register"
+                        />
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}

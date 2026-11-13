@@ -5,6 +5,8 @@ import { useRef, useState } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import { NeedsPassword } from '@/components/settings/connected-accounts';
+import TextLink from '@/components/text-link';
 import { TimeZoneField } from '@/components/settings/time-zone-field';
 import {
     BUTTON,
@@ -24,6 +26,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { settingsCrumbs } from '@/lib/breadcrumbs';
 import { cn } from '@/lib/utils';
 import { edit } from '@/routes/profile';
+import { edit as securityEdit } from '@/routes/security';
 import { send } from '@/routes/verification';
 
 export default function Profile({
@@ -31,11 +34,14 @@ export default function Profile({
     status,
     timeZones,
     deviceTimeZone,
+    hasPassword = true,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
     timeZones: string[];
     deviceTimeZone: string | null;
+    /** False for an account made with Google or GitHub until it sets one (spec 0009). */
+    hasPassword?: boolean;
 }) {
     const { auth } = usePage().props;
     const getInitials = useInitials();
@@ -182,7 +188,7 @@ export default function Profile({
 
                 <Divider />
 
-                <DeleteAccount />
+                <DeleteAccount hasPassword={hasPassword} />
 
                 <div
                     role="status"
@@ -240,7 +246,7 @@ export default function Profile({
  * "Delete account" opens a password field in place; deleting stays disabled
  * until a password is typed.
  */
-function DeleteAccount() {
+function DeleteAccount({ hasPassword }: { hasPassword: boolean }) {
     const [open, setOpen] = useState(false);
     const [password, setPassword] = useState('');
     const passwordInput = useRef<HTMLInputElement>(null);
@@ -278,48 +284,61 @@ function DeleteAccount() {
             </div>
 
             <Collapse open={open} className="pt-3">
-                <Form
-                    id="delete-account"
-                    {...ProfileController.destroy.form()}
-                    options={{ preserveScroll: true }}
-                    onError={() => passwordInput.current?.focus()}
-                    resetOnError
-                    className="flex flex-wrap items-end gap-2.5 rounded-[14px] border border-rose-100 bg-rose-50/60 p-3.5 dark:border-rose-500/20 dark:bg-rose-500/5"
-                >
-                    {({ processing, errors }) => (
-                        <>
-                            <div className="grid min-w-56 flex-1 gap-2">
-                                <Label htmlFor="delete-password">
-                                    Confirm with your password
-                                </Label>
-                                <PasswordInput
-                                    id="delete-password"
-                                    name="password"
-                                    ref={passwordInput}
-                                    autoComplete="current-password"
-                                    onChange={(event) =>
-                                        setPassword(event.target.value)
-                                    }
-                                    className="h-11 rounded-xl bg-card"
+                {!hasPassword ? (
+                    <div
+                        id="delete-account"
+                        className="rounded-[14px] border border-rose-100 bg-rose-50/60 p-3.5 text-[13.5px] dark:border-rose-500/20 dark:bg-rose-500/5"
+                    >
+                        <NeedsPassword action="deleting your account" />{' '}
+                        <TextLink href={securityEdit()}>
+                            Set it under Security
+                        </TextLink>
+                        .
+                    </div>
+                ) : (
+                    <Form
+                        id="delete-account"
+                        {...ProfileController.destroy.form()}
+                        options={{ preserveScroll: true }}
+                        onError={() => passwordInput.current?.focus()}
+                        resetOnError
+                        className="flex flex-wrap items-end gap-2.5 rounded-[14px] border border-rose-100 bg-rose-50/60 p-3.5 dark:border-rose-500/20 dark:bg-rose-500/5"
+                    >
+                        {({ processing, errors }) => (
+                            <>
+                                <div className="grid min-w-56 flex-1 gap-2">
+                                    <Label htmlFor="delete-password">
+                                        Confirm with your password
+                                    </Label>
+                                    <PasswordInput
+                                        id="delete-password"
+                                        name="password"
+                                        ref={passwordInput}
+                                        autoComplete="current-password"
+                                        onChange={(event) =>
+                                            setPassword(event.target.value)
+                                        }
+                                        className="h-11 rounded-xl bg-card"
+                                    />
+                                </div>
+                                <Button
+                                    type="submit"
+                                    variant="destructive"
+                                    disabled={processing || password === ''}
+                                    data-test="confirm-delete-user-button"
+                                    className={cn(BUTTON, 'h-11')}
+                                >
+                                    {processing && <Spinner />}
+                                    Delete for good
+                                </Button>
+                                <InputError
+                                    message={errors.password}
+                                    className="basis-full"
                                 />
-                            </div>
-                            <Button
-                                type="submit"
-                                variant="destructive"
-                                disabled={processing || password === ''}
-                                data-test="confirm-delete-user-button"
-                                className={cn(BUTTON, 'h-11')}
-                            >
-                                {processing && <Spinner />}
-                                Delete for good
-                            </Button>
-                            <InputError
-                                message={errors.password}
-                                className="basis-full"
-                            />
-                        </>
-                    )}
-                </Form>
+                            </>
+                        )}
+                    </Form>
+                )}
             </Collapse>
         </div>
     );

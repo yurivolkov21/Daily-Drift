@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    // Spec 0009: sign in with Google and GitHub. A provider shows only when
+    // both its id and secret are set; see docs/guides/social-sign-in.md.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => '/auth/google/callback',
+    ],
+
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => '/auth/github/callback',
+    ],
+
 ];
