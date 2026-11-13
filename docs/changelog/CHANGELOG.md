@@ -6,6 +6,13 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
+- [Spec 0010](../spec/0010-checklists-attachments-recurring-tasks.md) for checklists, attachments and recurring tasks, the second Phase 3 item. Planned:
+    - a checklist of up to 50 items under the description, with progress on cards;
+    - up to 20 files per task, 10 MB each, kept outside `public/` and served only to the team;
+    - a _Repeat_ rule whose completion creates the next occurrence as a new task.
+
+    The roadmap moves this item ahead of the AI helpers, which build on checklists.
+
 - Sign in with Google and GitHub ([spec 0009](../spec/0009-sign-in-with-google-and-github.md)), through Laravel Socialite. Under the email form, _or continue with_ offers Google and GitHub side by side when their keys are set ([setup guide](../guides/social-sign-in.md)), with _Sign in with a passkey_ as a small link. A new provider account gets a verified email, no password and a personal team; a verified email that already has an account is connected to it; two-factor authentication still asks for a code; a cancelled or failed try says why on the sign-in card. _Settings → Security_ has a _Connected accounts_ block that refuses to disconnect the last way to sign in, and an account without a password sets its first one there (two-factor authentication, passkeys and deleting the account wait for it).
 - [Spec 0009](../spec/0009-sign-in-with-google-and-github.md) for signing in with Google and GitHub, the first Phase 3 item: _Continue with_ buttons on sign-in and sign-up through Laravel Socialite, shown only when a provider is configured; a new provider account gets a verified email, no password and a personal team; _Connected accounts_ in _Settings → Security_ with a rule that keeps one way to sign in; two-factor authentication still applies. Wireframe round 9 chose the layout.
 - List and calendar views ([spec 0008](../spec/0008-list-and-calendar-views.md)). A segmented switch at the start of the filter row shows a project as a _Board_, a _List_ or a _Calendar_; the view, the list's sort and the calendar's month live in the link, and the last view of each project is remembered in the browser. The list has one tinted section per list with two-line rows (labels, comments, due date, priority, assignee), sorts by task, due date or priority, and works from the keyboard. The calendar shows a month from Monday with a side panel (a mini month, lists to show or hide, _No due date_): drag a task to another day, or press Alt with an arrow key, to change its due date, and click a day to add a task due then. Phones get the list as two-line rows and the calendar as an agenda by day with a bottom sheet to change the date. The filters and the task sheet work in every view.
