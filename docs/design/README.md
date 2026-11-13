@@ -8,17 +8,18 @@ This page describes the interface the app is being rebuilt to. It replaces the f
 
 The owner asked for a modern SaaS dashboard with smooth motion. Each round showed at least three interactive wireframes built after studying blocks from the [sources](#sources) below. The owner picked one or asked for a merge, and only the chosen frames were kept.
 
-| Round | Screens                        | Chosen                                                                                                 |
-| ----- | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| 1     | Dashboard, scrollbars          | A merge of two options ("indigo rail" and "floating canvas"); thin scrollbars shown on hover or scroll |
-| 2     | Projects, board                | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
-| 3     | Sign in and sign up, settings  | A glass card over a moving board; tabs inside one card                                                 |
-| 4     | My tasks, assignee field       | A grouped list; a searchable menu in the task sheet                                                    |
-| 5     | Task activity, Activity card   | Comments first with the changes folded between them; a feed grouped by day                             |
-| 6     | Notifications                  | A bell panel with _Updates_ and _Due soon_ tabs, one line per item; a page with a timeline and details |
-| 7     | Labels, board filters, search  | Outline label badges with an icon (no color); one button per filter; a centered command box (Ctrl K)   |
-| 8     | List and calendar views        | Two-line rows in tinted list sections; a month with a side panel; the view switch in the filter row    |
-| 9     | Sign in with Google and GitHub | Email form first, then Google and GitHub side by side; a Connected accounts block under the password   |
+| Round | Screens                                | Chosen                                                                                                 |
+| ----- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1     | Dashboard, scrollbars                  | A merge of two options ("indigo rail" and "floating canvas"); thin scrollbars shown on hover or scroll |
+| 2     | Projects, board                        | Card grid plus a list view grouped by health; tinted columns with lists that fold                      |
+| 3     | Sign in and sign up, settings          | A glass card over a moving board; tabs inside one card                                                 |
+| 4     | My tasks, assignee field               | A grouped list; a searchable menu in the task sheet                                                    |
+| 5     | Task activity, Activity card           | Comments first with the changes folded between them; a feed grouped by day                             |
+| 6     | Notifications                          | A bell panel with _Updates_ and _Due soon_ tabs, one line per item; a page with a timeline and details |
+| 7     | Labels, board filters, search          | Outline label badges with an icon (no color); one button per filter; a centered command box (Ctrl K)   |
+| 8     | List and calendar views                | Two-line rows in tinted list sections; a month with a side panel; the view switch in the filter row    |
+| 9     | Sign in with Google and GitHub         | Email form first, then Google and GitHub side by side; a Connected accounts block under the password   |
+| 10    | Task details: checklist, files, repeat | Checked items fold; files as rows; _Repeat_ as its own row; completing moves the card to _Done_        |
 
 The wireframes live in the owner's private design canvas. Screenshots of the built screens will be added here as each screen ships.
 
@@ -183,36 +184,47 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - _Settings → Security_ shows _Connected accounts_ under the password: one row per provider with its mark, a green _Connected_ badge, the email and when it was connected, and _Connect_ or _Disconnect_. When an account is the only way left to sign in, _Disconnect_ is dimmed and a line with a lock says why.
 - An account without a password sees _Set a password_ (two fields, no current password) with a short note, and the two-factor, passkey and delete-account actions each say to set a password first.
 
+### Task details: checklist, files and repeat
+
+- The task sheet adds a _Repeat_ row under _Due date_. Its menu offers presets that follow the due date ("Every 2 weeks on Thursday", "Every month on the 19th") and _Custom…_ (every 1 to 30 days, weeks, months or years). A repeating task shows a repeat icon next to its due date on cards, rows and calendar chips.
+- **Checklist** under the description:
+    - _2 of 5_ and a thin bar, green when every item is checked, with a line saying the task stays open until it is completed;
+    - rows with a drag handle and a menu that show on hover, a checkbox, and text edited in place;
+    - _Hide checked_ folds the checked items into one line;
+    - a dashed _Add an item_ field that takes one item per pasted line.
+- **Attachments** as rows: a small thumbnail or a type icon, the name, then type, size, who and when. Download and the menu show on hover. An upload shows a progress bar in its row, and a refused file shows a red row that says why. A dashed line at the end accepts dropped files, and dropping anywhere on the sheet shows a full-sheet drop target.
+- **Completing** moves the card to the top of the project's _Done_ list. A repeating task leaves its next occurrence at the bottom of the list it came from, and the sheet says so.
+
 ## Components by screen
 
-| Screen        | shadcn/ui components                                                                               | Other                                   |
-| ------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| App shell     | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`                     |                                         |
-| Dashboard     | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                                             |                                         |
-| Projects      | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog`               |                                         |
-| Board         | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`                        | ReUI `kanban`                           |
-| Sign in       | `input`, `button`, `tabs`                                                                          |                                         |
-| Settings      | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team)              | Local segmented tabs                    |
-| My tasks      | `checkbox`, `sonner` (toast with _Undo_)                                                           |                                         |
-| Assignee      | `popover`, `command`                                                                               |                                         |
-| Activity      | `textarea`, `button`                                                                               | Local segmented tabs                    |
-| Notifications | `popover`, `tabs`, `resizable`, `scroll-area`, `item`, `avatar`, `kbd`, `empty`                    | Pattern from the shadcn/ui Mail example |
-| Empty states  | `empty`                                                                                            | Adapted from ReUI `c-empty-12`          |
-| Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox`                                  | Lucide icons for labels                 |
-| Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                                                 |                                         |
-| Search        | `command` (dialog), `kbd`                                                                          |                                         |
-| Sign in       | `button`, `spinner`; Google and GitHub marks drawn in SVG                                          | Local _Set a password_ note             |
-| List view     | `checkbox`, `tooltip` (assignee), label badges                                                     | Local segmented view switch             |
-| Calendar      | `calendar` (mini month), `popover` ("+n more", _Add task_), `drawer` and `checkbox` (phone agenda) | Native drag and drop on the days        |
+| Screen        | shadcn/ui components                                                                                                                  | Other                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| App shell     | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`                                                        |                                          |
+| Dashboard     | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                                                                                |                                          |
+| Projects      | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog`                                                  |                                          |
+| Board         | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`                                                           | ReUI `kanban`                            |
+| Sign in       | `input`, `button`, `tabs`                                                                                                             |                                          |
+| Settings      | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team)                                                 | Local segmented tabs                     |
+| My tasks      | `checkbox`, `sonner` (toast with _Undo_)                                                                                              |                                          |
+| Assignee      | `popover`, `command`                                                                                                                  |                                          |
+| Activity      | `textarea`, `button`                                                                                                                  | Local segmented tabs                     |
+| Notifications | `popover`, `tabs`, `resizable`, `scroll-area`, `item`, `avatar`, `kbd`, `empty`                                                       | Pattern from the shadcn/ui Mail example  |
+| Empty states  | `empty`                                                                                                                               | Adapted from ReUI `c-empty-12`           |
+| Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox`                                                                     | Lucide icons for labels                  |
+| Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                                                                                    |                                          |
+| Search        | `command` (dialog), `kbd`                                                                                                             |                                          |
+| Sign in       | `button`, `spinner`; Google and GitHub marks drawn in SVG                                                                             | Local _Set a password_ note              |
+| List view     | `checkbox`, `tooltip` (assignee), label badges                                                                                        | Local segmented view switch              |
+| Calendar      | `calendar` (mini month), `popover` ("+n more", _Add task_), `drawer` and `checkbox` (phone agenda)                                    | Native drag and drop on the days         |
+| Task details  | `checkbox`, `progress`, `dropdown-menu` (item, file and _Repeat_ menus), `alert-dialog` (delete a file), `sonner` (toast with _Undo_) | Native drag and drop for items and files |
 
 The small local components from the first pass (progress ring, segmented bar, hue bar) stay.
 
 ## Open questions
 
-1. **Complete or move to Done.** In the board wireframe, _Mark complete_ also moved the card to _Done_; [spec 0001](../spec/0001-projects-lists-tasks.md#behaviour) keeps completion separate from the list. The spec rule stands until the owner decides.
-2. **Dark theme.** Settings offers it, but only the light theme is designed.
-3. **Phones.** The folded sidebar, folded lists and the moving sign-in board need a phone layout.
-4. **Motion tooling.** Plain CSS with `tw-animate-css` (already installed), or a library such as Motion for the sheet and list folding.
+1. **Dark theme.** Settings offers it, but only the light theme is designed.
+2. **Phones.** The folded sidebar, folded lists and the moving sign-in board need a phone layout.
+3. **Motion tooling.** Plain CSS with `tw-animate-css` (already installed), or a library such as Motion for the sheet and list folding.
 
 ## Sources
 

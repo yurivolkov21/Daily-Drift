@@ -57,7 +57,7 @@ Named `task_lists` because `list` is a reserved word in PHP.
 - **New project:** starts with three lists: _To do_ (slate), _In progress_ (amber), _Done_ (green). A list added later takes the next unused color; the list menu can change it.
 - **Ordering:** positions are dense and 0-based. When a list or task moves, the server receives the target list and target index, then rewrites the positions of the affected list(s) inside one database transaction. The client never sends positions for other items.
 - **Moving tasks:** a task can move to any list in the same project, never to another project.
-- **Completing:** completion is a checkbox (`completed_at`) and does not depend on the list. Moving a card to _Done_ does not complete it automatically in this phase.
+- **Completing:** completion is a checkbox (`completed_at`) and does not depend on the list. Moving a card to _Done_ does not complete it automatically in this phase. [Spec 0010](0010-checklists-attachments-recurring-tasks.md#completing-moves-a-task-to-done) changes this: completing moves the card to the project's _Done_ list, and moving it there completes it.
 - **Archiving:** archived projects are read-only and hidden from the main list; they can be restored.
 - **Deleting a list** deletes its tasks; the UI asks for confirmation and shows the task count.
 - **Progress:** list and project progress = completed tasks ÷ all tasks, shown as a percentage. Empty means 0%.
