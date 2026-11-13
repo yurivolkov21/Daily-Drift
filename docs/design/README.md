@@ -176,24 +176,24 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 
 ## Components by screen
 
-| Screen        | shadcn/ui components                                                                                | Other                                   |
-| ------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| App shell     | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`                      |                                         |
-| Dashboard     | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                                              |                                         |
-| Projects      | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog`                |                                         |
-| Board         | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`                         | ReUI `kanban`                           |
-| Sign in       | `input`, `button`, `tabs`                                                                           |                                         |
-| Settings      | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team)               | Local segmented tabs                    |
-| My tasks      | `checkbox`, `sonner` (toast with _Undo_)                                                            |                                         |
-| Assignee      | `popover`, `command`                                                                                |                                         |
-| Activity      | `textarea`, `button`                                                                                | Local segmented tabs                    |
-| Notifications | `popover`, `tabs`, `resizable`, `scroll-area`, `item`, `avatar`, `kbd`, `empty`                     | Pattern from the shadcn/ui Mail example |
-| Empty states  | `empty`                                                                                             | Adapted from ReUI `c-empty-12`          |
-| Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox`                                   | Lucide icons for labels                 |
-| Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                                                  |                                         |
-| Search        | `command` (dialog), `kbd`                                                                           |                                         |
-| List view     | `checkbox`, `badge`, `avatar`, `collapsible`                                                        | Local segmented view switch             |
-| Calendar      | `calendar` (mini month), `checkbox`, `tooltip`, `popover` ("+n more", _Add task_), `drawer` (phone) | Drag and drop as on the board           |
+| Screen        | shadcn/ui components                                                                               | Other                                   |
+| ------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| App shell     | `sidebar` (floating, folds to icons), `breadcrumb`, `tooltip`, `dropdown-menu`                     |                                         |
+| Dashboard     | `card`, `chart`, `tabs`, `checkbox`, `badge`, `avatar`                                             |                                         |
+| Projects      | `dropdown-menu` (sort, card menu), `toggle-group`, `collapsible`, `switch`, `dialog`               |                                         |
+| Board         | `sheet`, `dropdown-menu`, `sonner` (toast with _Undo_), `avatar`, `tooltip`                        | ReUI `kanban`                           |
+| Sign in       | `input`, `button`, `tabs`                                                                          |                                         |
+| Settings      | `input`, `button`, `dropdown-menu` (role menu), `dialog` (remove member, delete team)              | Local segmented tabs                    |
+| My tasks      | `checkbox`, `sonner` (toast with _Undo_)                                                           |                                         |
+| Assignee      | `popover`, `command`                                                                               |                                         |
+| Activity      | `textarea`, `button`                                                                               | Local segmented tabs                    |
+| Notifications | `popover`, `tabs`, `resizable`, `scroll-area`, `item`, `avatar`, `kbd`, `empty`                    | Pattern from the shadcn/ui Mail example |
+| Empty states  | `empty`                                                                                            | Adapted from ReUI `c-empty-12`          |
+| Labels        | `badge` (outline, with an icon), `popover`, `command`, `checkbox`                                  | Lucide icons for labels                 |
+| Board filters | `input`, `popover`, `command`, `checkbox`, `badge`                                                 |                                         |
+| Search        | `command` (dialog), `kbd`                                                                          |                                         |
+| List view     | `checkbox`, `tooltip` (assignee), label badges                                                     | Local segmented view switch             |
+| Calendar      | `calendar` (mini month), `popover` ("+n more", _Add task_), `drawer` and `checkbox` (phone agenda) | Native drag and drop on the days        |
 
 The small local components from the first pass (progress ring, segmented bar, hue bar) stay.
 
@@ -216,7 +216,7 @@ Code is taken only from free items, in their Radix versions. Paid blocks were lo
 | [shadcn/studio](https://shadcnstudio.com) | MIT with Commons Clause: no resale or redistribution unmodified        | `dashboard-dialog-22` (destructive confirmation), adapted.                                                                                                                    | _Widget 24_ (project card with stats and members), _Kanban App 04/05_ (tinted columns)                                                                                                                                    |
 | [Shadcn Space](https://shadcnspace.com)   | Free license; do not present the components as your own                | `kanban-application-01`: status icons in column headers and the inline _Add task_ form, as patterns.                                                                          | `kanban-application-02` (color-coded columns)                                                                                                                                                                             |
 
-Round 8 also looked at ReUI's _Event Calendar_ blocks (month chips with an avatar, a side panel with a mini month) for layout only. Whether the calendar is built on ReUI's free `event-calendar` component or on a small grid of our own is decided when the view is coded.
+Round 8 also looked at ReUI's _Event Calendar_ blocks (month chips with an avatar, a side panel with a mini month) for layout only. The calendar is a small month grid of our own with native drag and drop: ReUI's free `event-calendar` component is built for timed events (week and day views, resizing), more than a month of due dates needs.
 
 ## Installing from these registries
 

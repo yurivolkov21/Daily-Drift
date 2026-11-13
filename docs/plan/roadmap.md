@@ -28,7 +28,7 @@ Specs: [0001 Projects, lists and tasks](../spec/0001-projects-lists-tasks.md), [
 - [x] Time zone per person, so "today" and "overdue" follow local time ([spec 0003](../spec/0003-user-time-zone.md))
 - [x] Dashboard: overdue tasks, due today, active projects, built in the new design
 
-## Phase 2: Collaboration (In progress)
+## Phase 2: Collaboration (Done)
 
 Daily-Drift is mainly a portfolio project, so Phase 2 favours features that show well in a demo and leaves email for Phase 3, where the queue worker arrives. The items are in build order: each one uses the one before it. New screens get a wireframe round before any code, as in Phase 1.
 
@@ -36,7 +36,7 @@ Daily-Drift is mainly a portfolio project, so Phase 2 favours features that show
 - [x] Activity history and task comments: one event log feeds the task sheet, the dashboard's _Activity_ card and notifications ([spec 0005](../spec/0005-activity-and-comments.md))
 - [x] Notifications in the app: assigned to you, mentioned in a comment, due soon. They refresh when a page loads (no realtime); "due soon" is worked out at that moment, so no scheduler is needed ([spec 0006](../spec/0006-notifications.md))
 - [x] Labels, filters and search (⌘K): team labels on tasks, filters on the board kept in the link, and a search box for every task and project of the team ([spec 0007](../spec/0007-labels-filters-search.md))
-- [ ] Views: list and calendar, next to the board, with the same filters and task sheet ([spec 0008](../spec/0008-list-and-calendar-views.md))
+- [x] Views: list and calendar, next to the board, with the same filters and task sheet ([spec 0008](../spec/0008-list-and-calendar-views.md))
 
 ## Phase 3: Advanced (Planned)
 

@@ -9,12 +9,10 @@ import {
 } from '@/components/board/list-column';
 import type { TaskStep } from '@/components/board/task-card';
 import { TaskCard, itemKey, taskIdFromKey } from '@/components/board/task-card';
-import { TaskSheet } from '@/components/board/task-sheet';
 import type { KanbanCommitMeta } from '@/components/reui/kanban';
 import { Kanban, KanbanBoard, KanbanOverlay } from '@/components/reui/kanban';
 import type { BoardFilters } from '@/lib/board-filters';
 import { filtersOn, matches } from '@/lib/board-filters';
-import { rememberRecent } from '@/lib/recent';
 import { move as moveList } from '@/routes/lists';
 import { move as moveTask } from '@/routes/tasks';
 import type { Project, Task } from '@/types';
@@ -28,6 +26,8 @@ type Props = {
     filters?: BoardFilters;
     me?: number;
     today?: string;
+    /** Opens a task in the sheet, which the project page holds (spec 0008). */
+    onOpenTask: (task: Task) => void;
 };
 
 export function Board({
@@ -36,6 +36,7 @@ export function Board({
     filters,
     me = 0,
     today = '',
+    onOpenTask,
 }: Props) {
     const canManage = project.can.manageLists;
     const all: Columns = Object.fromEntries(
@@ -83,29 +84,6 @@ export function Board({
 
         return list ? [list] : [];
     });
-
-    const [openTaskId, setOpenTaskId] = useState<number | null>(() =>
-        taskFromUrl(),
-    );
-    const openTask =
-        project.lists
-            .flatMap((list) => list.tasks ?? [])
-            .find((task) => task.id === openTaskId) ?? null;
-
-    const showTask = (task: Task | null) => {
-        setOpenTaskId(task?.id ?? null);
-        setTaskInUrl(task?.id ?? null);
-
-        if (task) {
-            rememberRecent(teamSlug, {
-                kind: 'task',
-                id: task.id,
-                title: task.title,
-                projectId: project.id,
-                projectName: project.name,
-            });
-        }
-    };
 
     const [folded, setFolded] = useFoldedLists(project.id);
     const unfold = (listId: number) =>
@@ -304,7 +282,7 @@ export function Board({
                                     : undefined
                             }
                             canManage={canManage}
-                            onOpenTask={showTask}
+                            onOpenTask={onOpenTask}
                             onStepTask={stepTask}
                             folded={folded.includes(list.id)}
                             onToggleFold={() => toggleFold(list.id)}
@@ -351,14 +329,6 @@ export function Board({
                     }}
                 </KanbanOverlay>
             </Kanban>
-
-            <TaskSheet
-                teamSlug={teamSlug}
-                project={project}
-                task={openTask}
-                canManage={canManage}
-                onClose={() => showTask(null)}
-            />
         </>
     );
 }
@@ -407,28 +377,4 @@ function sameColumns(preview: Columns, saved: Columns): boolean {
         Object.keys(preview).sort().join(',') ===
             Object.keys(saved).sort().join(',') && ids(preview) === ids(saved)
     );
-}
-
-function taskFromUrl(): number | null {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    const id = Number(new URLSearchParams(window.location.search).get('task'));
-
-    return Number.isInteger(id) && id > 0 ? id : null;
-}
-
-/** Keep `?task={id}` in the address bar, so an open task can be linked to. */
-function setTaskInUrl(id: number | null): void {
-    const url = new URL(window.location.href);
-
-    if (id === null) {
-        url.searchParams.delete('task');
-        url.searchParams.delete('comment');
-    } else {
-        url.searchParams.set('task', String(id));
-    }
-
-    window.history.replaceState(window.history.state, '', url);
 }

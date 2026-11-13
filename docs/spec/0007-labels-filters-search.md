@@ -1,6 +1,6 @@
 # Spec 0007: Labels, filters and search
 
-**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [round 7](../design/README.md#how-it-was-chosen)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-done) · **Design:** [round 7](../design/README.md#how-it-was-chosen)
 
 ## Goal
 

@@ -20,13 +20,19 @@ use Inertia\Inertia;
 class TaskController extends Controller
 {
     /**
-     * Add a task at the bottom of the list.
+     * Add a task at the bottom of the list, with a due date when the
+     * calendar view adds it on a day.
      */
     public function store(StoreTaskRequest $request, Team $current_team, TaskList $list, CreateTask $createTask): RedirectResponse
     {
         Gate::authorize('create', [Task::class, $list]);
 
-        $createTask->handle($list, $request->user(), $request->string('title')->toString());
+        $createTask->handle(
+            $list,
+            $request->user(),
+            $request->string('title')->toString(),
+            $request->filled('due_on') ? $request->string('due_on')->toString() : null,
+        );
 
         return back();
     }

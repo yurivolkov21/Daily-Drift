@@ -1,6 +1,6 @@
 # Spec 0008: List and calendar views
 
-**Status:** Planned · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-in-progress) · **Design:** [wireframe round 8](../design/README.md#list-and-calendar-views)
+**Status:** Done · **Phase:** 2 · **Roadmap:** [Phase 2](../plan/roadmap.md#phase-2-collaboration-done) · **Design:** [wireframe round 8](../design/README.md#list-and-calendar-views)
 
 ## Goal
 
@@ -54,7 +54,7 @@ The same as for tasks ([spec 0001](0001-projects-lists-tasks.md#permissions)): e
 
 ## Routes
 
-None new. `GET projects/{project}` takes `view`, `sort` and `month` in the query string, read by the browser only.
+None new. `GET projects/{project}` takes `view`, `sort` and `month` in the query string, read by the browser only. `POST lists/{list}/tasks` takes an optional `due_on`, so a task added on a day of the calendar starts with that date (adding records `task.created` only).
 
 ## Out of scope
 

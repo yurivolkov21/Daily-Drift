@@ -10,11 +10,13 @@ import {
     Plus,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { openAddTask } from '@/components/board/add-task';
 import { FilterBar } from '@/components/board/filter-bar';
 import { Board } from '@/components/board/board';
 import type { Member } from '@/components/board/assignee-field';
+import { TaskSheet } from '@/components/board/task-sheet';
+import { useOpenTask } from '@/components/board/use-open-task';
 import { HeaderActions } from '@/components/header-actions';
 import { useTeamLabels } from '@/components/labels/label-badge';
 import { useLocalTime } from '@/hooks/use-local-time';
@@ -28,8 +30,23 @@ import {
 import { HueBar } from '@/components/hue-progress';
 import { ProjectMenu } from '@/components/projects/project-menu';
 import { Button } from '@/components/ui/button';
+import { CalendarView } from '@/components/views/calendar-view';
+import { ListView } from '@/components/views/list-view';
+import { ViewSwitch } from '@/components/views/view-switch';
 import { teamCrumb } from '@/lib/breadcrumbs';
 import { HUES } from '@/lib/hues';
+import type { ListSort, ProjectView, SortKey } from '@/lib/project-views';
+import {
+    monthOf,
+    nextSort,
+    readMonth,
+    readSort,
+    readView,
+    remember,
+    remembered,
+    viewKey,
+    writeViewParams,
+} from '@/lib/project-views';
 import { rememberRecent } from '@/lib/recent';
 import { percent } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
@@ -56,6 +73,53 @@ export default function ProjectShow({ project }: Props) {
         setFilters(next);
         writeFilters(next);
     };
+    // The view and its sort or month live in the address too; the last view
+    // of each project is remembered in this browser (spec 0008).
+    const [view, setView] = useState<ProjectView>(() =>
+        typeof window === 'undefined'
+            ? 'board'
+            : (readView(window.location.search) ??
+              remembered<ProjectView>(viewKey(project.id), 'board')),
+    );
+    const [sort, setSort] = useState<ListSort>(() =>
+        typeof window === 'undefined' ? null : readSort(window.location.search),
+    );
+    const [month, setMonth] = useState<string>(
+        () =>
+            (typeof window === 'undefined'
+                ? null
+                : readMonth(window.location.search)) ?? monthOf(today),
+    );
+    const projectPath = show({
+        current_team: teamSlug,
+        project: project.id,
+    }).url.split('?')[0];
+    const viewParams = useRef({ view, sort, month });
+    viewParams.current = { view, sort, month };
+    useEffect(() => {
+        writeViewParams(view, sort, month);
+        remember(viewKey(project.id), view);
+    }, [project.id, view, sort, month]);
+    // Inertia writes the page's own address after it loads and after each
+    // visit; put the view back each time.
+    useEffect(
+        () =>
+            router.on('navigate', (event) => {
+                // Only on this project's page, not on the next page visited.
+                if (
+                    new URL(event.detail.page.url, window.location.origin)
+                        .pathname !== projectPath
+                ) {
+                    return;
+                }
+
+                const current = viewParams.current;
+                writeViewParams(current.view, current.sort, current.month);
+            }),
+        [projectPath],
+    );
+    const changeMonth = useCallback((next: string) => setMonth(next), []);
+    const { openTask, showTask } = useOpenTask(teamSlug, project);
     const allTasks = project.lists.flatMap((list) => list.tasks ?? []);
     const shown = allTasks.filter((task) =>
         matches(task, filters, auth.user.id, today),
@@ -164,6 +228,14 @@ export default function ProjectShow({ project }: Props) {
                         me={auth.user.id}
                         today={today}
                         shown={shown}
+                        noun={view === 'board' ? 'card' : 'task'}
+                        leading={
+                            <ViewSwitch
+                                value={view}
+                                onChange={setView}
+                                className="max-sm:w-full"
+                            />
+                        }
                     />
                 </section>
 
@@ -198,26 +270,67 @@ export default function ProjectShow({ project }: Props) {
                     </div>
                 )}
 
-                <Board
+                {view === 'list' && (
+                    <ListView
+                        teamSlug={teamSlug}
+                        project={project}
+                        filters={filters}
+                        me={auth.user.id}
+                        today={today}
+                        sort={sort}
+                        onSort={(key: SortKey) =>
+                            setSort((current) => nextSort(current, key))
+                        }
+                        onOpenTask={showTask}
+                    />
+                )}
+
+                {view === 'calendar' && (
+                    <CalendarView
+                        teamSlug={teamSlug}
+                        project={project}
+                        filters={filters}
+                        me={auth.user.id}
+                        today={today}
+                        month={month}
+                        onMonth={changeMonth}
+                        onOpenTask={showTask}
+                    />
+                )}
+
+                {view === 'board' && (
+                    <Board
+                        teamSlug={teamSlug}
+                        project={project}
+                        filters={filters}
+                        me={auth.user.id}
+                        today={today}
+                        onOpenTask={showTask}
+                    />
+                )}
+
+                <TaskSheet
                     teamSlug={teamSlug}
                     project={project}
-                    filters={filters}
-                    me={auth.user.id}
-                    today={today}
+                    task={openTask}
+                    canManage={project.can.manageLists}
+                    onClose={() => showTask(null)}
                 />
 
-                <p className="animate-rise px-1 text-[12.5px] text-muted-foreground [animation-delay:500ms]">
-                    Drag a card to move it, or press{' '}
-                    <kbd className="rounded border bg-card px-1 font-sans text-[11px]">
-                        Alt
-                    </kbd>{' '}
-                    + arrow keys. Fold a list with{' '}
-                    <ChevronsLeft
-                        className="inline size-3.5 align-[-2px] text-foreground"
-                        aria-label="the fold button"
-                    />
-                    : it still takes dropped cards and keeps its count.
-                </p>
+                {view === 'board' && (
+                    <p className="animate-rise px-1 text-[12.5px] text-muted-foreground [animation-delay:500ms]">
+                        Drag a card to move it, or press{' '}
+                        <kbd className="rounded border bg-card px-1 font-sans text-[11px]">
+                            Alt
+                        </kbd>{' '}
+                        + arrow keys. Fold a list with{' '}
+                        <ChevronsLeft
+                            className="inline size-3.5 align-[-2px] text-foreground"
+                            aria-label="the fold button"
+                        />
+                        : it still takes dropped cards and keeps its count.
+                    </p>
+                )}
             </div>
         </>
     );

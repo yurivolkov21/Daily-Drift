@@ -16,6 +16,8 @@ class StoreTaskRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            // A task added from a day of the calendar view starts with that date (spec 0008).
+            'due_on' => ['sometimes', 'nullable', 'date_format:Y-m-d'],
         ];
     }
 }
