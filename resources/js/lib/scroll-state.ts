@@ -4,7 +4,7 @@ const timers = new WeakMap<Element, number>();
 
 /**
  * Marks an element with `data-scrolling` while it scrolls, so the thin
- * scrollbar (the `scrollbar-thin` utility) can show and then fade out.
+ * scrollbar (the `thin-scrollbar` utility) can show and then fade out.
  */
 export function initializeScrollState(): void {
     if (typeof window === 'undefined') {

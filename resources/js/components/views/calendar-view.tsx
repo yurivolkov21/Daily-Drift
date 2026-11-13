@@ -369,7 +369,7 @@ export function CalendarView({
                                     Drag one onto a day to give it that date.
                                 </p>
                             )}
-                            <div className="-mx-0.5 flex scrollbar-thin max-h-[22rem] flex-col gap-1.5 overflow-y-auto p-0.5">
+                            <div className="-mx-0.5 flex thin-scrollbar max-h-[22rem] flex-col gap-1.5 overflow-y-auto p-0.5">
                                 {undated.map((task) => (
                                     <UndatedCard
                                         key={task.id}

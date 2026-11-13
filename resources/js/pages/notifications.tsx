@@ -187,7 +187,7 @@ export default function Notifications({
             tabIndex={0}
             onKeyDown={onListKey}
             data-test="notification-list"
-            className="h-full overflow-y-auto px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset md:px-3.5"
+            className="thin-scrollbar h-full overflow-y-auto px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset md:px-3.5"
         >
             {items.length === 0 ? (
                 <p className="px-2 py-14 text-center text-sm text-muted-foreground">
@@ -294,7 +294,7 @@ export default function Notifications({
                     </span>
                 </span>
             </div>
-            <div className="flex-1 overflow-y-auto px-4 pt-5 pb-8 md:px-6">
+            <div className="thin-scrollbar flex-1 overflow-y-auto px-4 pt-5 pb-8 md:px-6">
                 {current ? (
                     <Detail
                         key={current.id}
@@ -359,7 +359,7 @@ export default function Notifications({
                         )}
                     </div>
                     {/* Four filters do not fit a phone's width: the row scrolls. */}
-                    <div className="-mx-4 [scrollbar-width:none] overflow-x-auto px-4 md:mx-0 md:px-0">
+                    <div className="-mx-4 thin-scrollbar overflow-x-auto px-4 md:mx-0 md:px-0">
                         <SegmentedTabs
                             label="Show"
                             className="w-full max-w-[480px] min-w-[420px]"

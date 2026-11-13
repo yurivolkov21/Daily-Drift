@@ -227,7 +227,7 @@ function TaskForm({
                         </div>
                     </SheetHeader>
 
-                    <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4">
+                    <div className="flex thin-scrollbar flex-1 flex-col gap-6 overflow-y-auto p-4">
                         <div className="divide-y rounded-xl border">
                             <Property icon={<Columns3 />} label="List">
                                 <Select

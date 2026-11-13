@@ -86,7 +86,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             <span className="absolute inset-y-3.5 left-0 w-[3px] rounded-[3px] bg-primary" />
                         </span>
                     )}
-                    <ul className="flex scrollbar-thin gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+                    <ul className="flex thin-scrollbar gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
                         {tabs.map((tab, index) => {
                             const isCurrent = index === current;
 

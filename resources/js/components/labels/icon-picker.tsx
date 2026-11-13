@@ -55,7 +55,7 @@ export function IconPicker({
             <div
                 role="tablist"
                 aria-label="Icon groups"
-                className="flex [scrollbar-width:none] gap-1 overflow-x-auto"
+                className="flex thin-scrollbar gap-1 overflow-x-auto"
             >
                 {[ALL, ...LABEL_ICON_GROUPS.map(([name]) => name)].map(
                     (name) => (
@@ -80,7 +80,7 @@ export function IconPicker({
             <div
                 role="radiogroup"
                 aria-label="Icon"
-                className="grid max-h-44 grid-cols-8 gap-1 overflow-y-auto p-0.5"
+                className="grid thin-scrollbar max-h-44 grid-cols-8 gap-1 overflow-y-auto p-0.5"
             >
                 {icons.map((name) => {
                     const Icon = LABEL_ICONS[name];

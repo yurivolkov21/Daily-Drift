@@ -203,7 +203,7 @@ export function NotificationBell() {
                         ]}
                     />
                 </div>
-                <div className="max-h-[min(520px,60vh)] overflow-y-auto px-2 pb-2">
+                <div className="thin-scrollbar max-h-[min(520px,60vh)] overflow-y-auto px-2 pb-2">
                     {failed ? (
                         <p className="px-3 py-6 text-center text-sm text-muted-foreground">
                             Could not load notifications.{' '}
