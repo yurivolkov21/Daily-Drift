@@ -8,11 +8,12 @@ Daily-Drift is a personal remake of a team project I built in my second semester
 
 ## Stack
 
-- **Backend:** Laravel 13, Laravel Fortify (registration, email verification, two-factor auth, passkeys, password confirmation)
+- **Backend:** Laravel 13, Laravel Fortify (registration, email verification, two-factor auth, passkeys, password confirmation), Laravel Socialite (sign in with Google and GitHub)
 - **Teams:** teams, email invitations, roles and permissions (from the starter kit's `teams` variant)
 - **Frontend:** Inertia 3, React 19, TypeScript, Tailwind CSS 4, Vite+
 - **UI:** [shadcn/ui](https://ui.shadcn.com) (Radix, `new-york` style), with every component available for this style installed in `resources/js/components/ui`
 - **Drag and drop:** [ReUI](https://reui.io) Kanban on `@dnd-kit`
+- **Dates:** date-fns, and react-day-picker under the shadcn date picker
 - **Tooling:** PHPUnit, PHPStan, Pint, Wayfinder (typed routes for the frontend)
 
 ## Docs
@@ -30,17 +31,52 @@ Roadmap, feature specs, tech stack, decisions and changelog live in [`docs/`](do
 
 ## Getting started
 
+### 1. Install
+
 ```bash
+git clone https://github.com/yurivolkov21/Daily-Drift.git
+cd Daily-Drift
 composer setup
 ```
 
-This installs PHP and frontend dependencies, creates `.env`, generates the app key, runs the migrations (SQLite by default) and builds the frontend.
+`composer setup` installs the PHP and frontend dependencies, copies `.env.example` to `.env`, generates the app key, creates the SQLite database (`database/database.sqlite`) with its tables, and builds the frontend. Nothing else needs setting up to run the app locally.
 
-Then start the dev servers (Laravel, queue, logs and Vite):
+### 2. Run
 
 ```bash
 composer dev
 ```
+
+This starts the Laravel server, the queue worker, Vite and, where the system supports it, the log viewer (Pail), all in one terminal. Open **http://localhost:8000**, the address in `APP_URL`. Stop everything with `Ctrl+C`.
+
+### 3. Sign in
+
+Register on the sign-up page, or create a demo account:
+
+```bash
+php artisan db:seed
+```
+
+The demo account is `test@example.com` with the password `password`, its email already verified. Every account starts with a personal team; create a first project with _New project_.
+
+### Good to know
+
+- **Emails go to the log.** With `MAIL_MAILER=log`, verification links, password resets and team invitations are written to `storage/logs/laravel.log` instead of being sent. Copy the link from there. To see them in an inbox, point the `MAIL_*` variables at a local mail catcher such as [Mailpit](https://mailpit.axllent.org).
+- **The queue worker sends invitations.** Team invitation emails go through the queue (`QUEUE_CONNECTION=database`). `composer dev` runs the worker; if you start the server another way, also run `php artisan queue:listen`.
+- **The scheduler is optional.** Once a day it deletes expired team invitations. `composer dev` does not start it; run `php artisan schedule:work` in another terminal if you want it.
+- **Use the address in `APP_URL`.** Passkeys only work on that host, so open `localhost:8000`, not `127.0.0.1:8000`. If you change the port or host, change `APP_URL` too.
+- **Google and GitHub sign-in is optional.** Without keys the buttons are hidden and everything else works. To turn it on, follow [setting up sign in with Google and GitHub](docs/guides/social-sign-in.md) and fill in the four `GOOGLE_*` and `GITHUB_*` variables in `.env`.
+
+### Troubleshooting
+
+| Problem                                                | Fix                                                                                           |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Composer refuses to install because of the PHP version | Install PHP 8.4.27 or newer (see [Requirements](#requirements)).                              |
+| `pnpm` is missing or the wrong version                 | Run `corepack enable pnpm`; it picks the version pinned in `package.json`.                    |
+| The page says _Vite manifest not found_                | Keep `composer dev` running, or build once with `pnpm run build`.                             |
+| A change to `.env` has no effect                       | Run `php artisan config:clear`, then restart `composer dev`.                                  |
+| A team invitation email never shows up in the log      | Check that the queue worker is running (it is part of `composer dev`).                        |
+| You want to start over with an empty database          | `php artisan migrate:fresh --seed`. It deletes all data, then creates the demo account again. |
 
 ## Checks
 
