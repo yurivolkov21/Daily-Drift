@@ -199,12 +199,12 @@ Under `/{current_team}`:
 
 ## Decisions
 
-Proposals for the owner; the layout comes from wireframe round 10.
+Decisions 1 to 3: the owner kept the proposals (13 November). The layout comes from wireframe round 10.
 
 1. **What completing a recurring task does:** it creates the next occurrence as a new task and leaves the completed one done. The other way would move the same task's due date forward, as many to-do apps do. Proposed because the board counts done tasks (progress, the dashboard's throughput and _Done lately_): moving the date would hide every completion, and the history of each occurrence would run together.
 2. **Where the next due date starts:** from the old due date, skipping dates already past. Counting from the completion date would let a weekly review drift to whatever day it was done.
 3. **Which checklist changes the history keeps:** checking and unchecking only. A long list edited item by item would otherwise bury the task's real changes.
-4. **Layout to compare in round 10:**
+4. **Layout** (wireframe round 10, to be chosen):
     - the checklist as a plain list or with checked items folded;
     - files as a thumbnail grid or as rows;
     - _Repeat_ as its own row or inside the due date picker.
