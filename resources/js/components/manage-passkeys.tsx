@@ -3,12 +3,15 @@ import { KeyRound } from 'lucide-react';
 import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegistrationController';
 import PasskeyItem from '@/components/passkey-item';
 import PasskeyRegistration from '@/components/passkey-register';
+import { NeedsPassword } from '@/components/settings/connected-accounts';
 import { SubHeading } from '@/components/settings/section';
 import type { Passkey } from '@/types/auth';
 
 export type Props = {
     canManagePasskeys?: boolean;
     passkeys?: Passkey[];
+    /** An account made with Google or GitHub sets a password first (spec 0009). */
+    needsPassword?: boolean;
 };
 
 const EmptyState = () => {
@@ -64,7 +67,11 @@ export default function ManagePasskeys(props: Props) {
                 )}
             </div>
 
-            <PasskeyRegistration onSuccess={handleRegisterSuccess} />
+            {props.needsPassword ? (
+                <NeedsPassword action="adding a passkey" />
+            ) : (
+                <PasskeyRegistration onSuccess={handleRegisterSuccess} />
+            )}
         </div>
     );
 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Enums\SocialProvider;
 use App\Http\Responses\LoginResponse;
 use App\Http\Responses\PasskeyLoginResponse;
 use App\Http\Responses\RegisterResponse;
@@ -66,6 +67,9 @@ class FortifyServiceProvider extends ServiceProvider
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
             'teamInvitation' => $this->teamInvitation($request),
+            // Spec 0009: Google and GitHub, and why the last try with them failed.
+            'socialProviders' => SocialProvider::offered(),
+            'socialError' => $request->session()->get('socialError'),
         ]));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
@@ -83,6 +87,7 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::registerView(fn (Request $request) => Inertia::render('auth/register', [
             'teamInvitation' => $this->teamInvitation($request),
+            'socialProviders' => SocialProvider::offered(),
         ]));
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));

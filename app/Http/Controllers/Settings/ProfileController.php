@@ -25,6 +25,8 @@ class ProfileController extends Controller
             'status' => $request->session()->get('status'),
             'timeZones' => LocalTime::choices(),
             'deviceTimeZone' => LocalTime::device($request),
+            // Spec 0009: deleting the account asks for a password, which an account made with Google or GitHub sets first.
+            'hasPassword' => $request->user()->hasPassword(),
         ]);
     }
 

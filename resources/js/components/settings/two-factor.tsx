@@ -10,6 +10,7 @@ import {
     Pill,
     SubHeading,
 } from '@/components/settings/section';
+import { NeedsPassword } from '@/components/settings/connected-accounts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
@@ -27,6 +28,8 @@ export type Props = {
     canManageTwoFactor?: boolean;
     requiresConfirmation?: boolean;
     twoFactorEnabled?: boolean;
+    /** An account made with Google or GitHub sets a password first (spec 0009). */
+    needsPassword?: boolean;
 };
 
 /** Stand-ins shown blurred until the real codes are asked for. */
@@ -40,6 +43,7 @@ export default function TwoFactorSettings({
     canManageTwoFactor = false,
     requiresConfirmation = false,
     twoFactorEnabled = false,
+    needsPassword = false,
 }: Props) {
     const auth = useTwoFactorAuth();
     const [settingUp, setSettingUp] = useState(false);
@@ -143,6 +147,15 @@ export default function TwoFactorSettings({
                     >
                         Cancel
                     </Button>
+                ) : needsPassword ? (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled
+                        className={BUTTON}
+                    >
+                        Set up
+                    </Button>
                 ) : (
                     <Form
                         {...enable.form()}
@@ -162,6 +175,12 @@ export default function TwoFactorSettings({
                     </Form>
                 )}
             </div>
+
+            {needsPassword && !twoFactorEnabled && (
+                <div className="pt-2">
+                    <NeedsPassword action="turning this on" />
+                </div>
+            )}
 
             <Collapse open={settingUp} className="pt-3.5">
                 <SetupPanel
