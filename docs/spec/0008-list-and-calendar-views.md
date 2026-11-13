@@ -47,12 +47,15 @@ None new. `GET projects/{project}` takes `view`, `sort` and `month` in the query
 - Dragging rows in the list, bulk edits, and choosing columns.
 - Saving a view as the team's default.
 
+## Decisions
+
+1. **Views are remembered per project, in this browser:** the last view a project was left in, as the projects page remembers its own view (the owner kept the proposal, 13 November).
+2. **The list is grouped by list,** in the board's order, so it reads like the board (as above).
+3. **Done tasks stay on the calendar,** faded and with a check, so a month shows what was finished (as above).
+
 ## Open questions
 
-1. **Where views are remembered.** Proposed: the last view per project, in this browser, as the projects page does with its own view.
-2. **List grouping.** Proposed: grouped by list, so the list reads like the board; the alternative is one flat table sorted across lists.
-3. **Done tasks in the calendar.** Proposed: shown with a check and faded, so a month shows what was finished; the alternative hides them.
-4. **Layout:** the view switch, the list's table and the calendar. Decided by wireframe round 8.
+1. **Layout:** the view switch, the list's table and the calendar. Decided by wireframe round 8.
 
 ## Acceptance criteria
 
