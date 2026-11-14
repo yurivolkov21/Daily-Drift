@@ -6,6 +6,7 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
+- A demo workspace for `php artisan db:seed`, built from the project's own history: the _Daily-Drift Studio_ team with four people and a pending invitation; projects for each phase, the design rounds, and docs and tooling; and over 50 tasks taken from the specs, with labels, assignees, comments and mentions. It runs through the app's own actions as each person, on the day each step happened, so the history, the dashboard's charts, _My tasks_ and the notifications look like three weeks of work. Dates follow the day of seeding.
 - [Spec 0010](../spec/0010-checklists-attachments-recurring-tasks.md) for checklists, attachments and recurring tasks, the second Phase 3 item. Planned:
     - a checklist of up to 50 items under the description, with progress on cards;
     - up to 20 files per task, 10 MB each, kept outside `public/` and served only to the team;
