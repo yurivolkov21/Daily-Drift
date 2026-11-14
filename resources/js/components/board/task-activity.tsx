@@ -185,11 +185,11 @@ export function TaskActivity({
                 Comments
                 {data && (
                     <>
-                        <span className="font-normal text-muted-foreground">
+                        <span className="font-sans font-normal text-muted-foreground">
                             {data.comments.length}
                         </span>
                         {data.events.length > 0 && (
-                            <span className="text-xs font-normal text-muted-foreground">
+                            <span className="font-sans text-xs font-normal text-muted-foreground">
                                 {data.events.length}{' '}
                                 {data.events.length === 1
                                     ? 'change'

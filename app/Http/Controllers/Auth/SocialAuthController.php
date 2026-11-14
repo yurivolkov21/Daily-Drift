@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Actions\Auth\CreateUserFromProvider;
 use App\Enums\SocialProvider;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\Concerns\RedirectsToCurrentTeam;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Laravel\Fortify\Fortify;
 use Laravel\Socialite\Contracts\User as ProviderUser;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirect;
@@ -22,6 +24,8 @@ use Throwable;
  */
 class SocialAuthController extends Controller
 {
+    use RedirectsToCurrentTeam;
+
     /**
      * Send the browser to the provider: to sign in when signed out, to
      * connect the account when signed in.
@@ -148,7 +152,9 @@ class SocialAuthController extends Controller
         Auth::login($user, remember: true);
         $request->session()->regenerate();
 
-        return redirect()->intended(config('fortify.home'));
+        // As after a password: the current team's dashboard, unless a page
+        // such as an invitation was asked for first.
+        return redirect()->intended($this->redirectPathForCurrentTeam($request, Fortify::redirects('login')));
     }
 
     private function userWithEmail(string $email): ?User

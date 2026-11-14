@@ -170,8 +170,11 @@ export default function MyTasks({ myTasks: data, filters }: Props) {
                         </h1>
                         <p className="mt-1.5 text-sm text-muted-foreground">
                             {format(parseISO(today), 'EEEE, d MMMM')}.{' '}
-                            {count('today')} due today, {count('overdue')}{' '}
-                            overdue and {count('week')} in the next 7 days.
+                            {summary([
+                                [count('overdue'), 'overdue'],
+                                [count('today'), 'due today'],
+                                [count('week'), 'in the next 7 days'],
+                            ])}
                         </p>
                     </div>
                     <span className="text-[13px] text-muted-foreground">
@@ -452,14 +455,17 @@ function Row({
                 </Link>
                 <ProjectLine task={task} />
             </span>
-            <PriorityPill priority={task.priority} />
-            <span
-                className={cn(
-                    'min-w-24 text-right text-[12.5px] font-semibold whitespace-nowrap',
-                    dueClass,
-                )}
-            >
-                {due}
+            {/* On a phone this line drops under the title, lined up with it. */}
+            <span className="flex items-center gap-3 max-sm:basis-full max-sm:pl-[34px]">
+                <PriorityPill priority={task.priority} />
+                <span
+                    className={cn(
+                        'min-w-24 text-right text-[12.5px] font-semibold whitespace-nowrap max-sm:min-w-0 max-sm:text-left',
+                        dueClass,
+                    )}
+                >
+                    {due}
+                </span>
             </span>
         </li>
     );
@@ -475,3 +481,18 @@ MyTasks.layout = (props: {
             : []),
     ],
 });
+
+/** "3 overdue and 1 due today.", leaving out what is zero. */
+function summary(parts: [number, string][]): string {
+    const said = parts
+        .filter(([n]) => n > 0)
+        .map(([n, what]) => `${n} ${what}`);
+
+    if (said.length === 0) {
+        return 'Nothing due in the next 7 days.';
+    }
+
+    const last = said.pop();
+
+    return `${said.length ? `${said.join(', ')} and ` : ''}${last}.`;
+}

@@ -35,22 +35,23 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     name="email"
                                     autoComplete="off"
                                     autoFocus
-                                    placeholder="email@example.com"
+                                    placeholder="you@example.com"
+                                    className="h-11 rounded-xl bg-muted"
                                 />
 
                                 <InputError message={errors.email} />
                             </div>
 
-                            <div className="my-6 flex items-center justify-start">
+                            <div className="mt-6">
                                 <Button
-                                    className="w-full"
+                                    className="h-12 w-full rounded-xl text-[15px] font-bold"
                                     disabled={processing}
                                     data-test="email-password-reset-link-button"
                                 >
                                     {processing && (
                                         <LoaderCircle className="h-4 w-4 animate-spin" />
                                     )}
-                                    Email password reset link
+                                    Send reset link
                                 </Button>
                             </div>
                         </>
@@ -58,8 +59,8 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 </Form>
 
                 <div className="space-x-1 text-center text-sm text-muted-foreground">
-                    <span>Or, return to</span>
-                    <TextLink href={login()}>log in</TextLink>
+                    <span>Remembered it?</span>
+                    <TextLink href={login()}>Sign in</TextLink>
                 </div>
             </div>
         </>
@@ -68,5 +69,6 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
 ForgotPassword.layout = {
     title: 'Forgot password',
-    description: 'Enter your email to receive a password reset link',
+    description:
+        'Enter your email and we will send you a link to set a new one.',
 };

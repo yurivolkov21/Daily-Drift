@@ -92,7 +92,9 @@ export function ActivityCard({
             ) : (
                 <div
                     key={feed.filter}
-                    className="flex animate-pop flex-col gap-2.5"
+                    // Ten events with comments run long; the list scrolls so
+                    // the card keeps the height of My focus beside it.
+                    className="-mr-2 flex thin-scrollbar max-h-[28rem] animate-pop flex-col gap-2.5 overflow-y-auto pr-1"
                 >
                     {days.map(({ day, items }) => (
                         <section key={day} className="flex flex-col gap-0.5">

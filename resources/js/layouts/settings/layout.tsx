@@ -86,7 +86,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             <span className="absolute inset-y-3.5 left-0 w-[3px] rounded-[3px] bg-primary" />
                         </span>
                     )}
-                    <ul className="flex thin-scrollbar gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+                    <ul className="grid grid-cols-2 gap-1 sm:flex sm:thin-scrollbar sm:overflow-x-auto lg:flex-col lg:overflow-visible">
                         {tabs.map((tab, index) => {
                             const isCurrent = index === current;
 
@@ -98,7 +98,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                             isCurrent ? 'page' : undefined
                                         }
                                         className={cn(
-                                            'relative flex h-[52px] items-center gap-3 rounded-[14px] px-3 no-underline transition-colors duration-250 outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                            'relative flex h-11 items-center gap-3 rounded-[14px] px-3 no-underline transition-colors duration-250 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-[52px]',
                                             isCurrent
                                                 ? 'text-foreground max-lg:bg-secondary'
                                                 : 'text-muted-foreground hover:text-foreground',
