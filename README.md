@@ -51,13 +51,20 @@ This starts the Laravel server, the queue worker, Vite and, where the system sup
 
 ### 3. Sign in
 
-Register on the sign-up page, or create a demo account:
+Register on the sign-up page, or fill the app with a demo workspace:
 
 ```bash
 php artisan db:seed
 ```
 
-The demo account is `test@example.com` with the password `password`, its email already verified. Every account starts with a personal team; create a first project with _New project_.
+Sign in as `test@example.com` with the password `password`. The demo tells the story of building Daily-Drift itself:
+
+- **The team:** _Daily-Drift Studio_ with four people and one pending invitation. Each teammate (`an@example.com`, `linh@example.com`, `khoa@example.com`) also signs in with `password`.
+- **The projects:** one per phase, the design rounds, and docs and tooling. Phase 1 is archived.
+- **The tasks:** over 50 tasks taken from the specs, with labels, assignees, comments and mentions.
+- **The history:** three weeks of it, so the dashboard, _My tasks_, the calendar and the notifications all have something to show.
+
+Dates follow the day you seed, so something is always overdue, due today and due this week. To start again with a fresh demo, run `php artisan migrate:fresh --seed`; it deletes everything else in the database.
 
 ### Good to know
 
