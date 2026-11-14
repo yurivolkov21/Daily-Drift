@@ -197,7 +197,7 @@ export default function ProjectShow({ project }: Props) {
                             </Chip>
                         )}
                     </div>
-                    <div className="flex w-44 flex-col gap-1.5">
+                    <div className="flex w-44 flex-col gap-1.5 max-sm:w-auto max-sm:flex-1">
                         <span className="flex justify-between text-xs">
                             <strong className="tabular-nums">
                                 {progress}% done

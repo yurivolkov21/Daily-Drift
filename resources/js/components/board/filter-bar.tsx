@@ -186,7 +186,7 @@ export function FilterBar({
                     />
                 </>
             )}
-            <label className="flex h-10 min-w-48 flex-[0_1_260px] items-center gap-2 rounded-xl border bg-secondary/50 px-3 text-muted-foreground focus-within:ring-2 focus-within:ring-ring">
+            <label className="flex h-10 min-w-48 flex-[0_1_260px] items-center gap-2 rounded-xl border bg-secondary/50 px-3 text-muted-foreground focus-within:ring-2 focus-within:ring-ring max-sm:basis-full">
                 <Search className="size-4 shrink-0" aria-hidden="true" />
                 <input
                     value={filters.q}

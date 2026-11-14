@@ -11,6 +11,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { HUES, teamHue } from '@/lib/hues';
+import { cn } from '@/lib/utils';
 import { switchMethod } from '@/routes/teams';
 import type { Team } from '@/types';
 
@@ -69,7 +71,12 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                         className={
                             inHeader
                                 ? 'hidden'
-                                : 'flex size-7 shrink-0 items-center justify-center rounded-lg bg-fresh text-[13px] font-bold text-[#0b3b37]'
+                                : cn(
+                                      'flex size-7 shrink-0 items-center justify-center rounded-lg text-[13px] font-bold text-white',
+                                      currentTeam
+                                          ? HUES[teamHue(currentTeam.id)].dot
+                                          : 'bg-white/15',
+                                  )
                         }
                     >
                         {currentTeam?.name.charAt(0).toUpperCase() ?? '?'}
@@ -124,7 +131,16 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                         }
                         onSelect={() => switchTeam(team)}
                     >
-                        {team.name}
+                        <span
+                            aria-hidden="true"
+                            className={cn(
+                                'flex size-5 shrink-0 items-center justify-center rounded-md text-[11px] font-bold text-white',
+                                HUES[teamHue(team.id)].dot,
+                            )}
+                        >
+                            {team.name.charAt(0).toUpperCase()}
+                        </span>
+                        <span className="truncate">{team.name}</span>
                         {currentTeam?.id === team.id && (
                             <Check
                                 className={

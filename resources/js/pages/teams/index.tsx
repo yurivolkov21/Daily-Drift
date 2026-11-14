@@ -11,7 +11,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { settingsCrumbs } from '@/lib/breadcrumbs';
-import { HUE_NAMES, HUES } from '@/lib/hues';
+import { HUES, teamHue } from '@/lib/hues';
 import { cn } from '@/lib/utils';
 import { edit, index } from '@/routes/teams';
 import type { Team } from '@/types';
@@ -51,7 +51,7 @@ export default function TeamsIndex({ teams }: Props) {
                         {teams.map((team) => {
                             const canLeave =
                                 !team.isPersonal && team.role !== 'owner';
-                            const hue = HUE_NAMES[team.id % HUE_NAMES.length];
+                            const hue = teamHue(team.id);
 
                             return (
                                 <li
@@ -67,8 +67,8 @@ export default function TeamsIndex({ teams }: Props) {
                                         <span
                                             aria-hidden="true"
                                             className={cn(
-                                                'flex size-9 shrink-0 items-center justify-center rounded-[11px] text-sm font-bold',
-                                                HUES[hue].tile,
+                                                'flex size-9 shrink-0 items-center justify-center rounded-[11px] text-sm font-bold text-white',
+                                                HUES[hue].dot,
                                             )}
                                         >
                                             {team.name.charAt(0).toUpperCase()}

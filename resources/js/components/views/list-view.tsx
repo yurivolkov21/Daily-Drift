@@ -69,7 +69,7 @@ export function ListView({
                 role="row"
                 className={cn(
                     GRID,
-                    'hidden min-h-[42px] items-center gap-x-3 rounded-2xl bg-card pr-[33px] pl-[25px] shadow-[0_1px_2px_rgb(23_21_59/0.05)] md:grid',
+                    'hidden min-h-[42px] items-center gap-x-3 rounded-2xl bg-card px-[25px] shadow-[0_1px_2px_rgb(23_21_59/0.05)] md:grid',
                 )}
             >
                 <span role="columnheader" aria-label="Done" />
@@ -457,7 +457,8 @@ function TaskRow({
                 </span>
                 <span
                     className={cn(
-                        'flex min-w-0 items-center gap-1.5 overflow-hidden',
+                        // Phones wrap the meta line instead of cutting a badge in half.
+                        'flex min-w-0 flex-wrap items-center gap-1.5 md:flex-nowrap md:overflow-hidden',
                         done && 'opacity-70',
                     )}
                 >
