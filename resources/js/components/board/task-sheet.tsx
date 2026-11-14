@@ -300,7 +300,7 @@ function TaskForm({
                                                 variant="ghost"
                                                 disabled={!canManage}
                                                 className={cn(
-                                                    'flex-1 justify-start px-3 font-normal',
+                                                    'min-w-0 flex-1 justify-start px-3 font-normal',
                                                     !dueOn &&
                                                         'text-muted-foreground',
                                                     state === 'overdue' &&
@@ -309,12 +309,25 @@ function TaskForm({
                                                         'text-amber-600 dark:text-amber-400',
                                                 )}
                                             >
-                                                {dueOn
-                                                    ? format(
-                                                          parseISO(dueOn),
-                                                          'EEEE, d MMM yyyy',
-                                                      )
-                                                    : 'Add a due date'}
+                                                {dueOn ? (
+                                                    // Short on a phone, so the row fits beside the remove button.
+                                                    <span className="truncate">
+                                                        <span className="sm:hidden">
+                                                            {format(
+                                                                parseISO(dueOn),
+                                                                'EEE d MMM yyyy',
+                                                            )}
+                                                        </span>
+                                                        <span className="max-sm:hidden">
+                                                            {format(
+                                                                parseISO(dueOn),
+                                                                'EEEE, d MMM yyyy',
+                                                            )}
+                                                        </span>
+                                                    </span>
+                                                ) : (
+                                                    'Add a due date'
+                                                )}
                                                 {state === 'today' && (
                                                     <span className="ml-auto rounded bg-amber-500/15 px-1.5 text-xs font-medium">
                                                         Today

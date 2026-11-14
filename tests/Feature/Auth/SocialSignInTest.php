@@ -88,9 +88,10 @@ class SocialSignInTest extends TestCase
     {
         $this->fake('github', '4242', 'Minh.An@Example.com', 'Minh An');
 
-        $this->comeBack('github')->assertRedirect(config('fortify.home'));
+        $response = $this->comeBack('github');
 
         $user = User::query()->sole();
+        $response->assertRedirect(route('dashboard', ['current_team' => $user->currentTeam->slug]));
         $this->assertAuthenticatedAs($user);
         $this->assertSame(['Minh An', 'minh.an@example.com'], [$user->name, $user->email]);
         $this->assertNull($user->password);
@@ -105,7 +106,7 @@ class SocialSignInTest extends TestCase
         $user->socialAccounts()->create(['provider' => SocialProvider::Google, 'provider_user_id' => 'g-1', 'email' => 'old@example.com']);
         $this->fake('google', 'g-1', 'giang@gmail.com');
 
-        $this->comeBack()->assertRedirect(config('fortify.home'));
+        $this->comeBack()->assertRedirect(route('dashboard', ['current_team' => $user->refresh()->currentTeam->slug]));
 
         $this->assertAuthenticatedAs($user);
         $this->assertSame(1, User::query()->count());
@@ -117,7 +118,7 @@ class SocialSignInTest extends TestCase
         $user = User::factory()->unverified()->create(['email' => 'giang@example.com']);
         $this->fake('google', 'g-2', 'GIANG@example.com');
 
-        $this->comeBack()->assertRedirect(config('fortify.home'));
+        $this->comeBack()->assertRedirect(route('dashboard', ['current_team' => $user->refresh()->currentTeam->slug]));
 
         $this->assertAuthenticatedAs($user);
         $this->assertSame('g-2', $user->socialAccounts()->sole()->provider_user_id);

@@ -33,7 +33,7 @@ export function SocialSignIn({
         <div className="flex flex-col gap-3.5" data-test="social-sign-in">
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span className="h-px flex-1 bg-border" />
-                or continue with
+                {providers.length > 0 ? 'or continue with' : 'or'}
                 <span className="h-px flex-1 bg-border" />
             </div>
             {providers.length > 0 && (

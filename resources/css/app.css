@@ -408,6 +408,15 @@ html {
 }
 
 /*
+ * Dialogs and sheets lock the page scroll and add the scrollbar's width as
+ * a right margin. The page keeps a stable gutter already, so that margin
+ * would shift everything sideways while a dialog is open.
+ */
+html body[data-scroll-locked] {
+    margin-right: 0 !important;
+}
+
+/*
  * Floating sidebar (ADR 0007): the shadcn sidebar with 14px around it, the
  * same gap as between cards, and a slower, eased fold.
  */

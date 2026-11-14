@@ -224,7 +224,7 @@ export default function ProjectsIndex({
                         />
                         <SegmentedTabs
                             label="View"
-                            className="w-48"
+                            className="w-full sm:w-48"
                             value={filters.view}
                             onChange={(view) => update({ view })}
                             options={[
@@ -446,7 +446,7 @@ function ListView({
                                     <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground tabular-nums">
                                         {items.length}
                                     </span>
-                                    <span className="ml-auto hidden text-sm font-normal text-muted-foreground sm:inline">
+                                    <span className="ml-auto hidden font-sans text-sm font-normal text-muted-foreground sm:inline">
                                         {group.hint}
                                     </span>
                                 </button>

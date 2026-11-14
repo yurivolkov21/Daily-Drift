@@ -90,6 +90,9 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 
 - **Sidebar:** a floating night-blue card, 256 px wide, that folds to a 76 px icon rail with its button or Ctrl/⌘ + B; the choice is remembered. It holds the logo, the team switcher, _Dashboard_, _Projects_ (with a count), _My tasks_ (Phase 2) and _Team_, then _Recent_: the five most recently updated active projects as colored letter tiles with their open task counts, and the user at the bottom. On the rail, labels fade out, items show tooltips and counts become dots.
 - **Header bar:** a white card with breadcrumbs that start with the team, the first team members, and the page's main action. Search (⌘K) joins it in Phase 2.
+- **Team color:** a team keeps one color, picked from the palette by its id, as a solid letter tile wherever it shows: the team switcher, its menu and the list of teams in the settings.
+- **Site root:** `/` has no page of its own. It opens the current team's dashboard, or the sign-in page for a guest.
+- **Dialogs and sheets** do not shift the page: the scrollbar gutter stays, so no margin is added when they lock scrolling.
 
 ## Screens for Phase 1
 
@@ -126,13 +129,13 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - A board drifts slowly behind a dark gradient; a glass card on the left holds the form. The board is decoration: hidden from screen readers, still under reduced motion, and replaced by a still background on small screens.
 - _Sign in_ and _Create account_ tabs with a sliding indicator, _Forgot password?_, and a "Check your inbox" panel after sign up or a reset request with a resend button.
 - Inline errors with a short shake, a password strength meter, a match check on the confirmation and a show-password button.
-- Reset password, confirm password, two-factor challenge and verify email use the same layout.
+- Reset password, confirm password, two-factor challenge and verify email use the same layout, with the same 44 px fields and 48 px buttons as the sign-in form, and the same lowercase divider (_or continue with_, or just _or_ when only the passkey link follows it).
 
 ### Settings
 
-- One card with vertical tabs (Profile, Security, Appearance, Team) and a sliding indicator; the content rises in when the tab changes.
+- One card with vertical tabs (Profile, Security, Appearance, Team) and a sliding indicator; the content rises in when the tab changes. Under 1024 px the tabs run in a row, and on a phone they sit in two rows of two, so none is cut off.
 - **Profile:** initials avatar, name and email with a _Verified_ badge, and the time zone (_Match my device_ or a zone picked from a searchable list). A save bar slides up while something is unsaved. _Delete account_ opens inline and asks for the password.
-- **Security:** change password with a strength meter; two-factor setup (QR code, 6-digit code, recovery codes blurred until shown); passkeys from the starter kit.
+- **Security:** change password with a strength meter; two-factor setup (QR code, 6-digit code, recovery codes blurred until shown); passkeys from the starter kit. _Update password_ is the only filled button; _Set up_ and _Add passkey_ are outlined.
 - **Appearance:** _Light_, _Dark_ and _Match my device_ with small previews; Motion: _Match device_, _Reduced_, _Full_.
 - **Team:** name and address, members with a role menu (Admin, Member, Remove; the owner is fixed), invitations by email with a role, and pending invitations with _Cancel_.
 
