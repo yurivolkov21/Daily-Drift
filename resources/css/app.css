@@ -303,6 +303,9 @@
 /*
  * Scrollbars: a thin thumb that shows only while the area is hovered or
  * scrolled. `data-scrolling` is set by resources/js/lib/scroll-state.ts.
+ * The utility is not called `scrollbar-thin`: Tailwind ships a utility of
+ * that name (`scrollbar-width: thin`), and in Chromium that property turns
+ * off the styled thumb below, leaving the browser's own grey scrollbar.
  */
 @property --scrollbar-thumb {
     syntax: '<color>';
@@ -310,7 +313,7 @@
     initial-value: transparent;
 }
 
-@utility scrollbar-thin {
+@utility thin-scrollbar {
     --scrollbar-thumb: transparent;
     transition: --scrollbar-thumb 0.4s ease;
     scrollbar-gutter: stable;
@@ -353,9 +356,64 @@
     --scrollbar: rgb(255 255 255 / 0.45);
 }
 
+/*
+ * Every other scrolling area gets the same thin thumb, including the ones
+ * a component library renders (select and dropdown menus, text areas), so
+ * nothing falls back to the system scrollbar. Areas laid out by the app
+ * also take `thin-scrollbar` for its stable gutter and the fade.
+ */
+@layer base {
+    * {
+        --scrollbar-thumb: transparent;
+    }
+
+    *:hover,
+    *:focus-visible,
+    *[data-scrolling] {
+        --scrollbar-thumb: var(--scrollbar);
+    }
+
+    *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    *::-webkit-scrollbar-track,
+    *::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb);
+        border: 3px solid transparent;
+        background-clip: padding-box;
+        border-radius: 999px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        border-width: 2px;
+    }
+
+    @supports (-moz-appearance: none) {
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) transparent;
+        }
+    }
+}
+
 html {
-    @apply scrollbar-thin;
+    @apply thin-scrollbar;
     overscroll-behavior: auto;
+}
+
+/*
+ * Dialogs and sheets lock the page scroll and add the scrollbar's width as
+ * a right margin. The page keeps a stable gutter already, so that margin
+ * would shift everything sideways while a dialog is open.
+ */
+html body[data-scroll-locked] {
+    margin-right: 0 !important;
 }
 
 /*

@@ -33,7 +33,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 name="email"
                                 autoComplete="email"
                                 value={email}
-                                className="mt-1 block w-full"
+                                className="h-11 rounded-xl bg-muted"
                                 readOnly
                             />
                             <InputError
@@ -48,7 +48,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 id="password"
                                 name="password"
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
+                                className="h-11 rounded-xl bg-muted"
                                 autoFocus
                                 placeholder="Password"
                                 passwordrules={passwordRules}
@@ -64,7 +64,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 id="password_confirmation"
                                 name="password_confirmation"
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
+                                className="h-11 rounded-xl bg-muted"
                                 placeholder="Confirm password"
                                 passwordrules={passwordRules}
                             />
@@ -76,7 +76,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
 
                         <Button
                             type="submit"
-                            className="mt-4 w-full"
+                            className="mt-2 h-12 w-full rounded-xl text-[15px] font-bold"
                             disabled={processing}
                             data-test="reset-password-button"
                         >
@@ -92,5 +92,5 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
 
 ResetPassword.layout = {
     title: 'Reset password',
-    description: 'Please enter your new password below',
+    description: 'Choose a new password for your account.',
 };

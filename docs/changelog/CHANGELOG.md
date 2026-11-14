@@ -42,8 +42,29 @@ Newest first. Dates are in the project's local time (UTC+7).
 - New look, part 5: settings. One card with vertical tabs (Profile, Security, Appearance, Team) and a sliding highlight. Profile shows a save bar while something is unsaved and deletes the account in place after the password. Security puts the three password fields in a row with a strength meter, and sets up two-factor in place with the recovery codes blurred until shown. Appearance picks the theme from small previews. Team has a role menu per member and invites by email with a role.
 - Progress: each list shows a completion ring, the board shows task counts and overall progress, and project cards show open, due-this-week and overdue tasks.
 
+### Fixed
+
+- Signing in with Google or GitHub opened `/dashboard`, a page that does not exist. It now opens the current team's dashboard, as signing in with a password does.
+
 ### Changed
 
+- A pass over every screen, on a desktop and a phone, fixed what was out of line:
+    - **Pages:** `/` no longer shows the starter kit's Laravel page; it opens the current team's dashboard, or the sign-in page for a guest.
+    - **Auth:** forgot password, reset password, confirm password and the two-factor challenge share the sign-in form's field and button sizes, divider and wording.
+    - **Dialogs:** opening search, a dialog or the task sheet no longer shifts the page sideways.
+    - **Dashboard:** the _Activity_ list scrolls inside its card, so _My focus_ beside it no longer stretches over an empty space.
+    - **Settings:** the Name and Email fields line up; a team has one color in the switcher and the team list; the two-factor _Set up_ button is outlined like _Add passkey_.
+    - **Text:** the projects list's group hint and the task sheet's "changes, folded between them" no longer squeeze their words together.
+    - **Lists:** the list view's column headings line up with their columns; _My tasks_ leaves out zero counts in its summary.
+    - **Phones:**
+        - the projects toolbar takes three rows instead of four;
+        - the board header keeps its menu at the end of the progress row;
+        - the filter field takes the full width;
+        - list rows wrap their labels instead of cutting a badge in half;
+        - _My tasks_ lines up its meta line under the title;
+        - the settings tabs sit in two rows of two;
+        - the task sheet no longer scrolls sideways (a long due date pushed it out).
+- Every scrolling area uses the thin scrollbar chosen in round 1, which shows only on hover or while scrolling. Tailwind's own `scrollbar-thin` utility had replaced it with the browser's grey scrollbar in Chromium, and some lists and the task sheet had none of the styling. The project's utility is now `thin-scrollbar`, and a base rule covers menus and text areas.
 - Links and hints use icons instead of arrow characters: _All_ on the dashboard's Projects card and _All teams_ in the team settings end with an arrow icon, the board's fold hint shows the fold icon, and the notifications page's key hints and its project-to-list separator are icons.
 - Docs brought up to date: README status, roadmap, the status and known limitations of spec 0001, and a workflow section in the docs index.
 - People outside a team get 404 instead of 403 on its pages ([ADR 0006](../decisions/0006-not-found-for-non-members.md)).

@@ -23,10 +23,12 @@ export function SortMenu({
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger className="group/sort flex min-h-10 min-w-56 items-center gap-2.5 rounded-xl border bg-card px-3 text-sm transition-[border-color,box-shadow] outline-none hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring/40 data-[state=open]:border-primary data-[state=open]:ring-3 data-[state=open]:ring-primary/15">
+            <DropdownMenuTrigger className="group/sort flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-xl border bg-card px-3 text-sm transition-[border-color,box-shadow] outline-none hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring/40 data-[state=open]:border-primary data-[state=open]:ring-3 data-[state=open]:ring-primary/15 sm:min-w-56 sm:flex-none">
                 <ArrowDownUp className="size-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Sort</span>
-                <span className="font-semibold">{current.label}</span>
+                <span className="text-muted-foreground max-sm:sr-only">
+                    Sort
+                </span>
+                <span className="truncate font-semibold">{current.label}</span>
                 <ChevronDown className="ml-auto size-4 transition-transform duration-300 ease-slide group-data-[state=open]/sort:rotate-180" />
             </DropdownMenuTrigger>
             <DropdownMenuContent

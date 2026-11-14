@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Labels\LabelController;
 use App\Http\Controllers\Lists\TaskListController;
 use App\Http\Controllers\MyTasksController;
@@ -17,7 +18,7 @@ use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 // Spec 0009: sign in, sign up or connect with Google or GitHub.
 Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');

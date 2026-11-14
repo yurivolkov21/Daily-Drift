@@ -165,6 +165,7 @@ export default function TwoFactorSettings({
                         {({ processing }) => (
                             <Button
                                 type="submit"
+                                variant="outline"
                                 disabled={processing}
                                 className={BUTTON}
                             >

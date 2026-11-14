@@ -269,7 +269,7 @@ export function Board({
                 }}
                 onDragCancel={() => setPending(null)}
             >
-                <KanbanBoard className="flex scrollbar-thin snap-x items-start gap-3 overflow-x-auto pb-3">
+                <KanbanBoard className="flex thin-scrollbar snap-x items-start gap-3 overflow-x-auto pb-3">
                     {lists.map((list, position) => (
                         <ListColumn
                             key={list.id}

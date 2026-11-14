@@ -139,3 +139,11 @@ export const HUES: Record<Hue, HueClasses> = {
         cover: 'from-pink-500/15 to-pink-500/40',
     },
 };
+
+/**
+ * A team's color, the same wherever the team shows: the team switcher in the
+ * sidebar and the list of teams in the settings.
+ */
+export function teamHue(teamId: number): Hue {
+    return HUE_NAMES[teamId % HUE_NAMES.length];
+}

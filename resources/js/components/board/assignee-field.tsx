@@ -114,7 +114,7 @@ export function AssigneeField({
             >
                 <Command>
                     <CommandInput placeholder="Search people" />
-                    <CommandList className="scrollbar-thin max-h-72">
+                    <CommandList className="thin-scrollbar max-h-72">
                         <CommandEmpty>Nobody in the team matches.</CommandEmpty>
                         <CommandGroup>
                             {me && (

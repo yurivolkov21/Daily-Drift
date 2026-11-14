@@ -120,7 +120,8 @@ export default function Profile({
                     </div>
 
                     <div className="grid content-start gap-2">
-                        <div className="flex items-center justify-between gap-2">
+                        {/* As tall as the Name label, so both fields line up; the badge may overhang. */}
+                        <div className="flex h-3.5 items-center justify-between gap-2">
                             <Label htmlFor="email">Email</Label>
                             {mustVerifyEmail &&
                                 (verified ? (
