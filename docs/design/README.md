@@ -123,6 +123,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - **Header card:** tile, name, description, chips (open, overdue, due today), progress, people and the project menu.
 - **Height:** the board fills the window under the header card and each list scrolls inside it, so the page has no scrollbar of its own. It keeps at least 16 rem (most of the screen on a phone, where the header card is tall); in a shorter window the page scrolls instead. The hint about dragging sits at the bottom.
 - **Columns** are tinted with the list hue. The header has the dot, name, count, _Add task_, _Fold_ and the list menu.
+- **The Done list** (spec 0010) shows a green check after its name. Completing a task moves it there, and the list menu's _Use as the Done list_ moves the mark to another list.
 - **Task cards:** title, two-line description, priority pill, due chip and an avatar (the creator in Phase 1, the assignee from Phase 2).
 - **Drag and drop:** a dashed slot opens where the card will land, within a list or across lists. Alt + arrow keys move the focused card.
 - **Folding:** any list folds to a narrow strip with its name and count. A folded list still accepts drops; its count bumps and a toast offers _Show_ and _Undo_.
@@ -199,11 +200,11 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - The task sheet adds a _Repeat_ row under _Due date_. Its menu offers presets that follow the due date ("Every 2 weeks on Thursday", "Every month on the 19th") and _Custom…_ (every 1 to 30 days, weeks, months or years). A repeating task shows a repeat icon next to its due date on cards, rows and calendar chips.
 - **Checklist** under the description:
     - _2 of 5_ and a thin bar, green when every item is checked, with a line saying the task stays open until it is completed;
-    - rows with a drag handle and a menu that show on hover, a checkbox, and text edited in place;
+    - rows with a drag handle and a menu that show on hover, a checkbox, and text edited in place. On a touch screen the menu always shows and the handle is hidden, since dragging needs a pointer;
     - _Hide checked_ folds the checked items into one line;
     - a dashed _Add an item_ field that takes one item per pasted line.
 - **Attachments** as rows: a small thumbnail or a type icon, the name, then type, size, who and when. Download and the menu show on hover. An upload shows a progress bar in its row, and a refused file shows a red row that says why. A dashed line at the end accepts dropped files, and dropping anywhere on the sheet shows a full-sheet drop target.
-- **Completing** moves the card to the top of the project's _Done_ list. A repeating task leaves its next occurrence at the bottom of the list it came from, and the sheet says so.
+- **Completing** moves the card to the top of the project's _Done_ list. A repeating task leaves its next occurrence at the bottom of the list it came from. A toast says where the card went and when the next one is due, with _Undo_.
 
 ## Components by screen
 

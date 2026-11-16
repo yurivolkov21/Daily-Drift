@@ -1,6 +1,6 @@
 # Spec 0010: Checklists, attachments and recurring tasks
 
-**Status:** In progress · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** [round 10](../design/README.md#how-it-was-chosen)
+**Status:** Done · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** [round 10](../design/README.md#how-it-was-chosen)
 
 ## Goal
 

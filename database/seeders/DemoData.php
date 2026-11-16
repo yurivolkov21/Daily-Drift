@@ -12,6 +12,10 @@ use App\Enums\Hue;
  * Days count from today (0); -3 is three days ago, 2 is the day after
  * tomorrow. People are keys of PEOPLE. A task's list follows from what
  * happened to it: done, started (In progress) or neither (To do).
+ *
+ * Spec 0010 adds three optional task fields: `checklist` ([text, who
+ * checked it or null]), `files` ([name, contents, who attached it]) and
+ * `repeat` ([unit, every], which needs a due date).
  */
 final class DemoData
 {
@@ -103,10 +107,23 @@ final class DemoData
                         'description' => 'Spec 0009: Laravel Socialite, connected accounts in Settings, and a rule that keeps one way to sign in.'],
                     ['title' => 'Spec 0010: checklists, attachments and recurring tasks', 'by' => 'me', 'who' => 'me', 'priority' => 'medium', 'labels' => ['docs'], 'created' => -2, 'started' => -2, 'done' => 0],
                     ['title' => 'Checklist items: table, routes and policy', 'by' => 'an', 'who' => 'me', 'priority' => 'high', 'labels' => ['backend'], 'created' => -1, 'started' => 0, 'due' => 0,
-                        'description' => 'Up to 50 items per task; checking and unchecking go to the history, nothing else does.'],
+                        'description' => 'Up to 50 items per task; checking and unchecking go to the history, nothing else does.',
+                        'checklist' => [['Migration and model', 'me'], ['Routes and controller', 'me'], ['404 for people outside the team', null], ['Feature tests', null]]],
                     ['title' => 'Attachments: upload, safe download and cleanup', 'by' => 'me', 'who' => 'an', 'priority' => 'high', 'labels' => ['backend', 'security'], 'created' => -1, 'due' => 2,
-                        'description' => 'Files outside public/, served only to the team, 10 MB each and 20 per task; SVG and HTML refused.'],
+                        'description' => 'Files outside public/, served only to the team, 10 MB each and 20 per task; SVG and HTML refused.',
+                        'files' => [['storage-notes.md', '# Where files live
+
+- The default disk, under storage/app/private, never public/.
+- One folder per team, project and task, with random names.
+- Sent only through attachments.show, with nosniff and a strict CSP.
+', 'an']]],
                     ['title' => 'Repeat rule and the next occurrence', 'by' => 'me', 'who' => 'khoa', 'priority' => 'medium', 'labels' => ['backend'], 'created' => -1, 'due' => 4,
+                        'files' => [['repeat-cases.csv', 'rule,due,next
+every month,2027-01-31,2027-02-28
+every month,2027-02-28,2027-03-31
+every year,2028-02-29,2029-02-28
+every weekday,2026-11-20,2026-11-23
+', 'khoa']],
                         'comments' => [
                             ['an', 0, '@Mai Nguyen do we count the next date from the due date or from the day it was done?', ['me']],
                             ['me', 0, 'From the due date, skipping the days already past: decision 2 in the spec.'],
@@ -114,8 +131,10 @@ final class DemoData
                     ['title' => 'Completing moves a task to Done', 'by' => 'an', 'who' => 'me', 'priority' => 'high', 'labels' => ['frontend', 'backend'], 'created' => -1, 'due' => 3],
                     ['title' => 'AI: split a task into subtasks', 'by' => 'me', 'who' => null, 'priority' => 'medium', 'labels' => ['ai'], 'created' => -1, 'due' => 10],
                     ['title' => 'AI: draft a project plan from a description', 'by' => 'me', 'who' => null, 'priority' => 'low', 'labels' => ['ai'], 'created' => -1, 'due' => 14],
-                    ['title' => 'Weekly progress summary', 'by' => 'me', 'who' => 'linh', 'priority' => 'low', 'labels' => ['ai'], 'created' => -1],
-                    ['title' => 'Production: PostgreSQL, queue worker and scheduler', 'by' => 'me', 'who' => 'an', 'priority' => 'medium', 'labels' => ['devops'], 'created' => -1, 'due' => 12],
+                    ['title' => 'Weekly progress summary', 'by' => 'me', 'who' => 'linh', 'priority' => 'low', 'labels' => ['ai'], 'created' => -1, 'due' => 1, 'repeat' => ['week', 1],
+                        'checklist' => [['Collect the numbers', null], ['Write the summary', null], ['Post it in the team channel', null]]],
+                    ['title' => 'Production: PostgreSQL, queue worker and scheduler', 'by' => 'me', 'who' => 'an', 'priority' => 'medium', 'labels' => ['devops'], 'created' => -1, 'due' => 12,
+                        'checklist' => [['Pick a host', 'an'], ['Managed PostgreSQL', 'an'], ['Queue worker as a service', null], ['Scheduler every minute', null], ['Backups and a restore drill', null]]],
                     ['title' => 'Email notifications: assigned and due soon', 'by' => 'me', 'who' => null, 'priority' => 'medium', 'labels' => ['backend'], 'created' => -1],
                 ],
             ],
@@ -160,6 +179,8 @@ final class DemoData
                     ['title' => 'Sign-in guide: Google shows a client secret only once', 'by' => 'an', 'who' => 'me', 'priority' => 'high', 'labels' => ['docs'], 'created' => -3, 'due' => -1],
                     ['title' => 'Check Safari and Firefox', 'by' => 'me', 'who' => 'khoa', 'priority' => 'medium', 'labels' => ['tests', 'bug'], 'created' => -4, 'due' => -2],
                     ['title' => 'Seed a demo workspace from the project\'s history', 'by' => 'me', 'who' => 'me', 'priority' => 'medium', 'labels' => ['backend', 'docs'], 'created' => -1, 'started' => 0, 'due' => 1],
+                    ['title' => 'Review the Dependabot pull requests', 'by' => 'an', 'who' => 'khoa', 'priority' => 'low', 'labels' => ['devops'], 'created' => -6, 'due' => 2, 'repeat' => ['week', 1],
+                        'checklist' => [['Read the changelogs', null], ['Run the suite locally', null], ['Merge or close each one', null]]],
                 ],
             ],
         ];

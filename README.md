@@ -61,7 +61,7 @@ Sign in as `test@example.com` with the password `password`. The demo tells the s
 
 - **The team:** _Daily-Drift Studio_ with four people and one pending invitation. Each teammate (`an@example.com`, `linh@example.com`, `khoa@example.com`) also signs in with `password`.
 - **The projects:** one per phase, the design rounds, and docs and tooling. Phase 1 is archived.
-- **The tasks:** over 50 tasks taken from the specs, with labels, assignees, comments and mentions.
+- **The tasks:** over 50 tasks taken from the specs, with labels, assignees, comments and mentions, a few checklists and files, and two that repeat every week.
 - **The history:** three weeks of it, so the dashboard, _My tasks_, the calendar and the notifications all have something to show.
 
 Dates follow the day you seed, so something is always overdue, due today and due this week. To start again with a fresh demo, run `php artisan migrate:fresh --seed`; it deletes everything else in the database.
@@ -72,6 +72,7 @@ Dates follow the day you seed, so something is always overdue, due today and due
 - **The queue worker sends invitations.** Team invitation emails go through the queue (`QUEUE_CONNECTION=database`). `composer dev` runs the worker; if you start the server another way, also run `php artisan queue:listen`.
 - **The scheduler is optional.** Once a day it deletes expired team invitations. `composer dev` does not start it; run `php artisan schedule:work` in another terminal if you want it.
 - **Use the address in `APP_URL`.** Passkeys only work on that host, so open `localhost:8000`, not `127.0.0.1:8000`. If you change the port or host, change `APP_URL` too.
+- **Files up to 10 MB need PHP to allow them.** PHP refuses uploads above `upload_max_filesize` and `post_max_size`, which are 2 MB and 8 MB by default. For local development, set `upload_max_filesize = 10M` and `post_max_size = 12M` in your `php.ini` (`php --ini` shows which file), then restart `composer dev`. Files are kept in `storage/app/private`, never under `public/`.
 - **Google and GitHub sign-in is optional.** Without keys the buttons are hidden and everything else works. To turn it on, follow [setting up sign in with Google and GitHub](docs/guides/social-sign-in.md) and fill in the four `GOOGLE_*` and `GITHUB_*` variables in `.env`.
 
 ### Troubleshooting
@@ -83,6 +84,7 @@ Dates follow the day you seed, so something is always overdue, due today and due
 | The page says _Vite manifest not found_                | Keep `composer dev` running, or build once with `pnpm run build`.                             |
 | A change to `.env` has no effect                       | Run `php artisan config:clear`, then restart `composer dev`.                                  |
 | A team invitation email never shows up in the log      | Check that the queue worker is running (it is part of `composer dev`).                        |
+| A file over 2 MB says _The server refused the file_    | Raise PHP's upload limits (see [Good to know](#good-to-know)).                                |
 | You want to start over with an empty database          | `php artisan migrate:fresh --seed`. It deletes all data, then creates the demo account again. |
 
 ## Checks
