@@ -64,8 +64,10 @@ class ChecklistItem extends Model
      */
     public function check(bool $checked, ?User $by): void
     {
-        $this->completed_at = $checked ? now() : null;
-        $this->completed_by = $checked ? $by?->id : null;
+        $this->forceFill([
+            'completed_at' => $checked ? now() : null,
+            'completed_by' => $checked ? $by?->id : null,
+        ]);
     }
 
     /**
