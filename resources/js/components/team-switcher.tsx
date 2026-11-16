@@ -62,7 +62,10 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                     className={
                         inHeader
                             ? 'h-8 gap-1 px-2'
-                            : 'h-11 w-full justify-start gap-2.5 rounded-xl border border-sidebar-border bg-white/[0.04] px-2 text-white group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0 hover:bg-sidebar-accent hover:text-white has-[>svg]:px-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+                            : // Full width with a fixed left padding, so the
+                              // 28px tile stays put and sits in the middle of
+                              // the rail (18 + 1 + 5 + 14 = 38px).
+                              'h-10 w-full justify-start gap-2.5 overflow-hidden rounded-xl border border-sidebar-border bg-white/[0.04] pr-2 pl-[5px] text-white transition-[background-color,border-color] duration-200 group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent hover:bg-sidebar-accent hover:text-white has-[>svg]:pr-2 has-[>svg]:pl-[5px] data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
                     }
                     aria-label={inHeader ? undefined : 'Switch team'}
                 >
@@ -85,7 +88,7 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                         className={
                             inHeader
                                 ? 'grid flex-1 text-left text-sm leading-tight'
-                                : 'grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden'
+                                : 'fold-fade grid flex-1 text-left text-sm leading-tight'
                         }
                     >
                         <span
@@ -102,7 +105,7 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                         className={
                             inHeader
                                 ? 'size-4 opacity-50'
-                                : 'ml-auto opacity-70 group-data-[collapsible=icon]:hidden'
+                                : 'fold-fade ml-auto opacity-70'
                         }
                     />
                 </Button>

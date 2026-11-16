@@ -250,10 +250,17 @@ export function Board({
 
     return (
         <>
+            {/* The board takes the rest of the window and each list scrolls
+                on its own, so the page does not scroll beside it. It keeps
+                at least 16rem (most of the screen on phones, where the
+                project card is tall); below that the page scrolls instead.
+                The size container lets the lists cap their height at
+                100cqh. */}
             <Kanban
                 value={columns}
                 onValueChange={setPending}
                 getItemValue={itemKey}
+                className="[container-type:size] min-h-[16rem] flex-1 max-md:min-h-[calc(100svh-8rem)]"
                 onValueCommit={commit}
                 onDragStart={() => {
                     committed.current = false;
@@ -269,7 +276,7 @@ export function Board({
                 }}
                 onDragCancel={() => setPending(null)}
             >
-                <KanbanBoard className="flex thin-scrollbar snap-x items-start gap-3 overflow-x-auto pb-3">
+                <KanbanBoard className="relative flex thin-scrollbar snap-x items-start gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-3">
                     {lists.map((list, position) => (
                         <ListColumn
                             key={list.id}

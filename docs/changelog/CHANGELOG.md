@@ -45,6 +45,14 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Fixed
 
+- **Folding the sidebar** no longer stutters, and the folded rail is centered.
+    - On the 76 px rail the logo, team tile, icons, project tiles and avatar sat 4 to 10 px left of the middle; they are now centered.
+    - While the sidebar folded, the icons jumped to the middle of the still-wide card and slid back, labels shrank to "Dashb…", and counts and the team name popped in and out. Now the icons stay where they are, the labels, counts and chevrons fade out and back in, and the _Recent_ heading moves with the card.
+- **The board page** showed a page scrollbar that the wheel could not move.
+    - Screen-reader text in a card ("Comments: ") escaped the list's scrolling area and stretched the page by up to 250 px.
+    - The lists' height came from a guess at what sits above them (100svh minus 22 rem). The board now fills the window instead, and each list scrolls inside it.
+    - Scrolling areas no longer contain the wheel, so it reaches the page over an area that cannot scroll.
+- **The dashboard's throughput line** stopped short of today on wide screens, and its last point was stretched into an oval. The line was drawn with dashes measured in the chart's own units, which fall short once the chart is stretched to a wide card. It now draws through a widening clip, and the last point is a round dot laid over the chart.
 - Signing in with Google or GitHub opened `/dashboard`, a page that does not exist. It now opens the current team's dashboard, as signing in with a password does.
 
 ### Changed

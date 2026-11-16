@@ -1,6 +1,5 @@
 import { format, parseISO } from 'date-fns';
-import type { CSSProperties } from 'react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Card, CardTitle } from '@/components/dashboard/cards';
 import { SegmentedTabs } from '@/components/segmented-tabs';
 import type { DashboardData } from '@/types';
@@ -18,6 +17,7 @@ export function ThroughputChart({
     throughput: DashboardData['throughput'];
 }) {
     const [range, setRange] = useState<'7' | '14'>('14');
+    const clipId = `throughput-${useId().replace(/[^\w-]/g, '')}`;
     const days = throughput.days.slice(-Number(range));
     const total = days.reduce((sum, day) => sum + day.count, 0);
     const before = range === '7' ? throughput.previous7 : throughput.previous14;
@@ -82,62 +82,81 @@ export function ThroughputChart({
                     </span>
                 </span>
             </CardTitle>
-            <svg
-                key={range}
-                role="img"
-                aria-label={`Tasks completed per day over the last ${range} days: ${days.map((day) => day.count).join(', ')}`}
-                viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-                preserveAspectRatio="none"
-                className="h-52 w-full overflow-visible"
-            >
-                {[50, 100, 150].map((y) => (
-                    <line
-                        key={y}
-                        x1="0"
-                        x2={WIDTH}
-                        y1={y}
-                        y2={y}
-                        className="stroke-border"
-                        vectorEffect="non-scaling-stroke"
+            {/*
+              The SVG stretches to the card (preserveAspectRatio="none"), so
+              the line keeps a 3px stroke with non-scaling-stroke and draws
+              itself through a clip that widens, not with stroke dashes:
+              dashes are measured in the SVG's own units and fell short of
+              the stretched line on wide screens. The last point is an HTML
+              dot laid over the SVG, so it stays round.
+            */}
+            <div key={range} className="relative h-52">
+                <svg
+                    role="img"
+                    aria-label={`Tasks completed per day over the last ${range} days: ${days.map((day) => day.count).join(', ')}`}
+                    viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+                    preserveAspectRatio="none"
+                    className="absolute inset-0 size-full overflow-visible"
+                >
+                    <defs>
+                        <clipPath id={clipId}>
+                            <rect
+                                x={-10}
+                                y={-10}
+                                width={WIDTH + 20}
+                                height={HEIGHT + 20}
+                                className="origin-left animate-fill [animation-delay:450ms] [animation-duration:1.6s] [transform-box:fill-box]"
+                            />
+                        </clipPath>
+                    </defs>
+                    {[50, 100, 150].map((y) => (
+                        <line
+                            key={y}
+                            x1="0"
+                            x2={WIDTH}
+                            y1={y}
+                            y2={y}
+                            className="stroke-border"
+                            vectorEffect="non-scaling-stroke"
+                        />
+                    ))}
+                    <path
+                        d={`${line} L ${last.x} ${HEIGHT} L ${points[0].x} ${HEIGHT} Z`}
+                        className="animate-fade fill-primary/10 [animation-delay:1s]"
                     />
-                ))}
-                <path
-                    d={`${line} L ${last.x} ${HEIGHT} L ${points[0].x} ${HEIGHT} Z`}
-                    className="animate-fade fill-primary/10 [animation-delay:1s]"
-                />
-                <path
-                    d={line}
-                    pathLength={1}
-                    fill="none"
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeDasharray={1}
-                    strokeDashoffset={0}
-                    vectorEffect="non-scaling-stroke"
-                    className="animate-draw stroke-primary [animation-delay:450ms] [animation-duration:1.6s]"
-                    style={{ '--ring-length': 1 } as CSSProperties}
-                />
-                {points.map((point) => (
-                    <circle
-                        key={point.date}
-                        cx={point.x}
-                        cy={point.y}
-                        r={point === last ? 6 : 10}
-                        className={
-                            point === last
-                                ? 'animate-fade fill-card stroke-primary [animation-delay:1s]'
-                                : 'fill-transparent'
-                        }
-                        strokeWidth={point === last ? 3 : 0}
+                    <path
+                        d={line}
+                        clipPath={`url(#${clipId})`}
+                        fill="none"
+                        strokeWidth={3}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         vectorEffect="non-scaling-stroke"
-                    >
-                        <title>
-                            {`${format(parseISO(point.date), 'EEE d MMM')}: ${point.count} completed`}
-                        </title>
-                    </circle>
-                ))}
-            </svg>
+                        className="stroke-primary"
+                    />
+                    {points.map((point) => (
+                        <circle
+                            key={point.date}
+                            cx={point.x}
+                            cy={point.y}
+                            r={10}
+                            className="fill-transparent"
+                        >
+                            <title>
+                                {`${format(parseISO(point.date), 'EEE d MMM')}: ${point.count} completed`}
+                            </title>
+                        </circle>
+                    ))}
+                </svg>
+                <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute size-3.5 -translate-1/2 animate-fade rounded-full border-[3px] border-primary bg-card [animation-delay:1.6s] [animation-duration:0.6s]"
+                    style={{
+                        left: `${(last.x / WIDTH) * 100}%`,
+                        top: `${(last.y / HEIGHT) * 100}%`,
+                    }}
+                />
+            </div>
             <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{format(parseISO(days[0].date), 'd MMM')}</span>
                 <span>Today</span>
