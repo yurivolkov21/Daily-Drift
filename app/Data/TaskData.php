@@ -15,6 +15,8 @@ readonly class TaskData
         public ?string $description,
         public string $priority,
         public ?string $dueOn,
+        /** @var array{unit: string, every: int}|null */
+        public ?array $repeat,
         public ?string $completedAt,
         public int $position,
         public ?string $creatorName,
@@ -45,6 +47,7 @@ readonly class TaskData
             description: $task->description,
             priority: $task->priority->value,
             dueOn: $task->due_on?->toDateString(),
+            repeat: $task->repeatRule()?->toArray(),
             completedAt: $task->completed_at?->toISOString(),
             position: $task->position,
             creatorName: $task->creator?->name,

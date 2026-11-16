@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tasks;
 
 use App\Enums\Priority;
+use App\Enums\RepeatUnit;
 use App\Models\Task;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,6 +24,10 @@ class UpdateTaskRequest extends FormRequest
             'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
             'priority' => ['sometimes', 'required', Rule::enum(Priority::class)],
             'due_on' => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            // Spec 0010: a repeat rule, or null to stop repeating.
+            'repeat' => ['sometimes', 'nullable', 'array:unit,every'],
+            'repeat.unit' => ['required_with:repeat', Rule::enum(RepeatUnit::class)],
+            'repeat.every' => ['required_with:repeat', 'integer', 'min:1', 'max:30'],
             // Only members of the project's team can be assigned (spec 0004).
             'assignee_id' => [
                 'sometimes',

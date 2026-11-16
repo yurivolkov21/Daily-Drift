@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\Priority;
+use App\Enums\RepeatUnit;
 use App\Observers\TaskObserver;
+use App\Support\RepeatRule;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -12,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -24,7 +27,12 @@ use Illuminate\Support\Carbon;
  * @property string|null $description
  * @property Priority $priority
  * @property Carbon|null $due_on
+ * @property RepeatUnit|null $repeat_unit
+ * @property int|null $repeat_every
+ * @property Carbon|null $repeat_anchor
+ * @property int|null $repeated_from_id
  * @property Carbon|null $completed_at
+ * @property int|null $completed_from_list_id
  * @property int $position
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -34,7 +42,7 @@ use Illuminate\Support\Carbon;
  * @property-read User|null $assignee
  */
 #[ObservedBy(TaskObserver::class)]
-#[Fillable(['title', 'description', 'priority', 'due_on', 'completed_at', 'position', 'assignee_id'])]
+#[Fillable(['title', 'description', 'priority', 'due_on', 'completed_at', 'position', 'assignee_id', 'repeat_unit', 'repeat_every', 'repeat_anchor'])]
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
@@ -138,6 +146,26 @@ class Task extends Model
     }
 
     /**
+     * The occurrence created when this one was completed (spec 0010).
+     *
+     * @return HasOne<Task, $this>
+     */
+    public function nextOccurrence(): HasOne
+    {
+        return $this->hasOne(Task::class, 'repeated_from_id');
+    }
+
+    /**
+     * The task's repeat rule, if it repeats (spec 0010).
+     */
+    public function repeatRule(): ?RepeatRule
+    {
+        return $this->repeat_unit === null
+            ? null
+            : new RepeatRule($this->repeat_unit, $this->repeat_unit === RepeatUnit::Weekday ? 1 : max(1, (int) $this->repeat_every));
+    }
+
+    /**
      * Determine whether the task is completed.
      */
     public function isCompleted(): bool
@@ -155,6 +183,9 @@ class Task extends Model
         return [
             'priority' => Priority::class,
             'due_on' => 'date',
+            'repeat_unit' => RepeatUnit::class,
+            'repeat_every' => 'integer',
+            'repeat_anchor' => 'date',
             'completed_at' => 'datetime',
             'position' => 'integer',
         ];
