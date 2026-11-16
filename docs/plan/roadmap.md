@@ -41,7 +41,7 @@ Daily-Drift is mainly a portfolio project, so Phase 2 favours features that show
 ## Phase 3: Advanced (In progress)
 
 - [x] Sign in with Google and GitHub, connected to existing accounts from the settings ([spec 0009](../spec/0009-sign-in-with-google-and-github.md))
-- [ ] Checklists, attachments and recurring tasks ([spec 0010](../spec/0010-checklists-attachments-recurring-tasks.md)). It comes before the AI helpers, whose _split a task into subtasks_ writes into the checklist
+- [x] Checklists, attachments and recurring tasks ([spec 0010](../spec/0010-checklists-attachments-recurring-tasks.md)), and completing a task moves it to the project's _Done_ list. It comes before the AI helpers, whose _split a task into subtasks_ writes into the checklist
 - [ ] AI helpers: split a task into subtasks, draft a project plan from a description, weekly progress summary
 - [ ] Production readiness: PostgreSQL, queue worker, cloud file storage, rate limiting, deployment
 - [ ] Email notifications (assigned, due soon), on the queue worker and a scheduler. People who follow their device's time zone need it stored first ([ADR 0008](../decisions/0008-time-zone-per-person.md))

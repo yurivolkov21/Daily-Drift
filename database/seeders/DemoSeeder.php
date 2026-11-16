@@ -9,8 +9,11 @@ use App\Actions\Tasks\CreateTask;
 use App\Actions\Tasks\MoveTask;
 use App\Actions\Teams\CreateTeam;
 use App\Enums\Priority;
+use App\Enums\RepeatUnit;
 use App\Enums\TeamRole;
 use App\Models\Activity;
+use App\Models\Attachment;
+use App\Models\ChecklistItem;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskList;
@@ -23,6 +26,8 @@ use Closure;
 use Illuminate\Database\Seeder;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * A demo workspace built from Daily-Drift's own history (DemoData).
@@ -184,11 +189,61 @@ class DemoSeeder extends Seeder
             $task->forceFill([
                 'description' => $data['description'] ?? null,
                 'priority' => Priority::from($data['priority'] ?? 'none'),
+                // Spec 0010: a weekly review and the like repeat from their due date.
+                ...(isset($data['repeat']) && $due !== null ? [
+                    'repeat_unit' => RepeatUnit::from($data['repeat'][0]),
+                    'repeat_every' => $data['repeat'][1],
+                    'repeat_anchor' => $due,
+                ] : []),
             ])->saveQuietly();
             $task->labels()->sync(array_map(fn (string $label) => $this->labels[$label], $data['labels'] ?? []));
 
+            /** @var list<array{0: string, 1: string|null}> $checklist */
+            $checklist = $data['checklist'] ?? [];
+
+            ChecklistItem::withoutTouching(function () use ($task, $checklist) {
+                foreach ($checklist as $position => [$body]) {
+                    $task->checklistItems()->create(['body' => $body, 'position' => $position]);
+                }
+            });
+
             $this->tasks[$key] = $task;
         });
+
+        // Checked items go into the history, by whoever checked them.
+        foreach ($data['checklist'] ?? [] as $number => [$body, $checker]) {
+            if ($checker === null) {
+                continue;
+            }
+
+            $this->plan($data['started'] ?? $data['created'], 13 + $number / 4 + $jitter, $checker, function () use ($key, $body, $checker) {
+                $item = $this->tasks[$key]->checklistItems()->where('body', $body)->firstOrFail();
+                $item->check(true, $this->people[$checker]);
+                $item->save();
+
+                Activity::record($this->tasks[$key], Activity::CHECKLIST_CHECKED, ['id' => $item->id, 'text' => $item->body]);
+            });
+        }
+
+        // Files are written to the disk as an upload would be (spec 0010).
+        foreach ($data['files'] ?? [] as $number => [$name, $contents, $uploader]) {
+            $this->plan($data['created'], 11 + $number / 4 + $jitter, $uploader, function () use ($key, $name, $contents, $uploader) {
+                $task = $this->tasks[$key];
+                $path = Attachment::directoryFor($task).'/'.Str::random(40).'.'.pathinfo($name, PATHINFO_EXTENSION);
+                Storage::put($path, $contents);
+
+                $file = $task->attachments()->make([
+                    'name' => $name,
+                    'path' => $path,
+                    'mime_type' => str_ends_with($name, '.csv') ? 'text/csv' : 'text/plain',
+                    'size' => strlen($contents),
+                ]);
+                $file->uploader()->associate($this->people[$uploader]);
+                $file->save();
+
+                Activity::record($task, Activity::ATTACHMENT_ADDED, ['id' => $file->id, 'name' => $file->name]);
+            });
+        }
 
         if ($who !== null) {
             $this->plan($data['created'], 9.25 + $shift / 3 + $jitter, $by, fn () => $this->tasks[$key]->update([

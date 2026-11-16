@@ -13,6 +13,7 @@ use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -27,6 +28,7 @@ class DemoSeederTest extends TestCase
     {
         parent::setUp();
 
+        Storage::fake();
         $this->seed(DatabaseSeeder::class);
     }
 
@@ -104,5 +106,24 @@ class DemoSeederTest extends TestCase
         $this->actingAs($me)->get(route('projects.index', ['current_team' => $slug]))->assertOk();
         $this->actingAs($me)->get(route('projects.show', ['current_team' => $slug, 'project' => $project->id]))->assertOk();
         $this->actingAs($me)->get(route('notifications.index', ['current_team' => $slug]))->assertOk();
+    }
+
+    public function test_the_demo_shows_checklists_files_and_repeats()
+    {
+        $production = Task::query()->where('title', 'Production: PostgreSQL, queue worker and scheduler')->sole();
+        $this->assertSame(5, $production->checklistItems()->count());
+        $this->assertSame(2, $production->checklistItems()->whereNotNull('completed_at')->count());
+        $this->assertSame(2, $production->activities()->where('type', Activity::CHECKLIST_CHECKED)->count());
+
+        $notes = Task::query()->where('title', 'Attachments: upload, safe download and cleanup')->sole()->attachments()->sole();
+        $this->assertSame('storage-notes.md', $notes->name);
+        Storage::assertExists($notes->path);
+
+        $weekly = Task::query()->where('title', 'Weekly progress summary')->sole();
+        $this->assertSame(['unit' => 'week', 'every' => 1], $weekly->repeatRule()?->toArray());
+        $this->assertNotNull($weekly->due_on);
+
+        // Every project marks its Done list, and every done task sits in it.
+        Project::query()->get()->each(fn (Project $project) => $this->assertNotNull($project->doneList()));
     }
 }

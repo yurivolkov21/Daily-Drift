@@ -6,6 +6,12 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
+- Checklists, attachments and recurring tasks ([spec 0010](../spec/0010-checklists-attachments-recurring-tasks.md)).
+    - **Checklist:** up to 50 items under the description, checked, edited in place, reordered and deleted with _Undo_. Pasted lines become one item each, and checked items can fold away. Cards and list rows show "2/5". Only checking and unchecking go into the history.
+    - **Files:** up to 20 per task, 10 MB each: images, PDF, text, Word, Excel, PowerPoint and ZIP, checked by their content, so SVG and HTML are refused whatever they are called. They upload one by one with a progress bar, also when dropped on the sheet. They are stored outside `public/` under random names and sent only to the team, with headers that stop them running scripts. They leave the disk with their task, list, project or team. The uploader, owners and admins delete them.
+    - **Repeat:** every day, weekday, week, month or year, or every 1 to 30 of them, from a _Repeat_ row under the due date. Completing a recurring task creates the next one in the list it came from, with the same details and an open checklist. Its due date skips the days already past and keeps "the 31st". Reopening right away takes the untouched next one back.
+- The demo workspace shows checklists, files and two weekly repeats.
+
 - A demo workspace for `php artisan db:seed`, built from the project's own history: the _Daily-Drift Studio_ team with four people and a pending invitation; projects for each phase, the design rounds, and docs and tooling; and over 50 tasks taken from the specs, with labels, assignees, comments and mentions. It runs through the app's own actions as each person, on the day each step happened, so the history, the dashboard's charts, _My tasks_ and the notifications look like three weeks of work. Dates follow the day of seeding.
 - [Spec 0010](../spec/0010-checklists-attachments-recurring-tasks.md) for checklists, attachments and recurring tasks, the second Phase 3 item. Planned:
     - a checklist of up to 50 items under the description, with progress on cards;
@@ -56,6 +62,9 @@ Newest first. Dates are in the project's local time (UTC+7).
 - Signing in with Google or GitHub opened `/dashboard`, a page that does not exist. It now opens the current team's dashboard, as signing in with a password does.
 
 ### Changed
+
+- Completing a task moves it to the top of its project's _Done_ list, and reopening it moves it back to the list it came from (spec 0010, decision 5). Moving a card into _Done_ completes it and moving it out reopens it, so the checkbox and the list always agree. Each project marks one list as its _Done_ list; existing projects mark the list named "Done", and no task moves until its next change. A toast says where the task went, with _Undo_.
+- Moving a card no longer marks the cards it pushes aside as updated.
 
 - A pass over every screen, on a desktop and a phone, fixed what was out of line:
     - **Pages:** `/` no longer shows the starter kit's Laravel page; it opens the current team's dashboard, or the sign-in page for a guest.
