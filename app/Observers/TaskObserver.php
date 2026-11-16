@@ -21,6 +21,8 @@ class TaskObserver
         Activity::record($task, Activity::TASK_CREATED, [
             'title' => $task->title,
             'list' => $this->listName($task->task_list_id),
+            // The next occurrence of a recurring task (spec 0010).
+            ...($task->repeated_from_id === null ? [] : ['repeated_from' => $task->repeated_from_id]),
         ], $task->creator ?? null);
     }
 
@@ -58,6 +60,15 @@ class TaskObserver
             Activity::record($task, Activity::TASK_DUE_CHANGED, [
                 'from' => $this->date($task->getOriginal('due_on')),
                 'to' => $task->due_on?->toDateString(),
+            ]);
+        }
+
+        // Completing stops a recurring task repeating, and reopening may
+        // start it again; that is part of the completion event.
+        if (($task->wasChanged('repeat_unit') || $task->wasChanged('repeat_every')) && ! $task->wasChanged('completed_at')) {
+            Activity::record($task, Activity::TASK_REPEAT_CHANGED, [
+                'from' => $this->rule($task->getOriginal('repeat_unit'), $task->getOriginal('repeat_every')),
+                'to' => $this->rule($task->repeat_unit, $task->repeat_every),
             ]);
         }
 
@@ -120,6 +131,18 @@ class TaskObserver
         if ($assignee && $actor instanceof User && $actor->isNot($assignee)) {
             $assignee->notify(new TaskAssigned($task, $actor));
         }
+    }
+
+    /**
+     * A repeat rule as the history keeps it, or null for none.
+     *
+     * @return array{unit: string, every: int}|null
+     */
+    private function rule(mixed $unit, mixed $every): ?array
+    {
+        $unit = $this->scalar($unit);
+
+        return is_string($unit) ? ['unit' => $unit, 'every' => (int) $every] : null;
     }
 
     private function listName(mixed $id): ?string
