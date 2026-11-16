@@ -13,18 +13,28 @@ class MoveTask
     /**
      * Move the task to the given 0-based index of the target list, which may
      * be its own list, and keep the positions of both lists dense.
+     *
+     * Other attributes given are saved with the move, in the same update, so
+     * completing and moving to Done is one change (spec 0010).
+     *
+     * @param  array<string, mixed>  $attributes
      */
-    public function handle(Task $task, TaskList $target, int $index): void
+    public function handle(Task $task, TaskList $target, int $index, array $attributes = []): void
     {
-        DB::transaction(function () use ($task, $target, $index) {
+        DB::transaction(function () use ($task, $target, $index, $attributes) {
             $source = $task->task_list_id;
 
             $others = $this->tasksIn($target->id)->reject(fn (Task $item) => $item->is($task))->values();
             $index = max(0, min($index, $others->count()));
 
+            $task->forceFill($attributes);
             $task->task_list_id = $target->id;
             $others->splice($index, 0, [$task]);
-            Positions::rewrite($others);
+            Positions::rewrite($others, $task);
+
+            if ($task->isDirty()) {
+                $task->save();
+            }
 
             if ($source !== $target->id) {
                 Positions::rewrite($this->tasksIn($source));

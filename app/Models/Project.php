@@ -75,6 +75,15 @@ class Project extends Model
     }
 
     /**
+     * The list a completed task moves to, if the project marks one
+     * (spec 0010).
+     */
+    public function doneList(): ?TaskList
+    {
+        return $this->lists()->where('is_done', true)->first();
+    }
+
+    /**
      * Determine whether the project is archived.
      */
     public function isArchived(): bool

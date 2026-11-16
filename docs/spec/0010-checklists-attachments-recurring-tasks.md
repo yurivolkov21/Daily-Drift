@@ -1,6 +1,6 @@
 # Spec 0010: Checklists, attachments and recurring tasks
 
-**Status:** Planned · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** [round 10](../design/README.md#how-it-was-chosen)
+**Status:** In progress · **Phase:** 3 · **Roadmap:** [Phase 3](../plan/roadmap.md#phase-3-advanced-in-progress) · **Design:** [round 10](../design/README.md#how-it-was-chosen)
 
 ## Goal
 
@@ -232,7 +232,7 @@ Under `/{current_team}`:
 
 ## Decisions
 
-Decisions 1 to 4: the owner kept the proposals (13 November). Decision 5 is the owner's request; its details are proposals.
+Decisions 1 to 4: the owner kept the proposals (13 November). Decision 5 is the owner's request, and the owner kept its proposed details on 16 November.
 
 1. **What completing a recurring task does:** it creates the next occurrence as a new task and leaves the completed one done. The other way would move the same task's due date forward, as many to-do apps do. Proposed because the board counts done tasks (progress, the dashboard's throughput and _Done lately_): moving the date would hide every completion, and the history of each occurrence would run together.
 2. **Where the next due date starts:** from the old due date, skipping dates already past. Counting from the completion date would let a weekly review drift to whatever day it was done.
@@ -241,7 +241,7 @@ Decisions 1 to 4: the owner kept the proposals (13 November). Decision 5 is the 
     - **Checklist:** checked items fold behind _Hide checked_, since the AI helpers can write long checklists.
     - **Files:** rows, not a thumbnail grid. In a sheet 500 px wide a grid cuts file names short.
     - **Repeat:** its own row under _Due date_, not inside the date picker, where it would be easy to miss.
-5. **Completing moves a task to Done** (the owner, 13 November). The board should show what is finished. Proposed details:
+5. **Completing moves a task to Done** (the owner, 13 November). The board should show what is finished. The details, kept by the owner on 16 November:
     - a marked _Done_ list per project, rather than the last list or one found by its name;
     - the checkbox and the Done list always agree, in both directions;
     - a completed task goes to the top of _Done_, and back to the list it came from when reopened.

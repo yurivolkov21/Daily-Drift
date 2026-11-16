@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Actions\Comments\NotifyMentionedPeople;
 use App\Actions\Projects\CreateProject;
+use App\Actions\Tasks\CompleteTask;
 use App\Actions\Tasks\CreateTask;
 use App\Actions\Tasks\MoveTask;
 use App\Actions\Teams\CreateTeam;
@@ -56,6 +57,7 @@ class DemoSeeder extends Seeder
         private readonly CreateProject $createProject,
         private readonly CreateTask $createTask,
         private readonly MoveTask $moveTask,
+        private readonly CompleteTask $completeTask,
         private readonly NotifyMentionedPeople $notifyMentioned,
     ) {}
 
@@ -223,10 +225,11 @@ class DemoSeeder extends Seeder
         }
 
         if (isset($data['done'])) {
-            $this->plan($data['done'], 16 + $shift / 2 + $jitter, $doer, function () use ($key, $project) {
-                $this->moveTask->handle($this->tasks[$key]->refresh(), $this->list($project, 'Done'), PHP_INT_MAX);
-                $this->tasks[$key]->refresh()->update(['completed_at' => now()]);
-            });
+            // Completing moves the task to the top of Done (spec 0010).
+            $this->plan($data['done'], 16 + $shift / 2 + $jitter, $doer, fn () => $this->completeTask->handle(
+                $this->tasks[$key]->refresh(),
+                true,
+            ));
         }
     }
 

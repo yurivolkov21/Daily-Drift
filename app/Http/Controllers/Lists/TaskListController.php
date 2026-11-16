@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Lists;
 
 use App\Actions\Lists\CreateTaskList;
 use App\Actions\Lists\DeleteTaskList;
+use App\Actions\Lists\MarkDoneList;
 use App\Actions\Lists\MoveTaskList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Lists\MoveTaskListRequest;
@@ -31,13 +32,17 @@ class TaskListController extends Controller
     }
 
     /**
-     * Rename or recolor the list.
+     * Rename or recolor the list, or mark it as the project's Done list.
      */
-    public function update(UpdateTaskListRequest $request, Team $current_team, TaskList $list): RedirectResponse
+    public function update(UpdateTaskListRequest $request, Team $current_team, TaskList $list, MarkDoneList $markDoneList): RedirectResponse
     {
         Gate::authorize('update', $list);
 
-        $list->update($request->validated());
+        $list->update($request->safe()->except('is_done'));
+
+        if ($request->has('is_done')) {
+            $markDoneList->handle($list, $request->boolean('is_done'));
+        }
 
         return back();
     }

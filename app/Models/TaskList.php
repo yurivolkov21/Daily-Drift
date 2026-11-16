@@ -20,12 +20,13 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property Hue $color
  * @property int $position
+ * @property bool $is_done
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Project $project
  * @property-read Collection<int, Task> $tasks
  */
-#[Fillable(['name', 'color', 'position'])]
+#[Fillable(['name', 'color', 'position', 'is_done'])]
 class TaskList extends Model
 {
     /** @use HasFactory<TaskListFactory> */
@@ -68,6 +69,7 @@ class TaskList extends Model
         return [
             'color' => Hue::class,
             'position' => 'integer',
+            'is_done' => 'boolean',
         ];
     }
 }
