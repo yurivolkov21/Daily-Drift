@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Checklists\ChecklistItemController;
 use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
@@ -65,6 +66,12 @@ Route::prefix('{current_team}')
             // A team has no direct relation to comments; the controller checks the team.
             Route::patch('comments/{comment}', [CommentController::class, 'update'])->withoutScopedBindings()->name('comments.update');
             Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->withoutScopedBindings()->name('comments.destroy');
+
+            // Spec 0010: checklists. A team has no direct relation to items; the controller checks the team.
+            Route::post('tasks/{task}/checklist', [ChecklistItemController::class, 'store'])->name('checklist-items.store');
+            Route::patch('checklist-items/{item}', [ChecklistItemController::class, 'update'])->withoutScopedBindings()->name('checklist-items.update');
+            Route::patch('checklist-items/{item}/move', [ChecklistItemController::class, 'move'])->withoutScopedBindings()->name('checklist-items.move');
+            Route::delete('checklist-items/{item}', [ChecklistItemController::class, 'destroy'])->withoutScopedBindings()->name('checklist-items.destroy');
 
             // Spec 0007: the team's labels.
             Route::post('labels', [LabelController::class, 'store'])->name('labels.store');

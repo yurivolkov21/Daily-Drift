@@ -55,6 +55,16 @@ class Activity extends Model
 
     public const string COMMENT_ADDED = 'comment.added';
 
+    public const string CHECKLIST_CHECKED = 'checklist.checked';
+
+    public const string CHECKLIST_UNCHECKED = 'checklist.unchecked';
+
+    public const string ATTACHMENT_ADDED = 'attachment.added';
+
+    public const string ATTACHMENT_REMOVED = 'attachment.removed';
+
+    public const string TASK_REPEAT_CHANGED = 'task.repeat_changed';
+
     /**
      * Record an event for a task. The actor is the signed-in person unless
      * given; pass `false` for a change nobody made (such as leaving a team).
