@@ -8,7 +8,12 @@ import {
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavMain, navButtonClass } from '@/components/nav-main';
+import {
+    NavMain,
+    navBadgeClass,
+    navButtonClass,
+    navLabelClass,
+} from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { TeamSwitcher } from '@/components/team-switcher';
 import {
@@ -73,13 +78,13 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" variant="floating">
-            <SidebarHeader className="gap-4 px-3 pt-4">
+            <SidebarHeader className="gap-4 px-[18px] pt-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="gap-3 rounded-xl px-1.5 text-white group-data-[collapsible=icon]:size-11! group-data-[collapsible=icon]:p-[3px]! hover:bg-transparent hover:text-white active:bg-transparent"
+                            className="gap-3 rounded-xl pl-px text-white hover:bg-transparent hover:text-white active:bg-transparent"
                         >
                             <Link href={dashboardUrl} prefetch>
                                 <AppLogo />
@@ -94,14 +99,17 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent className="thin-scrollbar gap-5 px-1 pt-2 scrollbar-on-dark">
+            {/* The scrollbar gutter (10px) plus 8px matches the 18px inset
+                on the left; on the rail there is no gutter, so 18px both
+                sides leaves exactly the 40px buttons. */}
+            <SidebarContent className="thin-scrollbar gap-5 pt-2 pr-2 pl-[18px] scrollbar-on-dark group-data-[collapsible=icon]:[scrollbar-gutter:auto] group-data-[collapsible=icon]:pr-[18px]">
                 <NavMain items={mainNavItems} />
                 {teamSlug && recentProjects.length > 0 && (
-                    <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel className="text-[11px] font-semibold tracking-[0.08em] text-sidebar-muted uppercase">
+                    <SidebarGroup className="p-0">
+                        <SidebarGroupLabel className="px-[11px] text-[11px] font-semibold tracking-[0.08em] text-sidebar-muted uppercase duration-450 ease-panel">
                             Recent
                         </SidebarGroupLabel>
-                        <SidebarMenu className="group-data-[collapsible=icon]:items-center">
+                        <SidebarMenu>
                             {recentProjects.map((project) => {
                                 const href = showProject({
                                     current_team: teamSlug,
@@ -116,7 +124,7 @@ export function AppSidebar() {
                                             tooltip={{ children: project.name }}
                                             className={cn(
                                                 navButtonClass,
-                                                'h-10 text-[13.5px] text-sidebar-foreground group-data-[collapsible=icon]:p-[9px]! data-[active=true]:bg-sidebar-accent data-[active=true]:text-white',
+                                                'pl-[9px] text-[13.5px] text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-white',
                                             )}
                                         >
                                             <Link href={href} prefetch>
@@ -131,11 +139,20 @@ export function AppSidebar() {
                                                         .charAt(0)
                                                         .toUpperCase()}
                                                 </span>
-                                                <span>{project.name}</span>
+                                                <span
+                                                    className={navLabelClass(
+                                                        true,
+                                                    )}
+                                                >
+                                                    {project.name}
+                                                </span>
                                             </Link>
                                         </SidebarMenuButton>
                                         <SidebarMenuBadge
-                                            className="text-sidebar-muted peer-hover/menu-button:text-sidebar-muted peer-data-[active=true]/menu-button:text-sidebar-muted peer-data-[size=default]/menu-button:top-2.5"
+                                            className={cn(
+                                                navBadgeClass,
+                                                'text-sidebar-muted peer-hover/menu-button:text-sidebar-muted peer-data-[active=true]/menu-button:text-sidebar-muted',
+                                            )}
                                             aria-label={`${project.open} open tasks`}
                                         >
                                             {project.open}
@@ -148,7 +165,7 @@ export function AppSidebar() {
                 )}
             </SidebarContent>
 
-            <SidebarFooter className="gap-3 px-3 pb-4">
+            <SidebarFooter className="gap-3 px-[18px] pb-4">
                 <FoldButton />
                 <NavUser />
             </SidebarFooter>
@@ -185,12 +202,14 @@ function FoldButton() {
                     }}
                     className={cn(
                         navButtonClass,
-                        'border border-sidebar-border bg-white/[0.04] text-white',
+                        'border border-sidebar-border bg-white/[0.04] pl-[10px] text-white',
                     )}
                 >
                     {folded ? <PanelLeftOpen /> : <PanelLeftClose />}
-                    <span>Collapse sidebar</span>
-                    <kbd className="ml-auto rounded-md border border-sidebar-border px-1.5 font-sans text-[11px] text-sidebar-muted">
+                    <span className="fold-fade whitespace-nowrap">
+                        Collapse sidebar
+                    </span>
+                    <kbd className="fold-fade ml-auto rounded-md border border-sidebar-border px-1.5 font-sans text-[11px] whitespace-nowrap text-sidebar-muted">
                         {shortcut}
                     </kbd>
                 </SidebarMenuButton>

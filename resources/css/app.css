@@ -313,11 +313,15 @@
     initial-value: transparent;
 }
 
+/*
+ * Scrolling is not contained: an area that cannot scroll, or has reached its
+ * end, passes the wheel on to the page. Containing it left the wheel dead
+ * over the board whenever the page was taller than the window.
+ */
 @utility thin-scrollbar {
     --scrollbar-thumb: transparent;
     transition: --scrollbar-thumb 0.4s ease;
     scrollbar-gutter: stable;
-    overscroll-behavior: contain;
 
     &:hover,
     &:focus-visible,
@@ -404,7 +408,16 @@
 
 html {
     @apply thin-scrollbar;
-    overscroll-behavior: auto;
+}
+
+/*
+ * The board fills the window: the page is exactly as tall as the window, the
+ * board takes what the header and project card leave, and each list scrolls
+ * inside it (components/board/board.tsx). The lists measure that space with
+ * container units, which need this definite height.
+ */
+main[data-slot='sidebar-inset']:has(> [data-fills-window]) {
+    height: 100svh;
 }
 
 /*
@@ -417,8 +430,26 @@ html body[data-scroll-locked] {
 }
 
 /*
+ * Sidebar text, counts and chevrons fade as the sidebar folds instead of
+ * popping or ending in "…": out at once when it folds, back in once the card
+ * is most of the way open when it unfolds.
+ */
+@utility fold-fade {
+    transition: opacity 0.2s ease 0.12s;
+
+    [data-collapsible='icon'] & {
+        opacity: 0;
+        pointer-events: none;
+        transition-duration: 0.1s;
+        transition-delay: 0s;
+    }
+}
+
+/*
  * Floating sidebar (ADR 0007): the shadcn sidebar with 14px around it, the
- * same gap as between cards, and a slower, eased fold.
+ * same gap as between cards, and a slower, eased fold. Inside the card every
+ * row starts 18px from its left edge, so on the 76px rail the 40px buttons
+ * sit in the middle and their icons do not move while it folds.
  */
 @media (min-width: 768px) {
     [data-slot='sidebar'][data-variant='floating'] > div {

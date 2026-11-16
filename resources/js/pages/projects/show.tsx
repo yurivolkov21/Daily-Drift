@@ -153,7 +153,17 @@ export default function ProjectShow({ project }: Props) {
                 </HeaderActions>
             )}
 
-            <div className="flex min-w-0 flex-1 flex-col gap-3.5">
+            {/* With the board, the page is exactly as tall as the window
+                (app.css): min-h-0 keeps that height definite even when the
+                board's minimum overflows a short window, so its lists can
+                still measure it. */}
+            <div
+                className={cn(
+                    'flex min-w-0 flex-1 flex-col gap-3.5',
+                    view === 'board' && 'min-h-0',
+                )}
+                data-fills-window={view === 'board' ? '' : undefined}
+            >
                 <section className="flex animate-rise flex-wrap items-center gap-x-5 gap-y-4 rounded-card bg-card px-5 py-4 [animation-delay:110ms]">
                     <span
                         aria-hidden="true"
