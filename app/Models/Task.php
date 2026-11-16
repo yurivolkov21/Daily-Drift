@@ -118,6 +118,16 @@ class Task extends Model
     }
 
     /**
+     * Get the task's checklist, in order (spec 0010).
+     *
+     * @return HasMany<ChecklistItem, $this>
+     */
+    public function checklistItems(): HasMany
+    {
+        return $this->hasMany(ChecklistItem::class)->orderBy('position')->orderBy('id');
+    }
+
+    /**
      * Determine whether the task is completed.
      */
     public function isCompleted(): bool

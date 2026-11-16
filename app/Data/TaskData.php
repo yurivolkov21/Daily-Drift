@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Models\ChecklistItem;
 use App\Models\Task;
 
 readonly class TaskData
@@ -21,6 +22,8 @@ readonly class TaskData
         public int $commentCount,
         /** @var array<int, int> */
         public array $labelIds,
+        /** @var array<int, array{id: int, body: string, checked: bool}> */
+        public array $checklist,
         public ?string $createdAt,
         public ?string $updatedAt,
     ) {
@@ -46,6 +49,13 @@ readonly class TaskData
             assigneeName: $task->assignee?->name,
             commentCount: (int) ($task->getAttribute('comments_count') ?? 0),
             labelIds: $task->relationLoaded('labels') ? $task->labels->pluck('id')->map(intval(...))->all() : [],
+            checklist: $task->relationLoaded('checklistItems')
+                ? $task->checklistItems->map(fn (ChecklistItem $item) => [
+                    'id' => $item->id,
+                    'body' => $item->body,
+                    'checked' => $item->isChecked(),
+                ])->values()->all()
+                : [],
             createdAt: $task->created_at?->toISOString(),
             updatedAt: $task->updated_at?->toISOString(),
         );
