@@ -1,23 +1,26 @@
 import { router } from '@inertiajs/react';
 import { toast } from 'sonner';
+import { completeTask } from '@/components/board/complete-task';
 import { shortDay } from '@/lib/project-views';
-import { complete, store, update } from '@/routes/tasks';
-import type { Task } from '@/types';
+import { store, update } from '@/routes/tasks';
+import type { Project, Task } from '@/types';
 
 /**
  * What the list and the calendar save (spec 0008), through the task routes
  * the board already uses.
  */
-export function taskActions(teamSlug: string) {
+export function taskActions(
+    teamSlug: string,
+    context: { project: Pick<Project, 'lists'>; today: string },
+) {
     const options = { preserveScroll: true, preserveState: true } as const;
 
-    /** Tick or untick a task; it stays in its list. */
+    /**
+     * Tick or untick a task. Completing moves it to the project's Done list
+     * (spec 0010).
+     */
     const setDone = (task: Task, done: boolean) =>
-        router.visit(complete({ current_team: teamSlug, task: task.id }), {
-            ...options,
-            data: { completed: done },
-            onError: () => toast.error('The task could not be saved.'),
-        });
+        completeTask(teamSlug, task, done, context);
 
     /**
      * Change only the due date, which records one `task.due_changed` event.

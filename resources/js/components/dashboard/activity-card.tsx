@@ -124,7 +124,11 @@ export function ActivityCard({
 
 function Row({ teamSlug, item }: { teamSlug: string; item: FeedItem }) {
     const { verb, tail } = feedPhrase(item);
-    const title = item.task?.title ?? String(item.properties.title ?? 'a task');
+    const title =
+        item.task?.title ??
+        (typeof item.properties.title === 'string'
+            ? item.properties.title
+            : 'a task');
 
     return (
         <li

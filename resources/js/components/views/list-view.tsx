@@ -11,7 +11,12 @@ import {
 import type { KeyboardEvent, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { ADD_TASK_EVENT } from '@/components/board/add-task';
-import { AssigneeAvatar } from '@/components/board/task-badges';
+import {
+    AssigneeAvatar,
+    ChecklistCount,
+    FileCount,
+    RepeatIcon,
+} from '@/components/board/task-badges';
 import { LabelBadge, useTeamLabels } from '@/components/labels/label-badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { BoardFilters } from '@/lib/board-filters';
@@ -56,7 +61,7 @@ export function ListView({
 }: Props) {
     const canManage = project.can.manageLists;
     const filtering = filtersOn(filters);
-    const actions = taskActions(teamSlug);
+    const actions = taskActions(teamSlug, { project, today });
     const [folded, setFolded] = useState<number[]>([]);
 
     return (
@@ -480,6 +485,8 @@ function TaskRow({
                             +{labels.length - 3}
                         </span>
                     )}
+                    <ChecklistCount items={task.checklist} />
+                    <FileCount count={task.attachments.length} />
                     {task.commentCount > 0 && (
                         <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
                             <MessageSquare
@@ -490,11 +497,14 @@ function TaskRow({
                             {task.commentCount}
                         </span>
                     )}
-                    {labels.length === 0 && task.commentCount === 0 && (
-                        <span className="hidden text-xs text-muted-foreground/70 md:inline">
-                            No labels
-                        </span>
-                    )}
+                    {labels.length === 0 &&
+                        task.commentCount === 0 &&
+                        task.checklist.length === 0 &&
+                        task.attachments.length === 0 && (
+                            <span className="hidden text-xs text-muted-foreground/70 md:inline">
+                                No labels
+                            </span>
+                        )}
                 </span>
             </span>
             <span role="gridcell" className="hidden md:flex">
@@ -562,6 +572,7 @@ export function DueText({ task, today }: { task: Task; today: string }) {
         >
             <CalendarDays className="size-3.5 opacity-70" aria-hidden="true" />
             {text}
+            {task.repeat && <RepeatIcon />}
         </span>
     );
 }

@@ -345,6 +345,6 @@ class RecurringTaskTest extends TestCase
 
         $this->actingAs($this->member)
             ->get($this->url('projects.show', ['project' => $this->project->id]))
-            ->assertInertia(fn ($page) => $page->where('project.lists.0.tasks.0.repeat', ['unit' => 'week', 'every' => 2]));
+            ->assertInertia(fn ($page) => $page->where('project.lists.0.tasks.0.repeat', ['unit' => 'week', 'every' => 2, 'anchorOn' => '2026-11-16']));
     }
 }

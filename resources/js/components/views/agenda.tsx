@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns';
-import { CalendarX2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarX2, ChevronLeft, ChevronRight, Repeat } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { MemberAvatar } from '@/components/member-avatar';
 import { Button } from '@/components/ui/button';
@@ -164,6 +164,15 @@ export function Agenda({
                                     {PRIORITIES[task.priority].label}
                                 </span>
                             </>
+                        )}
+                        {task.repeat && (
+                            <span title="Repeats" className="text-primary">
+                                <Repeat
+                                    className="size-3.5"
+                                    aria-hidden="true"
+                                />
+                                <span className="sr-only">, repeats</span>
+                            </span>
                         )}
                     </span>
                 </span>

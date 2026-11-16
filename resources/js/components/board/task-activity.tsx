@@ -6,9 +6,12 @@ import {
     Check,
     ChevronDown,
     Flag,
+    ListChecks,
     MessageSquare,
+    Paperclip,
     Pencil,
     Plus,
+    Repeat,
     RotateCcw,
     Tag,
     Trash2,
@@ -43,6 +46,11 @@ const EVENT_ICONS: Record<string, LucideIcon> = {
     'task.reopened': RotateCcw,
     'task.labeled': Tag,
     'task.unlabeled': Tag,
+    'task.repeat_changed': Repeat,
+    'checklist.checked': ListChecks,
+    'checklist.unchecked': ListChecks,
+    'attachment.added': Paperclip,
+    'attachment.removed': Paperclip,
 };
 
 type Block =
@@ -67,10 +75,16 @@ export function TaskActivity({
     teamSlug,
     taskId,
     members,
+    version,
+    doneList,
 }: {
     teamSlug: string;
     taskId: number;
     members: Member[];
+    /** The task's `updatedAt`: when it changes, the history loads again. */
+    version?: string | null;
+    /** The project's Done list, named when completing moved the task there. */
+    doneList?: string;
 }) {
     const { submit } = useHttp();
     const { zone } = useLocalTime();
@@ -95,7 +109,7 @@ export function TaskActivity({
 
     useEffect(() => {
         void load();
-    }, [load]);
+    }, [load, version]);
 
     // Opened from a mention (spec 0006): scroll to the comment and
     // highlight it once, then drop `comment` from the address.
@@ -255,6 +269,7 @@ export function TaskActivity({
                                     key={`e${block.key}`}
                                     events={block.events}
                                     zone={zone}
+                                    doneList={doneList}
                                     open={open[block.key] ?? false}
                                     onToggle={() =>
                                         setOpen((current) => ({
@@ -306,11 +321,13 @@ function Changes({
     zone,
     open,
     onToggle,
+    doneList,
 }: {
     events: TaskEvent[];
     zone: string;
     open: boolean;
     onToggle: () => void;
+    doneList?: string;
 }) {
     const people = [
         ...new Set(
@@ -370,7 +387,7 @@ function Changes({
                                                 )}{' '}
                                             </strong>
                                         )}
-                                        {describeEvent(event)}
+                                        {describeEvent(event, doneList)}
                                     </span>
                                     <time
                                         dateTime={event.createdAt}
