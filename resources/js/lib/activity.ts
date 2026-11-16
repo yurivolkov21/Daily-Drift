@@ -1,4 +1,5 @@
 import { format, parseISO } from 'date-fns';
+import { ruleShort } from '@/lib/repeat';
 import { PRIORITIES } from '@/lib/tasks';
 import type { Priority, TaskEvent } from '@/types';
 
@@ -8,25 +9,40 @@ const day = (value: unknown): string =>
 const priority = (value: unknown): string =>
     PRIORITIES[value as Priority]?.label ?? String(value);
 
-/** What an event did, for the task sheet: "moved it from To do to Done". */
-export function describeEvent(event: TaskEvent): string {
+const isRule = (value: unknown): value is { unit: string; every: number } =>
+    typeof value === 'object' && value !== null && 'unit' in value;
+
+const text = (value: unknown): string =>
+    typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+
+/**
+ * What an event did, for the task sheet: "moved it from To do to Done".
+ * `doneList` names the project's Done list, where completing moves a task.
+ */
+export function describeEvent(event: TaskEvent, doneList?: string): string {
     const { from, to, name, list } = event.properties;
 
     switch (event.type) {
         case 'task.created':
-            return list ? `created the task in ${list}` : 'created the task';
+            if (event.properties.repeated_from) {
+                return `created this occurrence${list ? ` in ${text(list)}` : ''} when the last one was completed`;
+            }
+
+            return list
+                ? `created the task in ${text(list)}`
+                : 'created the task';
         case 'task.renamed':
-            return `renamed it to “${to}”`;
+            return `renamed it to “${text(to)}”`;
         case 'task.described':
             return 'edited the description';
         case 'task.moved':
-            return `moved it from ${from} to ${to}`;
+            return `moved it from ${text(from)} to ${text(to)}`;
         case 'task.assigned':
-            return `assigned it to ${name ?? 'someone'}`;
+            return `assigned it to ${text(name) || 'someone'}`;
         case 'task.unassigned':
             return event.actor
-                ? `unassigned ${name ?? 'it'}`
-                : `${name ?? 'The assignee'} left the team, so it is unassigned`;
+                ? `unassigned ${text(name) || 'it'}`
+                : `${text(name) || 'The assignee'} left the team, so it is unassigned`;
         case 'task.priority_changed':
             return to === 'none'
                 ? 'removed the priority'
@@ -40,13 +56,29 @@ export function describeEvent(event: TaskEvent): string {
                 ? `changed the due date from ${day(from)} to ${day(to)}`
                 : `set the due date to ${day(to)}`;
         case 'task.completed':
-            return 'completed it';
+            return from && doneList
+                ? `completed it and moved it to ${doneList}`
+                : 'completed it';
         case 'task.reopened':
-            return 'reopened it';
+            return to
+                ? `reopened it and moved it back to ${text(to)}`
+                : 'reopened it';
         case 'task.labeled':
-            return `added the label ${name ?? ''}`.trim();
+            return `added the label ${text(name)}`.trim();
         case 'task.unlabeled':
-            return `removed the label ${name ?? ''}`.trim();
+            return `removed the label ${text(name)}`.trim();
+        case 'task.repeat_changed':
+            return isRule(to)
+                ? `set it to repeat ${ruleShort(to)}`
+                : 'stopped the repeat';
+        case 'checklist.checked':
+            return `checked “${text(event.properties.text)}”`;
+        case 'checklist.unchecked':
+            return `unchecked “${text(event.properties.text)}”`;
+        case 'attachment.added':
+            return `attached ${text(name)}`;
+        case 'attachment.removed':
+            return `removed the file ${text(name)}`;
         default:
             return 'changed it';
     }
@@ -61,15 +93,17 @@ export function feedPhrase(event: TaskEvent): { verb: string; tail: string } {
 
     switch (event.type) {
         case 'task.created':
-            return { verb: 'created', tail: '' };
+            return event.properties.repeated_from
+                ? { verb: 'created the next occurrence of', tail: '' }
+                : { verb: 'created', tail: '' };
         case 'task.renamed':
             return { verb: 'renamed', tail: '' };
         case 'task.described':
             return { verb: 'edited the description of', tail: '' };
         case 'task.moved':
-            return { verb: 'moved', tail: `to ${to}` };
+            return { verb: 'moved', tail: `to ${text(to)}` };
         case 'task.assigned':
-            return { verb: 'assigned', tail: `to ${name ?? 'someone'}` };
+            return { verb: 'assigned', tail: `to ${text(name) || 'someone'}` };
         case 'task.unassigned':
             return { verb: 'unassigned', tail: '' };
         case 'task.priority_changed':
@@ -91,11 +125,29 @@ export function feedPhrase(event: TaskEvent): { verb: string; tail: string } {
         case 'task.deleted':
             return { verb: 'deleted', tail: '' };
         case 'task.labeled':
-            return { verb: `added the label ${name ?? ''} to`, tail: '' };
+            return { verb: `added the label ${text(name)} to`, tail: '' };
         case 'task.unlabeled':
-            return { verb: `removed the label ${name ?? ''} from`, tail: '' };
+            return { verb: `removed the label ${text(name)} from`, tail: '' };
         case 'comment.added':
             return { verb: 'commented on', tail: '' };
+        case 'task.repeat_changed':
+            return isRule(to)
+                ? { verb: 'set', tail: `to repeat ${ruleShort(to)}` }
+                : { verb: 'stopped the repeat of', tail: '' };
+        case 'checklist.checked':
+            return {
+                verb: `checked “${text(event.properties.text)}” on`,
+                tail: '',
+            };
+        case 'checklist.unchecked':
+            return {
+                verb: `unchecked “${text(event.properties.text)}” on`,
+                tail: '',
+            };
+        case 'attachment.added':
+            return { verb: `attached ${text(name)} to`, tail: '' };
+        case 'attachment.removed':
+            return { verb: `removed ${text(name)} from`, tail: '' };
         default:
             return { verb: 'changed', tail: '' };
     }

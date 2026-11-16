@@ -1,12 +1,19 @@
-import { router } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { MessageSquare } from 'lucide-react';
 import { LabelBadge, useTeamLabels } from '@/components/labels/label-badge';
 import { KanbanItem, KanbanItemHandle } from '@/components/reui/kanban';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useLocalTime } from '@/hooks/use-local-time';
 import { cn } from '@/lib/utils';
-import { complete } from '@/routes/tasks';
-import type { Task } from '@/types';
-import { AssigneeAvatar, DueLabel, PriorityPill } from './task-badges';
+import type { Project, Task } from '@/types';
+import { completeTask } from './complete-task';
+import {
+    AssigneeAvatar,
+    ChecklistCount,
+    DueLabel,
+    FileCount,
+    PriorityPill,
+} from './task-badges';
 
 /** Kanban item keys; see columnKey for why ids get a prefix. */
 export const itemKey = (task: Pick<Task, 'id'>) => `task-${task.id}`;
@@ -48,6 +55,8 @@ export function TaskCard({
 }: Props) {
     const completed = task.completedAt !== null;
     const { byId } = useTeamLabels();
+    const project = usePage<{ project?: Project }>().props.project;
+    const { today } = useLocalTime();
     const labels = task.labelIds.flatMap((id) => byId.get(id) ?? []);
     // Keys pressed on the checkbox or title must not start a keyboard drag.
     const keepKeys = (event: React.KeyboardEvent) => event.stopPropagation();
@@ -97,17 +106,10 @@ export function TaskCard({
                         onClick={(event) => event.stopPropagation()}
                         onKeyDown={keepKeys}
                         onCheckedChange={(checked) =>
-                            router.visit(
-                                complete({
-                                    current_team: teamSlug,
-                                    task: task.id,
-                                }),
-                                {
-                                    data: { completed: checked === true },
-                                    preserveScroll: true,
-                                    preserveState: true,
-                                },
-                            )
+                            completeTask(teamSlug, task, checked === true, {
+                                project,
+                                today,
+                            })
                         }
                     />
                     <button
@@ -153,6 +155,8 @@ export function TaskCard({
                 <div className="flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1 pl-6.5">
                     {!completed && <PriorityPill priority={task.priority} />}
                     <DueLabel task={task} />
+                    <ChecklistCount items={task.checklist} />
+                    <FileCount count={task.attachments.length} />
                     {task.commentCount > 0 && (
                         <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                             <MessageSquare className="size-3.5" />

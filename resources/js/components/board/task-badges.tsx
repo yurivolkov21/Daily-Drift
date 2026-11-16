@@ -1,4 +1,10 @@
-import { CalendarDays, Flag } from 'lucide-react';
+import {
+    CalendarDays,
+    Flag,
+    ListChecks,
+    Paperclip,
+    Repeat,
+} from 'lucide-react';
 import { MemberAvatar } from '@/components/member-avatar';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -9,7 +15,7 @@ import {
 import { useLocalTime } from '@/hooks/use-local-time';
 import { dueState, formatDue, initials, PRIORITIES } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
-import type { Priority, Task } from '@/types';
+import type { ChecklistItem, Priority, RepeatRule, Task } from '@/types';
 
 export function PriorityPill({ priority }: { priority: Priority }) {
     if (priority === 'none') {
@@ -33,7 +39,7 @@ export function DueLabel({
     task,
     className,
 }: {
-    task: Pick<Task, 'dueOn' | 'completedAt'>;
+    task: Pick<Task, 'dueOn' | 'completedAt'> & { repeat?: RepeatRule | null };
     className?: string;
 }) {
     const { today } = useLocalTime();
@@ -60,6 +66,63 @@ export function DueLabel({
             <CalendarDays className="size-3.5" />
             {state === 'overdue' && 'Overdue · '}
             {state === 'today' ? 'Today' : formatDue(task.dueOn)}
+            {task.repeat && <RepeatIcon />}
+        </span>
+    );
+}
+
+/** Beside a due date: the task repeats (spec 0010). */
+export function RepeatIcon({ className }: { className?: string }) {
+    return (
+        <span
+            title="Repeats"
+            className={cn('inline-flex text-primary', className)}
+        >
+            <Repeat className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">, repeats</span>
+        </span>
+    );
+}
+
+/**
+ * How much of the checklist is checked, "2/5", green once it all is
+ * (spec 0010).
+ */
+export function ChecklistCount({ items }: { items: ChecklistItem[] }) {
+    if (items.length === 0) {
+        return null;
+    }
+
+    const checked = items.filter((item) => item.checked).length;
+
+    return (
+        <span
+            title={`Checklist: ${checked} of ${items.length} checked`}
+            className={cn(
+                'inline-flex h-[22px] shrink-0 items-center gap-1 rounded-md px-1.5 text-[11.5px] font-bold tabular-nums',
+                checked === items.length
+                    ? 'bg-green-500/12 text-green-700 dark:text-green-400'
+                    : 'bg-muted text-muted-foreground',
+            )}
+        >
+            <ListChecks className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">Checklist: </span>
+            {checked}/{items.length}
+        </span>
+    );
+}
+
+/** A paperclip with the number of files (spec 0010). */
+export function FileCount({ count }: { count: number }) {
+    if (count === 0) {
+        return null;
+    }
+
+    return (
+        <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+            <Paperclip className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">Files: </span>
+            {count}
         </span>
     );
 }

@@ -3,6 +3,7 @@ import {
     Check,
     ChevronRight,
     ChevronsLeft,
+    CircleCheck,
     MoreHorizontal,
     Palette,
     Pencil,
@@ -11,6 +12,7 @@ import {
     X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { AddTask, openAddTask } from '@/components/board/add-task';
 import type { TaskStep } from '@/components/board/task-card';
 import { TaskCard } from '@/components/board/task-card';
@@ -100,10 +102,22 @@ export function ListColumn({
         ? `${tasks.length} of ${total}`
         : String(tasks.length);
 
+    // Spec 0010: completing a task moves it to this list.
+    const doneMark = list.isDone && (
+        <span
+            title="The Done list: completing a task moves it here"
+            className="flex shrink-0 text-green-600 dark:text-green-400"
+        >
+            <CircleCheck className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">, the Done list</span>
+        </span>
+    );
+
     const title = (
         <>
             <ProgressRing value={progress} hue={list.color} />
             <span className="truncate text-sm font-semibold">{list.name}</span>
+            {doneMark}
             <span
                 key={countText}
                 className={cn(
@@ -139,6 +153,7 @@ export function ListColumn({
                 >
                     <ChevronRight className="size-4 text-muted-foreground" />
                     <ProgressRing value={progress} hue={list.color} />
+                    {doneMark}
                     <span className="text-sm font-bold [writing-mode:vertical-rl]">
                         {list.name}
                     </span>
@@ -272,6 +287,26 @@ export function ListColumn({
                                             ))}
                                         </DropdownMenuSubContent>
                                     </DropdownMenuSub>
+                                    {!list.isDone && (
+                                        <DropdownMenuItem
+                                            onSelect={() =>
+                                                router.visit(
+                                                    update(parameters),
+                                                    {
+                                                        data: { is_done: true },
+                                                        preserveScroll: true,
+                                                        preserveState: true,
+                                                        onSuccess: () =>
+                                                            toast.success(
+                                                                `${list.name} is now the Done list. Completing a task moves it here.`,
+                                                            ),
+                                                    },
+                                                )
+                                            }
+                                        >
+                                            <CircleCheck /> Use as the Done list
+                                        </DropdownMenuItem>
+                                    )}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         variant="destructive"

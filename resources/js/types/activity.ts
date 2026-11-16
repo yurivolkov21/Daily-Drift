@@ -6,7 +6,10 @@ type Person = { id: number; name: string };
 export type TaskEvent = {
     id: number;
     type: string;
-    properties: Record<string, string | number | null | undefined>;
+    properties: Record<
+        string,
+        string | number | null | undefined | { unit: string; every: number }
+    >;
     actor: Person | null;
     createdAt: string;
 };

@@ -7,6 +7,7 @@ import {
     GripVertical,
     PanelLeft,
     Plus,
+    Repeat,
     X,
 } from 'lucide-react';
 import type { DragEvent, KeyboardEvent, ReactNode } from 'react';
@@ -75,7 +76,7 @@ export function CalendarView({
     onOpenTask,
 }: Props) {
     const canManage = project.can.manageLists;
-    const actions = taskActions(teamSlug);
+    const actions = taskActions(teamSlug, { project, today });
     const firstList = project.lists[0];
 
     const [panel, setPanel] = useState<boolean>(() =>
@@ -858,7 +859,7 @@ function TaskChip({
             data-chip-id={task.id}
             title={task.title}
             aria-describedby="calendar-hint"
-            aria-label={`${task.title}${done ? ', done' : ''}${list ? `, ${list.name}` : ''}${task.assigneeName ? `, assigned to ${task.assigneeName}` : ''}`}
+            aria-label={`${task.title}${done ? ', done' : ''}${task.repeat ? ', repeats' : ''}${list ? `, ${list.name}` : ''}${task.assigneeName ? `, assigned to ${task.assigneeName}` : ''}`}
             onClick={(event) => {
                 event.stopPropagation();
                 onOpen();
@@ -908,6 +909,12 @@ function TaskChip({
             >
                 {task.title}
             </span>
+            {task.repeat && (
+                <Repeat
+                    className="size-3 shrink-0 opacity-80"
+                    aria-hidden="true"
+                />
+            )}
             {task.assigneeId !== null && task.assigneeName && (
                 <MemberAvatar
                     id={task.assigneeId}

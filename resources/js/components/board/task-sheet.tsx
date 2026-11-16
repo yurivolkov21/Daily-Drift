@@ -7,14 +7,16 @@ import {
     CircleCheck,
     Columns3,
     Flag,
+    Repeat,
     Tag,
     Trash2,
+    Upload,
     User,
     UserRoundCheck,
     X,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { useState } from 'react';
+import type { DragEvent, ReactNode } from 'react';
+import { useRef, useState } from 'react';
 import InputError from '@/components/input-error';
 import { LabelField } from '@/components/labels/label-field';
 import {
@@ -54,12 +56,16 @@ import { useLocalTime } from '@/hooks/use-local-time';
 import { HUES } from '@/lib/hues';
 import { dueState, PRIORITIES, PRIORITY_NAMES } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
-import { complete, destroy, move, update } from '@/routes/tasks';
-import type { Priority, Project, Task } from '@/types';
+import { destroy, move, update } from '@/routes/tasks';
+import type { Priority, Project, RepeatRule, Task } from '@/types';
 import type { Member } from './assignee-field';
 import { AssigneeField } from './assignee-field';
+import { completeTask } from './complete-task';
+import { RepeatField } from './repeat-field';
 import { TaskActivity } from './task-activity';
 import { CreatorAvatar } from './task-badges';
+import { TaskChecklist } from './task-checklist';
+import { TaskFiles, useUploads } from './task-files';
 
 type Props = {
     teamSlug: string;
@@ -109,14 +115,80 @@ function TaskForm({
 }) {
     const [priority, setPriority] = useState<Priority>(task.priority);
     const [dueOn, setDueOn] = useState<string | null>(task.dueOn);
+    const [repeat, setRepeat] = useState<RepeatRule | null>(
+        task.repeat
+            ? { unit: task.repeat.unit, every: task.repeat.every }
+            : null,
+    );
+    // Why the due date or the repeat changed by itself (spec 0010).
+    const [repeatNote, setRepeatNote] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [dropping, setDropping] = useState(false);
+    const dragDepth = useRef(0);
     const parameters = { current_team: teamSlug, task: task.id };
     const list = project.lists.find((item) => item.id === task.listId);
     const completed = task.completedAt !== null;
     const { today } = useLocalTime();
     const state = dueState({ dueOn, completedAt: task.completedAt }, today);
 
-    const members = (usePage().props.members as Member[] | undefined) ?? [];
+    const page = usePage();
+    const members = (page.props.members as Member[] | undefined) ?? [];
+    const meId = (page.props.auth as { user: { id: number } }).user.id;
+    const doneList = project.lists.find((item) => item.isDone);
+    const { uploads, start, dismiss } = useUploads(teamSlug, task);
+
+    // A repeat needs a due date: choosing one without makes the task due
+    // today, and removing the date stops the repeat.
+    const chooseRepeat = (rule: RepeatRule | null) => {
+        setRepeat(rule);
+
+        if (rule && !dueOn) {
+            setDueOn(today);
+            setRepeatNote('Due today, so the task can repeat.');
+        } else {
+            setRepeatNote(null);
+        }
+    };
+
+    const clearDue = () => {
+        setDueOn(null);
+
+        if (repeat) {
+            setRepeat(null);
+            setRepeatNote('No due date, so the task no longer repeats.');
+        }
+    };
+
+    // Files dropped anywhere on the sheet are attached.
+    const hasFiles = (event: DragEvent) =>
+        canManage && event.dataTransfer.types.includes('Files');
+    const dropZone = {
+        onDragEnter: (event: DragEvent<HTMLDivElement>) => {
+            if (hasFiles(event)) {
+                dragDepth.current += 1;
+                setDropping(true);
+            }
+        },
+        onDragOver: (event: DragEvent<HTMLDivElement>) => {
+            if (hasFiles(event)) {
+                event.preventDefault();
+            }
+        },
+        onDragLeave: (event: DragEvent<HTMLDivElement>) => {
+            if (hasFiles(event)) {
+                dragDepth.current = Math.max(0, dragDepth.current - 1);
+                setDropping(dragDepth.current > 0);
+            }
+        },
+        onDrop: (event: DragEvent<HTMLDivElement>) => {
+            if (hasFiles(event)) {
+                event.preventDefault();
+                dragDepth.current = 0;
+                setDropping(false);
+                start([...event.dataTransfer.files]);
+            }
+        },
+    };
     const openCounts: Record<number, number> = {};
 
     project.lists.forEach((item) =>
@@ -154,7 +226,22 @@ function TaskForm({
             className="flex min-h-0 flex-1 flex-col"
         >
             {({ errors, processing }) => (
-                <>
+                <div
+                    {...dropZone}
+                    className="relative flex min-h-0 flex-1 flex-col"
+                >
+                    {dropping && (
+                        <div className="pointer-events-none absolute inset-2 z-30 flex animate-pop flex-col items-center justify-center gap-2 rounded-[18px] border-2 border-dashed border-primary/60 bg-secondary/90 text-primary">
+                            <Upload className="size-8" />
+                            <span className="text-base font-bold">
+                                Drop files to attach them
+                            </span>
+                            <span className="text-[12.5px] text-muted-foreground">
+                                Images, PDF, text, Office files and ZIP, up to
+                                10 MB each
+                            </span>
+                        </div>
+                    )}
                     <SheetHeader className="gap-4 border-b pb-5">
                         <SheetDescription className="flex items-center gap-2 text-xs">
                             <span className="flex min-w-0 items-center gap-1.5">
@@ -200,10 +287,9 @@ function TaskForm({
                                 size="sm"
                                 disabled={!canManage}
                                 onClick={() =>
-                                    router.visit(complete(parameters), {
-                                        data: { completed: !completed },
-                                        preserveScroll: true,
-                                        preserveState: true,
+                                    completeTask(teamSlug, task, !completed, {
+                                        project,
+                                        today,
                                     })
                                 }
                                 className={cn(
@@ -376,13 +462,38 @@ function TaskForm({
                                             variant="ghost"
                                             size="icon-sm"
                                             aria-label="Remove the due date"
-                                            onClick={() => setDueOn(null)}
+                                            onClick={clearDue}
                                         >
                                             <X />
                                         </Button>
                                     )}
                                 </div>
                                 <InputError message={errors.due_on} />
+                            </Property>
+
+                            <Property icon={<Repeat />} label="Repeat">
+                                <RepeatField
+                                    value={repeat}
+                                    dueOn={dueOn}
+                                    today={today}
+                                    disabled={!canManage}
+                                    onChange={chooseRepeat}
+                                />
+                                {repeatNote && (
+                                    <p
+                                        role="status"
+                                        className="px-3 pt-1 text-xs text-muted-foreground"
+                                    >
+                                        {repeatNote}
+                                    </p>
+                                )}
+                                <InputError
+                                    message={
+                                        errors['repeat.every'] ??
+                                        errors['repeat.unit'] ??
+                                        errors.repeat
+                                    }
+                                />
                             </Property>
 
                             <Property
@@ -450,10 +561,29 @@ function TaskForm({
                             <InputError message={errors.description} />
                         </div>
 
+                        <TaskChecklist
+                            teamSlug={teamSlug}
+                            task={task}
+                            canManage={canManage}
+                        />
+
+                        <TaskFiles
+                            teamSlug={teamSlug}
+                            task={task}
+                            canManage={canManage}
+                            canDeleteAny={project.can.deleteAnyFile}
+                            meId={meId}
+                            uploads={uploads}
+                            onPick={start}
+                            onDismiss={dismiss}
+                        />
+
                         <TaskActivity
                             teamSlug={teamSlug}
                             taskId={task.id}
                             members={members}
+                            version={task.updatedAt}
+                            doneList={doneList?.name}
                         />
                     </div>
 
@@ -514,7 +644,7 @@ function TaskForm({
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
-                </>
+                </div>
             )}
         </Form>
     );
