@@ -75,6 +75,7 @@ Priorities keep their labels and colors: `none` (no pill), `low` sky, `medium` a
 | Count up      | 1.1–1.3 s, ease-out                                    | Stat numbers                                               |
 | Slide         | 0.35 s, `cubic-bezier(.2,.7,.2,1)`                     | Indicators under tabs and segmented controls               |
 | Panels        | 0.45 s, `cubic-bezier(.2,.75,.2,1)`                    | Sidebar fold, task sheet, folding lists, collapsing groups |
+| Fold fade     | 0.1 s out at once, 0.2 s in after 0.12 s               | Sidebar labels, counts and chevrons as the sidebar folds   |
 | Pop           | 0.18 s for menus, 0.38 s for dialogs                   | Menus and dialogs                                          |
 | Feedback      | 0.35–0.45 s                                            | Shake on an invalid field, bump on a count, toast          |
 
@@ -82,14 +83,16 @@ With reduced motion there are no entrance animations or count-ups, and transitio
 
 ### Scrollbars
 
-A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or white at 45 % on dark surfaces. It shows while the area is hovered or scrolled and fades 0.9 s after scrolling stops. The gutter is stable so content does not shift, scrolling does not chain to the page, and Firefox gets `scrollbar-width: thin`.
+A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or white at 45 % on dark surfaces. It shows while the area is hovered or scrolled and fades 0.9 s after scrolling stops. The gutter is stable so content does not shift, and Firefox gets `scrollbar-width: thin`.
+
+- **Scrolling is not contained.** An area that cannot scroll, or has reached its end, passes the wheel on to the page. Containing it (the first rule) left the wheel dead over the board whenever the page was taller than the window. Only the board keeps sideways scrolling to itself, so a trackpad swipe does not go back a page.
 
 - **Every scrolling area** looks this way, menus and text areas from the component library included: a base rule styles them all, and the areas the app lays out also take the `thin-scrollbar` utility for the stable gutter and the fade.
 - **Not `scrollbar-thin`:** Tailwind ships a utility of that name (`scrollbar-width: thin`). In Chromium that property turns off the styled thumb and leaves the browser's grey scrollbar, so the project's utility has another name.
 
 ## App shell
 
-- **Sidebar:** a floating night-blue card, 256 px wide, that folds to a 76 px icon rail with its button or Ctrl/⌘ + B; the choice is remembered. It holds the logo, the team switcher, _Dashboard_, _Projects_ (with a count), _My tasks_ (Phase 2) and _Team_, then _Recent_: the five most recently updated active projects as colored letter tiles with their open task counts, and the user at the bottom. On the rail, labels fade out, items show tooltips and counts become dots.
+- **Sidebar:** a floating night-blue card, 256 px wide, that folds to a 76 px icon rail with its button or Ctrl/⌘ + B; the choice is remembered. It holds the logo, the team switcher, _Dashboard_, _Projects_ (with a count), _My tasks_ (Phase 2) and _Team_, then _Recent_: the five most recently updated active projects as colored letter tiles with their open task counts, and the user at the bottom. On the rail every item is a 40 px square in the middle of the card. Rows keep an 18 px inset and the same left padding when folded, so the icons, the team tile and the avatar do not move while the card folds; labels, counts and chevrons fade out, and items show tooltips. (An earlier note said counts become dots on the rail; that was never built.)
 - **Header bar:** a white card with breadcrumbs that start with the team, the first team members, and the page's main action. Search (⌘K) joins it in Phase 2.
 - **Team color:** a team keeps one color, picked from the palette by its id, as a solid letter tile wherever it shows: the team switcher, its menu and the list of teams in the settings.
 - **Site root:** `/` has no page of its own. It opens the current team's dashboard, or the sign-in page for a guest.
@@ -118,6 +121,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 ### Project board
 
 - **Header card:** tile, name, description, chips (open, overdue, due today), progress, people and the project menu.
+- **Height:** the board fills the window under the header card and each list scrolls inside it, so the page has no scrollbar of its own. It keeps at least 16 rem (most of the screen on a phone, where the header card is tall); in a shorter window the page scrolls instead. The hint about dragging sits at the bottom.
 - **Columns** are tinted with the list hue. The header has the dot, name, count, _Add task_, _Fold_ and the list menu.
 - **Task cards:** title, two-line description, priority pill, due chip and an avatar (the creator in Phase 1, the assignee from Phase 2).
 - **Drag and drop:** a dashed slot opens where the card will land, within a list or across lists. Alt + arrow keys move the focused card.

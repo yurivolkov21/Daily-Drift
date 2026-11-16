@@ -1,15 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { cn } from '@/lib/utils';
 import type { Team, User } from '@/types';
 
 export function UserInfo({
     user,
     showEmail = false,
     team = null,
+    textClassName,
 }: {
     user: User;
     showEmail?: boolean;
     team?: Team | null;
+    /** Extra classes for the name and team (or email) beside the avatar. */
+    textClassName?: string;
 }) {
     const getInitials = useInitials();
     const showAvatar = Boolean(user.avatar && user.avatar !== '');
@@ -24,7 +28,12 @@ export function UserInfo({
                     {getInitials(user.name)}
                 </AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div
+                className={cn(
+                    'grid flex-1 text-left text-sm leading-tight',
+                    textClassName,
+                )}
+            >
                 <span className="truncate font-medium">{user.name}</span>
                 {team ? (
                     <span className="truncate text-xs text-muted-foreground">

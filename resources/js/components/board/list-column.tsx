@@ -160,7 +160,9 @@ export function ListColumn({
             aria-label={list.name}
             style={style}
             className={cn(
-                'flex w-[17.5rem] shrink-0 snap-start flex-col gap-2.5 rounded-[20px] border-0 p-3 pr-2',
+                // At most as tall as the board's area, less its bottom
+                // padding; the cards scroll inside.
+                'flex max-h-[calc(100cqh-0.75rem)] w-[17.5rem] shrink-0 snap-start flex-col gap-2.5 rounded-[20px] border-0 p-3 pr-2',
                 HUES[list.color].column,
                 isOverlay && 'shadow-[0_24px_44px_-20px_rgb(23_21_59/0.5)]',
                 className,
@@ -286,7 +288,9 @@ export function ListColumn({
 
             <KanbanColumnContent
                 value={columnKey(list.id)}
-                className="-mx-1 flex thin-scrollbar max-h-[calc(100svh-22rem)] min-h-20 flex-col gap-2 overflow-y-auto px-1 py-1 pr-1.5"
+                // Positioned, so the screen-reader text inside the cards is
+                // clipped with them instead of stretching the page.
+                className="relative -mx-1 flex thin-scrollbar min-h-20 flex-col gap-2 overflow-y-auto px-1 py-1 pr-1.5"
             >
                 {tasks.map((task) => (
                     <TaskCard

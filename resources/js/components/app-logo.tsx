@@ -12,7 +12,8 @@ export default function AppLogo() {
             <div className="flex aspect-square size-[38px] shrink-0 items-center justify-center rounded-[11px] bg-primary font-display text-base font-extrabold text-primary-foreground">
                 {name.charAt(0)}
             </div>
-            <span className="truncate font-display text-[17px] font-bold">
+            {/* Fades out on the folded sidebar's rail. */}
+            <span className="fold-fade truncate font-display text-[17px] font-bold">
                 {name}
             </span>
         </>

@@ -25,13 +25,20 @@ export function NavUser() {
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
+                        {/* The 32px avatar keeps its place (18 + 4 + 16 =
+                            38px, the middle of the rail); only the height
+                            eases from 48 to 40px with the card. */}
                         <SidebarMenuButton
                             size="lg"
-                            className="group rounded-xl text-white hover:bg-sidebar-accent hover:text-white data-[state=open]:bg-sidebar-accent [&_.text-muted-foreground]:text-sidebar-muted [&_[data-slot=avatar-fallback]]:rounded-full [&_[data-slot=avatar-fallback]]:bg-[#f5d0fe] [&_[data-slot=avatar-fallback]]:font-bold [&_[data-slot=avatar-fallback]]:text-[#701a75] [&_[data-slot=avatar]]:rounded-full"
+                            className="group rounded-xl pl-1 text-white duration-450 ease-panel group-data-[collapsible=icon]:h-10 hover:bg-sidebar-accent hover:text-white data-[state=open]:bg-sidebar-accent [&_.text-muted-foreground]:text-sidebar-muted [&_[data-slot=avatar-fallback]]:rounded-full [&_[data-slot=avatar-fallback]]:bg-[#f5d0fe] [&_[data-slot=avatar-fallback]]:font-bold [&_[data-slot=avatar-fallback]]:text-[#701a75] [&_[data-slot=avatar]]:rounded-full"
                             data-test="sidebar-menu-button"
                         >
-                            <UserInfo user={auth.user} team={currentTeam} />
-                            <ChevronsUpDown className="ml-auto size-4" />
+                            <UserInfo
+                                user={auth.user}
+                                team={currentTeam}
+                                textClassName="fold-fade"
+                            />
+                            <ChevronsUpDown className="fold-fade ml-auto size-4" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
