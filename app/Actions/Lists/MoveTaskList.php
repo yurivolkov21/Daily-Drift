@@ -28,7 +28,7 @@ class MoveTaskList
 
             $others->splice($index, 0, [$moving]);
 
-            Positions::rewrite($others);
+            Positions::rewrite($others, $moving);
         });
     }
 }

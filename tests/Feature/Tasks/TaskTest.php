@@ -133,7 +133,7 @@ class TaskTest extends TestCase
         $this->assertSame('Final', $task->title);
     }
 
-    public function test_completing_a_task_does_not_move_it()
+    public function test_completing_a_task_moves_it_to_done_and_reopening_moves_it_back()
     {
         $task = $this->add($this->todo, 'Task');
 
@@ -143,13 +143,15 @@ class TaskTest extends TestCase
 
         $task->refresh();
         $this->assertNotNull($task->completed_at);
-        $this->assertSame($this->todo->id, $task->task_list_id);
+        $this->assertSame('Done', $task->list->name);
 
         $this->actingAs($this->member)
             ->patch(route('tasks.complete', $this->taskRoute($task)), ['completed' => false])
             ->assertSessionHasNoErrors();
 
-        $this->assertNull($task->fresh()->completed_at);
+        $task->refresh();
+        $this->assertNull($task->completed_at);
+        $this->assertSame($this->todo->id, $task->task_list_id);
     }
 
     public function test_moving_a_task_within_its_list_keeps_positions_dense()

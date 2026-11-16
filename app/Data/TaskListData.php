@@ -16,6 +16,7 @@ readonly class TaskListData
         public string $name,
         public string $color,
         public int $position,
+        public bool $isDone,
         public ?array $tasks,
         public ?int $taskCount = null,
     ) {
@@ -32,6 +33,7 @@ readonly class TaskListData
             name: $list->name,
             color: $list->color->value,
             position: $list->position,
+            isDone: $list->is_done,
             tasks: $list->relationLoaded('tasks')
                 ? $list->tasks->map(fn (Task $task) => TaskData::from($task))->values()->all()
                 : null,

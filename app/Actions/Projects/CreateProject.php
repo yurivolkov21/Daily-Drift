@@ -11,14 +11,15 @@ use Illuminate\Support\Facades\DB;
 class CreateProject
 {
     /**
-     * The lists every new project starts with, in board order.
+     * The lists every new project starts with, in board order. "Done" is the
+     * project's Done list: completing a task moves it there (spec 0010).
      *
-     * @var list<array{name: string, color: Hue}>
+     * @var list<array{name: string, color: Hue, is_done: bool}>
      */
     public const DEFAULT_LISTS = [
-        ['name' => 'To do', 'color' => Hue::Slate],
-        ['name' => 'In progress', 'color' => Hue::Amber],
-        ['name' => 'Done', 'color' => Hue::Green],
+        ['name' => 'To do', 'color' => Hue::Slate, 'is_done' => false],
+        ['name' => 'In progress', 'color' => Hue::Amber, 'is_done' => false],
+        ['name' => 'Done', 'color' => Hue::Green, 'is_done' => true],
     ];
 
     /**

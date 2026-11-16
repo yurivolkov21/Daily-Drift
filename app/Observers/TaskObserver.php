@@ -33,7 +33,9 @@ class TaskObserver
             Activity::record($task, Activity::TASK_DESCRIBED);
         }
 
-        if ($task->wasChanged('task_list_id')) {
+        // Completing or reopening moves the task to or from the Done list
+        // (spec 0010); that move is part of the one completion event below.
+        if ($task->wasChanged('task_list_id') && ! $task->wasChanged('completed_at')) {
             Activity::record($task, Activity::TASK_MOVED, [
                 'from' => $this->listName($task->getOriginal('task_list_id')),
                 'to' => $this->listName($task->task_list_id),
@@ -59,7 +61,7 @@ class TaskObserver
         }
 
         if ($task->wasChanged('completed_at')) {
-            Activity::record($task, $task->completed_at === null ? Activity::TASK_REOPENED : Activity::TASK_COMPLETED);
+            $this->completion($task);
         }
     }
 
@@ -69,6 +71,23 @@ class TaskObserver
     public function deleted(Task $task): void
     {
         Activity::record($task, Activity::TASK_DELETED, ['title' => $task->title], keepTask: false);
+    }
+
+    /**
+     * One event for completing or reopening, with the list the task left or
+     * returned to when it moved (spec 0010).
+     */
+    private function completion(Task $task): void
+    {
+        $moved = $task->wasChanged('task_list_id');
+
+        if ($task->completed_at === null) {
+            Activity::record($task, Activity::TASK_REOPENED, $moved ? ['to' => $this->listName($task->task_list_id)] : []);
+
+            return;
+        }
+
+        Activity::record($task, Activity::TASK_COMPLETED, $moved ? ['from' => $this->listName($task->getOriginal('task_list_id'))] : []);
     }
 
     private function assignment(Task $task): void

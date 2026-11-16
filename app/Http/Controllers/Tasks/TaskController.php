@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tasks;
 
+use App\Actions\Tasks\CompleteTask;
 use App\Actions\Tasks\CreateTask;
 use App\Actions\Tasks\DeleteTask;
 use App\Actions\Tasks\MoveTask;
@@ -50,29 +51,38 @@ class TaskController extends Controller
     }
 
     /**
-     * Move the task to an index of a list in the same project.
+     * Move the task to an index of a list in the same project. Moving it into
+     * the project's Done list completes it, and moving it out reopens it
+     * (spec 0010).
      */
-    public function move(MoveTaskRequest $request, Team $current_team, Task $task, MoveTask $moveTask): RedirectResponse
+    public function move(MoveTaskRequest $request, Team $current_team, Task $task, MoveTask $moveTask, CompleteTask $completeTask): RedirectResponse
     {
         Gate::authorize('update', $task);
 
-        $moveTask->handle($task, $request->targetList(), $request->integer('index'));
+        $target = $request->targetList();
+        $index = $request->integer('index');
+        $done = $task->project->doneList();
+        $inDone = $done !== null && $task->task_list_id === $done->id;
+        $toDone = $done !== null && $target->is($done);
+
+        match (true) {
+            $toDone && ! $inDone && ! $task->isCompleted() => $completeTask->handle($task, true, $target, $index),
+            $inDone && ! $toDone && $task->isCompleted() => $completeTask->handle($task, false, $target, $index),
+            default => $moveTask->handle($task, $target, $index),
+        };
 
         return back();
     }
 
     /**
-     * Mark the task as completed or open again. The list does not change.
+     * Complete the task or open it again. With a Done list, completing moves
+     * the task to its top and reopening moves it back (spec 0010).
      */
-    public function complete(CompleteTaskRequest $request, Team $current_team, Task $task): RedirectResponse
+    public function complete(CompleteTaskRequest $request, Team $current_team, Task $task, CompleteTask $completeTask): RedirectResponse
     {
         Gate::authorize('update', $task);
 
-        $completed = $request->boolean('completed');
-
-        if ($completed !== $task->isCompleted()) {
-            $task->update(['completed_at' => $completed ? now() : null]);
-        }
+        $completeTask->handle($task, $request->boolean('completed'));
 
         return back();
     }
