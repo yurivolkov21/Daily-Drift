@@ -40,6 +40,21 @@ class TaskList extends Model
     protected $touches = ['project'];
 
     /**
+     * The database deletes the list's tasks; their files leave the disk too
+     * (spec 0010).
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (TaskList $list) {
+            $project = $list->project;
+
+            $list->tasks()->pluck('id')->each(fn (int $taskId) => Attachment::deleteDirectoryLater(
+                Attachment::directory($project->team_id, $project->id, $taskId),
+            ));
+        });
+    }
+
+    /**
      * Get the project the list belongs to.
      *
      * @return BelongsTo<Project, $this>

@@ -54,6 +54,13 @@ class Team extends Model
                 $team->slug = static::generateUniqueTeamSlug($team->name, $team->id);
             }
         });
+
+        // A deleted team's files leave the disk (spec 0010). The team is only
+        // soft-deleted, with its tasks, so the files' rows go as well.
+        static::deleted(function (Team $team) {
+            Attachment::query()->whereHas('task.project', fn ($query) => $query->where('team_id', $team->id))->delete();
+            Attachment::deleteDirectoryLater(Attachment::directory($team->id));
+        });
     }
 
     /**
