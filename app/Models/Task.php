@@ -118,6 +118,16 @@ class Task extends Model
     }
 
     /**
+     * Get the files attached to the task, oldest first (spec 0010).
+     *
+     * @return HasMany<Attachment, $this>
+     */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Attachment::class)->oldest()->orderBy('id');
+    }
+
+    /**
      * Get the task's checklist, in order (spec 0010).
      *
      * @return HasMany<ChecklistItem, $this>

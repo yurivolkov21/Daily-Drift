@@ -84,6 +84,15 @@ class Project extends Model
     }
 
     /**
+     * The database deletes the project's tasks; their files leave the disk
+     * too (spec 0010).
+     */
+    protected static function booted(): void
+    {
+        static::deleted(fn (Project $project) => Attachment::deleteDirectoryLater(Attachment::directory($project->team_id, $project->id)));
+    }
+
+    /**
      * Determine whether the project is archived.
      */
     public function isArchived(): bool

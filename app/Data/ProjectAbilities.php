@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Enums\TeamRole;
 use App\Models\Project;
 use App\Models\TaskList;
 use App\Models\User;
@@ -14,6 +15,7 @@ readonly class ProjectAbilities
         public bool $restore,
         public bool $delete,
         public bool $manageLists,
+        public bool $deleteAnyFile,
     ) {
         //
     }
@@ -29,6 +31,9 @@ readonly class ProjectAbilities
             restore: $user->can('restore', $project),
             delete: $user->can('delete', $project),
             manageLists: $user->can('create', [TaskList::class, $project]),
+            // Spec 0010: owners and admins delete anyone's files.
+            deleteAnyFile: ! $project->isArchived()
+                && $user->teamRole($project->team)?->isAtLeast(TeamRole::Admin) === true,
         );
     }
 }

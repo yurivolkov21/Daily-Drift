@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Attachments\AttachmentController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Checklists\ChecklistItemController;
 use App\Http\Controllers\Comments\CommentController;
@@ -72,6 +73,11 @@ Route::prefix('{current_team}')
             Route::patch('checklist-items/{item}', [ChecklistItemController::class, 'update'])->withoutScopedBindings()->name('checklist-items.update');
             Route::patch('checklist-items/{item}/move', [ChecklistItemController::class, 'move'])->withoutScopedBindings()->name('checklist-items.move');
             Route::delete('checklist-items/{item}', [ChecklistItemController::class, 'destroy'])->withoutScopedBindings()->name('checklist-items.destroy');
+
+            // Spec 0010: files. Uploads are limited to 30 a minute per person.
+            Route::post('tasks/{task}/attachments', [AttachmentController::class, 'store'])->middleware('throttle:30,1')->name('attachments.store');
+            Route::get('attachments/{attachment}', [AttachmentController::class, 'show'])->withoutScopedBindings()->name('attachments.show');
+            Route::delete('attachments/{attachment}', [AttachmentController::class, 'destroy'])->withoutScopedBindings()->name('attachments.destroy');
 
             // Spec 0007: the team's labels.
             Route::post('labels', [LabelController::class, 'store'])->name('labels.store');

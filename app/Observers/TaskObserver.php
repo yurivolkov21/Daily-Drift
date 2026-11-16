@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Activity;
+use App\Models\Attachment;
 use App\Models\Task;
 use App\Models\TaskList;
 use App\Models\User;
@@ -71,6 +72,9 @@ class TaskObserver
     public function deleted(Task $task): void
     {
         Activity::record($task, Activity::TASK_DELETED, ['title' => $task->title], keepTask: false);
+
+        // The database deletes the rows; the files leave the disk too (spec 0010).
+        Attachment::deleteDirectoryLater(Attachment::directoryFor($task));
     }
 
     /**
