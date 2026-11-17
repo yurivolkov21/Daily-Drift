@@ -380,7 +380,7 @@ export function TaskFiles({
                                         />
                                     ) : (
                                         <Icon
-                                            className="size-[18px]"
+                                            className="size-4.5"
                                             aria-hidden="true"
                                         />
                                     )}
@@ -490,7 +490,7 @@ export function TaskFiles({
                                 {upload.error ? (
                                     <CircleAlert className="size-5" />
                                 ) : (
-                                    <Upload className="size-[18px]" />
+                                    <Upload className="size-4.5" />
                                 )}
                             </span>
                             <span className="flex min-w-0 flex-1 flex-col gap-1">

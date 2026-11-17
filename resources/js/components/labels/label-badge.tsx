@@ -24,7 +24,7 @@ export function LabelBadge({
             className={cn(
                 'inline-flex max-w-full shrink-0 items-center gap-1 rounded-md border border-border bg-card font-semibold whitespace-nowrap text-foreground/85',
                 size === 'sm'
-                    ? 'h-[22px] px-1.5 text-[11.5px] [&>svg]:size-3'
+                    ? 'h-5.5 px-1.5 text-[11.5px] [&>svg]:size-3'
                     : 'h-7 px-2 text-[12.5px] [&>svg]:size-3.5',
                 className,
             )}

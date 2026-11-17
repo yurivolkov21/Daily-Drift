@@ -260,7 +260,7 @@ export function Board({
                 value={columns}
                 onValueChange={setPending}
                 getItemValue={itemKey}
-                className="[container-type:size] min-h-[16rem] flex-1 max-md:min-h-[calc(100svh-8rem)]"
+                className="@container-size min-h-64 flex-1 max-md:min-h-[calc(100svh-8rem)]"
                 onValueCommit={commit}
                 onDragStart={() => {
                     committed.current = false;
@@ -293,7 +293,7 @@ export function Board({
                             onStepTask={stepTask}
                             folded={folded.includes(list.id)}
                             onToggleFold={() => toggleFold(list.id)}
-                            className="animate-rise [animation-fill-mode:backwards]"
+                            className="animate-rise fill-mode-[backwards]"
                             style={{
                                 animationDelay: `${160 + position * 70}ms`,
                             }}

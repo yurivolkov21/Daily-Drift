@@ -307,7 +307,7 @@ export default function Notifications({
                     />
                 ) : (
                     <div className="flex h-full min-h-72 animate-pop flex-col items-center justify-center gap-2.5 text-center">
-                        <span className="flex size-14 items-center justify-center rounded-[18px] bg-secondary text-primary">
+                        <span className="flex size-14 items-center justify-center rounded-panel bg-secondary text-primary">
                             <Bell className="size-6" />
                         </span>
                         <strong className="text-[15px]">
@@ -328,7 +328,7 @@ export default function Notifications({
             <Head title="Notifications" />
             <section
                 aria-label="Notifications"
-                className="flex h-[calc(100svh-104px)] min-h-[520px] animate-rise flex-col overflow-hidden rounded-card bg-card [animation-delay:110ms]"
+                className="flex h-[calc(100svh-104px)] min-h-130 animate-rise flex-col overflow-hidden rounded-card bg-card [animation-delay:110ms]"
             >
                 <div
                     className={cn(
@@ -362,7 +362,7 @@ export default function Notifications({
                     <div className="-mx-4 thin-scrollbar overflow-x-auto px-4 md:mx-0 md:px-0">
                         <SegmentedTabs
                             label="Show"
-                            className="w-full max-w-[480px] min-w-[420px]"
+                            className="w-full max-w-120 min-w-105"
                             value={filter}
                             onChange={changeFilter}
                             options={FILTERS.map((option) => ({
@@ -420,12 +420,12 @@ function ListItem({
         <li className="relative pl-10">
             <span
                 aria-hidden="true"
-                className="absolute inset-y-0 left-[17px] w-0.5 bg-border/70"
+                className="absolute inset-y-0 left-4.25 w-0.5 bg-border/70"
             />
             <span
                 aria-hidden="true"
                 className={cn(
-                    'absolute top-3 left-[3px] flex size-[30px] items-center justify-center rounded-full border-[3px] border-card',
+                    'absolute top-3 left-0.75 flex size-7.5 items-center justify-center rounded-full border-[3px] border-card',
                     item.gone
                         ? 'bg-muted text-muted-foreground'
                         : mention
@@ -445,7 +445,7 @@ function ListItem({
                     'my-0.5 flex w-full flex-col gap-0.5 rounded-[14px] px-3 py-2.5 text-left transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
                     selected
                         ? 'bg-primary/10 shadow-[inset_0_0_0_1.5px_rgb(110_91_245/0.35)] hover:bg-primary/10'
-                        : !read && 'bg-primary/[0.04]',
+                        : !read && 'bg-primary/4',
                 )}
             >
                 <span className="flex w-full items-center gap-2 text-[13.5px]">
@@ -463,7 +463,7 @@ function ListItem({
                     <span
                         aria-hidden="true"
                         className={cn(
-                            'size-[7px] shrink-0 rounded-full bg-primary transition-opacity',
+                            'size-1.75 shrink-0 rounded-full bg-primary transition-opacity',
                             read && 'opacity-0',
                         )}
                     />
@@ -483,7 +483,7 @@ function ListItem({
                     <span
                         aria-hidden="true"
                         className={cn(
-                            'size-[7px] shrink-0 rounded-[2px]',
+                            'size-1.75 shrink-0 rounded-[2px]',
                             HUES[item.project.color].dot,
                         )}
                     />
@@ -649,7 +649,7 @@ function Detail({
                                 <span
                                     aria-hidden="true"
                                     className={cn(
-                                        'size-[9px] rounded-[3px]',
+                                        'size-2.25 rounded-[3px]',
                                         HUES[task.project.color].dot,
                                     )}
                                 />
@@ -749,7 +749,7 @@ function Detail({
                                         key={event.id}
                                         className={cn(
                                             'flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-[13px]',
-                                            event.isThis && 'bg-primary/[0.06]',
+                                            event.isThis && 'bg-primary/6',
                                         )}
                                     >
                                         {event.actor ? (

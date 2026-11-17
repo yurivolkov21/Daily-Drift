@@ -57,7 +57,7 @@ export function PasswordStrength({
                     <span
                         key={index}
                         className={cn(
-                            'h-[5px] rounded-full transition-colors duration-300',
+                            'h-1.25 rounded-full transition-colors duration-300',
                             index < score ? level.bar : 'bg-border',
                         )}
                     />

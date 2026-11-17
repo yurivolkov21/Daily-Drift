@@ -67,7 +67,7 @@ export function FocusCard({
                         >
                             <Checkbox
                                 aria-label={`Complete ${task.title}`}
-                                className="size-[18px] rounded-full"
+                                className="size-4.5 rounded-full"
                                 onCheckedChange={() =>
                                     completeTask(teamSlug, task)
                                 }

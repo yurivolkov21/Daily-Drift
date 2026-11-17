@@ -74,7 +74,7 @@ export function ListView({
                 role="row"
                 className={cn(
                     GRID,
-                    'hidden min-h-[42px] items-center gap-x-3 rounded-2xl bg-card px-[25px] shadow-[0_1px_2px_rgb(23_21_59/0.05)] md:grid',
+                    'hidden min-h-10.5 items-center gap-x-3 rounded-2xl bg-card px-6.25 shadow-[0_1px_2px_rgb(23_21_59/0.05)] md:grid',
                 )}
             >
                 <span role="columnheader" aria-label="Done" />
@@ -289,7 +289,7 @@ function ListSection({
                 HUES[list.color].column,
             )}
         >
-            <div className="flex min-h-[34px] items-center gap-2">
+            <div className="flex min-h-8.5 items-center gap-2">
                 <button
                     type="button"
                     onClick={onToggleFold}
@@ -314,7 +314,7 @@ function ListSection({
                     <span className="text-[14.5px] font-bold">{list.name}</span>
                     <span
                         className={cn(
-                            'inline-flex h-5 min-w-[22px] items-center justify-center rounded-full bg-card px-1.5 text-[11.5px] font-bold tabular-nums shadow-[inset_0_0_0_1px_rgb(23_21_59/0.08)]',
+                            'inline-flex h-5 min-w-5.5 items-center justify-center rounded-full bg-card px-1.5 text-[11.5px] font-bold tabular-nums shadow-[inset_0_0_0_1px_rgb(23_21_59/0.08)]',
                             filtering
                                 ? 'text-primary'
                                 : 'text-muted-foreground',
@@ -331,7 +331,7 @@ function ListSection({
                             setAdding(true);
                         }}
                         aria-label={`Add a task to ${list.name}`}
-                        className="ml-auto flex size-[30px] items-center justify-center rounded-[9px] text-muted-foreground transition-colors hover:bg-card/70 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        className="ml-auto flex size-7.5 items-center justify-center rounded-[9px] text-muted-foreground transition-colors hover:bg-card/70 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                     >
                         <Plus className="size-4" />
                     </button>
@@ -366,7 +366,7 @@ function ListSection({
                             <button
                                 type="button"
                                 onClick={() => setAdding(true)}
-                                className="flex min-h-[42px] items-center gap-3 rounded-[14px] border-[1.5px] border-dashed border-foreground/12 bg-card/55 px-3 text-left text-[13.5px] font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                                className="flex min-h-10.5 items-center gap-3 rounded-[14px] border-[1.5px] border-dashed border-foreground/12 bg-card/55 px-3 text-left text-[13.5px] font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                             >
                                 <Plus className="size-4" aria-hidden="true" />
                                 Add task
@@ -434,7 +434,7 @@ function TaskRow({
             onKeyDown={onKeyDown}
             className={cn(
                 GRID,
-                'min-h-[60px] animate-pop cursor-pointer items-center gap-x-3 rounded-[14px] border bg-card px-3 py-2 transition-colors hover:border-primary/25 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                'min-h-15 animate-pop cursor-pointer items-center gap-x-3 rounded-[14px] border bg-card px-3 py-2 transition-colors hover:border-primary/25 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
             )}
         >
             <span role="gridcell" className="flex self-start pt-0.5">
@@ -480,7 +480,7 @@ function TaskRow({
                                 .slice(3)
                                 .map((label) => label.name)
                                 .join(', ')}
-                            className="inline-flex h-[22px] shrink-0 items-center rounded-md bg-muted px-1.5 text-[11px] font-bold text-muted-foreground"
+                            className="inline-flex h-5.5 shrink-0 items-center rounded-md bg-muted px-1.5 text-[11px] font-bold text-muted-foreground"
                         >
                             +{labels.length - 3}
                         </span>
@@ -583,7 +583,7 @@ function PriorityDot({ task }: { task: Task }) {
             <span
                 aria-hidden="true"
                 className={cn(
-                    'size-[7px] rounded-full bg-current',
+                    'size-1.75 rounded-full bg-current',
                     PRIORITIES[task.priority].flag,
                 )}
             />

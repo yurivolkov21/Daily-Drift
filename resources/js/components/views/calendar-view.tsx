@@ -269,7 +269,7 @@ export function CalendarView({
                 {panel && (
                     <aside
                         aria-label="Calendar panel"
-                        className="flex w-[236px] shrink-0 animate-pop flex-col gap-4 border-r px-3.5 py-3.5"
+                        className="flex w-59 shrink-0 animate-pop flex-col gap-4 border-r px-3.5 py-3.5"
                     >
                         <Calendar
                             mode="single"
@@ -327,7 +327,7 @@ export function CalendarView({
                                         <span
                                             aria-hidden="true"
                                             className={cn(
-                                                'flex size-[18px] shrink-0 items-center justify-center rounded-md border-[1.5px] text-white',
+                                                'flex size-4.5 shrink-0 items-center justify-center rounded-md border-[1.5px] text-white',
                                                 on
                                                     ? cn(
                                                           'border-transparent',
@@ -370,7 +370,7 @@ export function CalendarView({
                                     Drag one onto a day to give it that date.
                                 </p>
                             )}
-                            <div className="-mx-0.5 flex thin-scrollbar max-h-[22rem] flex-col gap-1.5 overflow-y-auto p-0.5">
+                            <div className="-mx-0.5 flex thin-scrollbar max-h-88 flex-col gap-1.5 overflow-y-auto p-0.5">
                                 {undated.map((task) => (
                                     <UndatedCard
                                         key={task.id}
@@ -656,7 +656,7 @@ function DayCell({
                     onDragOver={onDragOver}
                     onDrop={onDrop}
                     className={cn(
-                        'group/day relative flex min-h-[7.25rem] min-w-0 flex-col gap-0.5 p-1.5',
+                        'group/day relative flex min-h-29 min-w-0 flex-col gap-0.5 p-1.5',
                         canManage && 'cursor-pointer',
                         // Opaque shades: the grid's lines show through anything see-through.
                         'bg-card',
@@ -667,10 +667,10 @@ function DayCell({
                         picked && !over && 'ring-2 ring-primary/40 ring-inset',
                     )}
                 >
-                    <div className="flex h-[22px] items-center gap-1">
+                    <div className="flex h-5.5 items-center gap-1">
                         <span
                             className={cn(
-                                'flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums',
+                                'flex h-5.5 min-w-5.5 items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums',
                                 isToday &&
                                     'bg-primary font-bold text-primary-foreground',
                                 !isToday &&
@@ -695,7 +695,7 @@ function DayCell({
                                     event.stopPropagation();
                                     onPop('add');
                                 }}
-                                className="ml-auto flex size-[22px] items-center justify-center rounded-md text-primary opacity-0 transition-opacity group-hover/day:opacity-100 hover:bg-primary/10 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                                className="ml-auto flex size-5.5 items-center justify-center rounded-md text-primary opacity-0 transition-opacity group-hover/day:opacity-100 hover:bg-primary/10 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                             >
                                 <Plus className="size-3.5" />
                             </button>
@@ -802,7 +802,7 @@ function AddOnDay({
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Task title"
                 aria-label={`Task title, due ${shortDay(day)}`}
-                className="h-9 rounded-[10px] border border-primary/25 bg-primary/[0.03] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-9 rounded-[10px] border border-primary/25 bg-primary/3 px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
             <div className="flex items-center justify-between gap-2">
                 <span className="truncate text-xs text-muted-foreground">
@@ -957,7 +957,7 @@ function UndatedCard({
             aria-label={`${task.title}, no due date${list ? `, ${list.name}` : ''}`}
             {...drag}
             className={cn(
-                'flex min-h-[34px] w-full items-center gap-1.5 rounded-[10px] border bg-card pr-2 pl-1 text-left transition-colors hover:border-primary/25 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                'flex min-h-8.5 w-full items-center gap-1.5 rounded-[10px] border bg-card pr-2 pl-1 text-left transition-colors hover:border-primary/25 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
                 canManage && 'cursor-grab active:cursor-grabbing',
                 dragging && 'opacity-40',
             )}
