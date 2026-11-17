@@ -11,11 +11,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Spec 0012: the requests a person, or an address when signed out, makes
+     * in a minute, far above normal use.
+     */
+    public const int REQUESTS_PER_MINUTE = 240;
+
     /**
      * Register any application services.
      */
@@ -43,11 +50,15 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Spec 0011: requests that ask Claude cost money, so each person makes
-     * up to 10 a minute and each team up to 100 a day.
+     * Spec 0012: a cap on every page and action. Spec 0011: requests that
+     * ask Claude cost money, so each person makes up to 10 a minute and each
+     * team up to 100 a day.
      */
     protected function configureRateLimits(): void
     {
+        RateLimiter::for('global', fn (Request $request) => Limit::perMinute(self::REQUESTS_PER_MINUTE)
+            ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
+
         RateLimiter::for('ai', function (Request $request) {
             // The limit runs before route binding, so the team may still be its slug.
             $team = $request->route('current_team');
@@ -74,6 +85,9 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        // Spec 0012: behind Render's proxy, every link uses HTTPS.
+        URL::forceHttps(app()->isProduction());
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
