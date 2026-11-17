@@ -145,7 +145,7 @@ export function TaskCard({
                                     .slice(3)
                                     .map((label) => label.name)
                                     .join(', ')}
-                                className="inline-flex h-[22px] items-center rounded-md bg-muted px-1.5 text-[11px] font-bold text-muted-foreground"
+                                className="inline-flex h-5.5 items-center rounded-md bg-muted px-1.5 text-[11px] font-bold text-muted-foreground"
                             >
                                 +{labels.length - 3}
                             </span>

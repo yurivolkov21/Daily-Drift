@@ -99,7 +99,7 @@ export function ChecklistCount({ items }: { items: ChecklistItem[] }) {
         <span
             title={`Checklist: ${checked} of ${items.length} checked`}
             className={cn(
-                'inline-flex h-[22px] shrink-0 items-center gap-1 rounded-md px-1.5 text-[11.5px] font-bold tabular-nums',
+                'inline-flex h-5.5 shrink-0 items-center gap-1 rounded-md px-1.5 text-[11.5px] font-bold tabular-nums',
                 checked === items.length
                     ? 'bg-green-500/12 text-green-700 dark:text-green-400'
                     : 'bg-muted text-muted-foreground',

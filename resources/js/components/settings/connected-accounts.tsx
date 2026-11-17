@@ -144,7 +144,7 @@ export function ConnectedAccounts({
                                 )}
                             </div>
                             {locked && (
-                                <p className="flex items-center gap-1.5 pl-[54px] text-[12.5px] text-muted-foreground">
+                                <p className="flex items-center gap-1.5 pl-13.5 text-[12.5px] text-muted-foreground">
                                     <Lock
                                         className="size-3.5"
                                         aria-hidden="true"

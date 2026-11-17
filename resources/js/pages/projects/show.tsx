@@ -258,7 +258,7 @@ export default function ProjectShow({ project }: Props) {
                             value={progress}
                             hue={project.color}
                             delay="400ms"
-                            className="h-[7px]"
+                            className="h-1.75"
                         />
                     </div>
                     {aiHelpers && (

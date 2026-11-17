@@ -94,7 +94,7 @@ export function ActivityCard({
                     key={feed.filter}
                     // Ten events with comments run long; the list scrolls so
                     // the card keeps the height of My focus beside it.
-                    className="-mr-2 flex thin-scrollbar max-h-[28rem] animate-pop flex-col gap-2.5 overflow-y-auto pr-1"
+                    className="-mr-2 flex thin-scrollbar max-h-112 animate-pop flex-col gap-2.5 overflow-y-auto pr-1"
                 >
                     {days.map(({ day, items }) => (
                         <section key={day} className="flex flex-col gap-0.5">
@@ -139,10 +139,10 @@ function Row({ teamSlug, item }: { teamSlug: string; item: FeedItem }) {
                 <MemberAvatar
                     id={item.actor.id}
                     name={item.actor.name}
-                    className="size-[30px]"
+                    className="size-7.5"
                 />
             ) : (
-                <span className="size-[30px] shrink-0 rounded-full bg-muted" />
+                <span className="size-7.5 shrink-0 rounded-full bg-muted" />
             )}
             <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="text-[13.5px] leading-snug">
@@ -170,7 +170,7 @@ function Row({ teamSlug, item }: { teamSlug: string; item: FeedItem }) {
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <span
                         className={cn(
-                            'size-[7px] shrink-0 rounded-[2px]',
+                            'size-1.75 shrink-0 rounded-[2px]',
                             HUES[item.project.color].dot,
                         )}
                     />

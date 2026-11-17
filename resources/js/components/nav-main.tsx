@@ -17,7 +17,7 @@ import type { NavItem } from '@/types';
  * 76px rail (18px inset, 11px padding, 9px half icon: 38px).
  */
 export const navButtonClass =
-    'h-10 gap-3 rounded-xl pr-3 pl-[11px] text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white active:bg-sidebar-accent active:text-white data-[active=true]:bg-sidebar-primary data-[active=true]:font-semibold data-[active=true]:text-sidebar-primary-foreground [&>svg]:size-[18px]';
+    'h-10 gap-3 rounded-xl pr-3 pl-2.75 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white active:bg-sidebar-accent active:text-white data-[active=true]:bg-sidebar-primary data-[active=true]:font-semibold data-[active=true]:text-sidebar-primary-foreground [&>svg]:size-4.5';
 
 /** A count on the right of a row; it fades out on the rail. */
 export const navBadgeClass =

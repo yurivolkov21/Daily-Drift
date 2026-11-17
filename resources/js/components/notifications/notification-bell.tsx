@@ -146,11 +146,11 @@ export function NotificationBell() {
                             : 'Notifications'
                     }
                     className={cn(
-                        'relative flex size-[42px] items-center justify-center rounded-xl border bg-card text-foreground transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                        'relative flex size-10.5 items-center justify-center rounded-xl border bg-card text-foreground transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
                         open && 'border-primary/25 bg-secondary',
                     )}
                 >
-                    <Bell className="size-[19px]" />
+                    <Bell className="size-4.75" />
                     {unread > 0 && (
                         <span
                             key={unread}
@@ -332,7 +332,7 @@ function UpdateRow({
             title={`${name} ${notificationVerb(item)} ${item.task.title}`}
             className={cn(
                 'relative flex min-h-11 w-full items-center gap-2.5 rounded-xl py-1.5 pr-2.5 pl-4 text-left transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-                !item.read && 'bg-primary/[0.05]',
+                !item.read && 'bg-primary/5',
             )}
         >
             <span

@@ -138,7 +138,7 @@ export function ListColumn({
                 aria-label={`${list.name}, folded`}
                 style={style}
                 className={cn(
-                    'w-[52px] shrink-0 self-stretch rounded-[20px] border-0 transition-[background-color,box-shadow] duration-300',
+                    'w-13 shrink-0 self-stretch rounded-[20px] border-0 transition-[background-color,box-shadow] duration-300',
                     HUES[list.color].column,
                     className,
                 )}
@@ -177,7 +177,7 @@ export function ListColumn({
             className={cn(
                 // At most as tall as the board's area, less its bottom
                 // padding; the cards scroll inside.
-                'flex max-h-[calc(100cqh-0.75rem)] w-[17.5rem] shrink-0 snap-start flex-col gap-2.5 rounded-[20px] border-0 p-3 pr-2',
+                'flex max-h-[calc(100cqh-0.75rem)] w-70 shrink-0 snap-start flex-col gap-2.5 rounded-[20px] border-0 p-3 pr-2',
                 HUES[list.color].column,
                 isOverlay && 'shadow-[0_24px_44px_-20px_rgb(23_21_59/0.5)]',
                 className,

@@ -225,7 +225,7 @@ export function DueTodayCard({
                         >
                             <Checkbox
                                 aria-label={`Complete ${task.title}`}
-                                className="mt-0.5 size-[18px] rounded-full"
+                                className="mt-0.5 size-4.5 rounded-full"
                                 onCheckedChange={() =>
                                     completeTask(teamSlug, task)
                                 }
@@ -286,7 +286,7 @@ export function StatCard({
     const top = Math.max(1, ...series);
 
     return (
-        <Card delay={delay} className="gap-3.5 p-[18px]">
+        <Card delay={delay} className="gap-3.5 p-4.5">
             <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                     {label}
@@ -297,7 +297,7 @@ export function StatCard({
                         tone.tile,
                     )}
                 >
-                    <Icon className="size-[18px]" />
+                    <Icon className="size-4.5" />
                 </span>
             </div>
             <div className="flex items-end justify-between gap-2">
@@ -306,7 +306,7 @@ export function StatCard({
                 </span>
                 <span
                     aria-hidden="true"
-                    className="flex h-[34px] items-end gap-[3px]"
+                    className="flex h-8.5 items-end gap-0.75"
                     title="The last 7 days"
                 >
                     {series.map((point, index) => (

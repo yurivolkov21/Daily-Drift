@@ -375,9 +375,9 @@ function Changes({
                                 >
                                     <span
                                         aria-hidden="true"
-                                        className="flex size-[22px] shrink-0 items-center justify-center rounded-full border bg-card"
+                                        className="flex size-5.5 shrink-0 items-center justify-center rounded-full border bg-card"
                                     >
-                                        <Icon className="size-[11px]" />
+                                        <Icon className="size-2.75" />
                                     </span>
                                     <span className="min-w-0 flex-1">
                                         {event.actor && (
@@ -523,7 +523,7 @@ function CommentItem({
                         }
                     />
                 ) : (
-                    <p className="text-[13.5px] leading-normal break-words whitespace-pre-wrap">
+                    <p className="text-[13.5px] leading-normal wrap-break-word whitespace-pre-wrap">
                         {splitMentions(comment.body, mentioned).map(
                             (part, index) =>
                                 part.mention ? (

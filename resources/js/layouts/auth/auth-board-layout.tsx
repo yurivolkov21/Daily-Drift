@@ -55,7 +55,7 @@ export default function AuthBoardLayout({
         <div className="relative min-h-svh overflow-hidden bg-night">
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute top-[-260px] left-[360px] hidden origin-top-left scale-[1.08] -rotate-[8deg] gap-[18px] md:flex"
+                className="pointer-events-none absolute -top-65 left-90 hidden origin-top-left scale-[1.08] rotate-[-8deg] gap-4.5 md:flex"
             >
                 {LANES.map((hue, lane) => {
                     const cards = Array.from({ length: 8 }, (_, index) => {
@@ -73,7 +73,7 @@ export default function AuthBoardLayout({
                         <div
                             key={hue}
                             className={cn(
-                                'h-[1500px] w-[230px] overflow-hidden rounded-[22px] bg-card p-3.5',
+                                'h-375 w-57.5 overflow-hidden rounded-card bg-card p-3.5',
                             )}
                         >
                             <div
@@ -98,7 +98,7 @@ export default function AuthBoardLayout({
                                         <span className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
                                             <span
                                                 className={cn(
-                                                    'size-[7px] rounded-full',
+                                                    'size-1.75 rounded-full',
                                                     card.dot,
                                                 )}
                                             />
@@ -122,14 +122,14 @@ export default function AuthBoardLayout({
                 className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,var(--night)_0%,rgb(23_21_59/0.94)_34%,rgb(23_21_59/0.55)_58%,rgb(23_21_59/0.1)_100%)]"
             />
 
-            <div className="relative flex min-h-svh flex-col justify-center gap-7 px-4 py-10 sm:px-8 md:pl-[110px]">
+            <div className="relative flex min-h-svh flex-col justify-center gap-7 px-4 py-10 sm:px-8 md:pl-27.5">
                 <Link
                     href={home()}
                     className="flex items-center gap-3 self-center text-white no-underline md:self-start"
                 >
                     <AppLogo />
                 </Link>
-                <main className="w-full max-w-[480px] animate-rise self-center rounded-card bg-card/95 p-7 shadow-[0_50px_90px_-40px_rgb(0_0_0/0.6)] backdrop-blur-md [animation-delay:150ms] sm:p-10 md:self-start">
+                <main className="w-full max-w-120 animate-rise self-center rounded-card bg-card/95 p-7 shadow-[0_50px_90px_-40px_rgb(0_0_0/0.6)] backdrop-blur-md [animation-delay:150ms] sm:p-10 md:self-start">
                     <div className="mb-6 flex flex-col gap-2">
                         <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">
                             {title}

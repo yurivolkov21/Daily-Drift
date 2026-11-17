@@ -76,12 +76,12 @@ export default function Profile({
                 id="profile"
                 title="Profile"
                 description="How you show up on boards, cards and invitations."
-                className="relative min-h-full overflow-clip rounded-[22px] pb-0 sm:pb-0"
+                className="relative min-h-full overflow-clip rounded-card pb-0 sm:pb-0"
             >
                 <div className="flex items-center gap-3.5">
                     <span
                         aria-hidden="true"
-                        className="flex size-[72px] shrink-0 items-center justify-center rounded-[22px] bg-linear-135 from-fuchsia-200 to-violet-300 font-display text-2xl font-extrabold text-violet-900"
+                        className="flex size-18 shrink-0 items-center justify-center rounded-card bg-linear-135 from-fuchsia-200 to-violet-300 font-display text-2xl font-extrabold text-violet-900"
                     >
                         {getInitials(form.data.name) || '?'}
                     </span>

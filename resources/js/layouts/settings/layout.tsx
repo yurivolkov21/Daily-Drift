@@ -66,10 +66,10 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     );
 
     return (
-        <div className="flex min-w-0 flex-1 animate-rise flex-col gap-1.5 rounded-[24px] bg-card p-2.5 [animation-delay:110ms] lg:flex-row">
+        <div className="flex min-w-0 flex-1 animate-rise flex-col gap-1.5 rounded-3xl bg-card p-2.5 [animation-delay:110ms] lg:flex-row">
             <nav
                 aria-label="Settings"
-                className="flex shrink-0 flex-col gap-3.5 px-2.5 pt-3.5 pb-1 lg:w-[250px] lg:border-r lg:border-border/70 lg:pb-3.5"
+                className="flex shrink-0 flex-col gap-3.5 px-2.5 pt-3.5 pb-1 lg:w-62.5 lg:border-r lg:border-border/70 lg:pb-3.5"
             >
                 <h1 className="mx-2.5 text-[22px] font-extrabold tracking-tight">
                     Settings
@@ -78,12 +78,12 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                     {current >= 0 && (
                         <span
                             aria-hidden="true"
-                            className="absolute inset-x-0 top-0 hidden h-[52px] rounded-[14px] bg-secondary transition-transform duration-400 ease-panel lg:block"
+                            className="absolute inset-x-0 top-0 hidden h-13 rounded-[14px] bg-secondary transition-transform duration-400 ease-panel lg:block"
                             style={{
                                 transform: `translateY(${current * TAB_STEP}px)`,
                             }}
                         >
-                            <span className="absolute inset-y-3.5 left-0 w-[3px] rounded-[3px] bg-primary" />
+                            <span className="absolute inset-y-3.5 left-0 w-0.75 rounded-[3px] bg-primary" />
                         </span>
                     )}
                     <ul className="grid grid-cols-2 gap-1 sm:flex sm:thin-scrollbar sm:overflow-x-auto lg:flex-col lg:overflow-visible">
@@ -98,13 +98,13 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                             isCurrent ? 'page' : undefined
                                         }
                                         className={cn(
-                                            'relative flex h-11 items-center gap-3 rounded-[14px] px-3 no-underline transition-colors duration-250 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-[52px]',
+                                            'relative flex h-11 items-center gap-3 rounded-[14px] px-3 no-underline transition-colors duration-250 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-13',
                                             isCurrent
                                                 ? 'text-foreground max-lg:bg-secondary'
                                                 : 'text-muted-foreground hover:text-foreground',
                                         )}
                                     >
-                                        <tab.icon className="size-[18px] shrink-0" />
+                                        <tab.icon className="size-4.5 shrink-0" />
                                         <span className="flex flex-col gap-px">
                                             <span className="text-sm font-semibold whitespace-nowrap">
                                                 {tab.title}

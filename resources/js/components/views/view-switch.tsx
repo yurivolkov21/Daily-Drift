@@ -48,13 +48,13 @@ export function ViewSwitch({
             title="The last view of this project is remembered in this browser"
             data-test="view-switch"
             className={cn(
-                'relative grid h-10 shrink-0 grid-cols-3 rounded-[13px] bg-secondary p-[3px] dark:bg-secondary/60',
+                'relative grid h-10 shrink-0 grid-cols-3 rounded-[13px] bg-secondary p-0.75 dark:bg-secondary/60',
                 className,
             )}
         >
             <span
                 aria-hidden="true"
-                className="absolute inset-y-[3px] left-[3px] w-[calc((100%-6px)/3)] rounded-[10px] bg-card shadow-[0_1px_2px_rgb(23_21_59/0.08),0_6px_14px_-8px_rgb(23_21_59/0.35)] transition-transform duration-[380ms] ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none"
+                className="absolute inset-y-0.75 left-0.75 w-[calc((100%-6px)/3)] rounded-[10px] bg-card shadow-[0_1px_2px_rgb(23_21_59/0.08),0_6px_14px_-8px_rgb(23_21_59/0.35)] transition-transform duration-380 ease-slide motion-reduce:transition-none"
                 style={{ transform: `translateX(${index * 100}%)` }}
             />
             {PROJECT_VIEWS.map((view, position) => {
@@ -75,7 +75,7 @@ export function ViewSwitch({
                         onClick={() => !on && onChange(view)}
                         onKeyDown={onKeyDown}
                         className={cn(
-                            'relative flex w-[6.25rem] items-center justify-center gap-1.5 rounded-[10px] text-[13.5px] transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none max-sm:w-auto max-sm:px-3 [&_svg]:size-4',
+                            'relative flex w-25 items-center justify-center gap-1.5 rounded-[10px] text-[13.5px] transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none max-sm:w-auto max-sm:px-3 [&_svg]:size-4',
                             on
                                 ? 'font-bold text-foreground'
                                 : 'font-semibold text-muted-foreground hover:text-foreground',
