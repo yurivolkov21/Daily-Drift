@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Ai\DraftTasksController;
+use App\Http\Controllers\Ai\StepsController;
+use App\Http\Controllers\Ai\SummaryController;
 use App\Http\Controllers\Attachments\AttachmentController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Checklists\ChecklistItemController;
@@ -18,6 +21,7 @@ use App\Http\Controllers\Tasks\TaskController;
 use App\Http\Controllers\Tasks\TaskLabelController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
+use App\Http\Middleware\PrepareAiRequest;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -78,6 +82,14 @@ Route::prefix('{current_team}')
             Route::post('tasks/{task}/attachments', [AttachmentController::class, 'store'])->middleware('throttle:30,1')->name('attachments.store');
             Route::get('attachments/{attachment}', [AttachmentController::class, 'show'])->withoutScopedBindings()->name('attachments.show');
             Route::delete('attachments/{attachment}', [AttachmentController::class, 'destroy'])->withoutScopedBindings()->name('attachments.destroy');
+
+            // Spec 0011: the AI helpers. The routes that ask Claude answer 503 while
+            // the helpers are off, and count towards the `ai` limits.
+            Route::post('tasks/{task}/ai/steps', StepsController::class)->middleware([PrepareAiRequest::class, 'throttle:ai'])->name('ai.steps');
+            Route::post('projects/{project}/ai/tasks', [DraftTasksController::class, 'draft'])->middleware([PrepareAiRequest::class, 'throttle:ai'])->name('ai.tasks.draft');
+            Route::post('projects/{project}/ai/tasks/add', [DraftTasksController::class, 'store'])->name('ai.tasks.store');
+            Route::get('projects/{project}/ai/summary', [SummaryController::class, 'show'])->name('ai.summary.show');
+            Route::post('projects/{project}/ai/summary', [SummaryController::class, 'store'])->middleware([PrepareAiRequest::class, 'throttle:ai'])->name('ai.summary.store');
 
             // Spec 0007: the team's labels.
             Route::post('labels', [LabelController::class, 'store'])->name('labels.store');

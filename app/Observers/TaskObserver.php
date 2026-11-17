@@ -23,6 +23,8 @@ class TaskObserver
             'list' => $this->listName($task->task_list_id),
             // The next occurrence of a recurring task (spec 0010).
             ...($task->repeated_from_id === null ? [] : ['repeated_from' => $task->repeated_from_id]),
+            // A task added from an AI draft (spec 0011).
+            ...($task->drafted ? ['drafted' => true] : []),
         ], $task->creator ?? null);
     }
 

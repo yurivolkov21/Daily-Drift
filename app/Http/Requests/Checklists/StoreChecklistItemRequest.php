@@ -44,8 +44,8 @@ class StoreChecklistItemRequest extends FormRequest
                     return;
                 }
 
-                if (collect($lines)->contains(fn (string $line) => mb_strlen($line) > 300)) {
-                    $validator->errors()->add('body', __('An item can be up to 300 characters long.'));
+                if (collect($lines)->contains(fn (string $line) => mb_strlen($line) > ChecklistItem::MAX_LENGTH)) {
+                    $validator->errors()->add('body', __('An item can be up to :max characters long.', ['max' => ChecklistItem::MAX_LENGTH]));
 
                     return;
                 }
