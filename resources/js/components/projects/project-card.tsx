@@ -40,11 +40,11 @@ export function ProjectCard({ teamSlug, project, index = 0 }: Props) {
             <div
                 aria-hidden="true"
                 className={cn(
-                    'relative h-[78px] overflow-hidden rounded-t-card bg-linear-to-br',
+                    'relative h-19.5 overflow-hidden rounded-t-card bg-linear-to-br',
                     HUES[hue].cover,
                 )}
             >
-                <span className="absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent_0_14px,rgb(255_255_255/0.45)_14px_15px)] bg-size-[auto] transition-[background-position] duration-700 group-hover/card:bg-position-[24px_0] dark:bg-[repeating-linear-gradient(135deg,transparent_0_14px,rgb(255_255_255/0.06)_14px_15px)]" />
+                <span className="absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent_0_14px,rgb(255_255_255/0.45)_14px_15px)] bg-auto transition-[background-position] duration-700 group-hover/card:bg-position-[24px_0] dark:bg-[repeating-linear-gradient(135deg,transparent_0_14px,rgb(255_255_255/0.06)_14px_15px)]" />
             </div>
 
             {(archived || project.stats.health === 'attention') && (
@@ -129,7 +129,7 @@ export function ProjectCard({ teamSlug, project, index = 0 }: Props) {
                         value={progress}
                         hue={hue}
                         delay={`${380 + index * 60}ms`}
-                        className="h-[7px]"
+                        className="h-1.75"
                     />
                 </div>
 

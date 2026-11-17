@@ -366,7 +366,7 @@ export function TaskChecklist({
                                 key={entry.id}
                                 {...dragProps(entry, index)}
                                 className={cn(
-                                    'group/item relative flex min-h-[38px] items-center gap-1.5 rounded-[10px] px-1 transition-colors hover:bg-secondary/60',
+                                    'group/item relative flex min-h-9.5 items-center gap-1.5 rounded-[10px] px-1 transition-colors hover:bg-secondary/60',
                                     dragId === entry.id && 'opacity-40',
                                     overIndex === index &&
                                         dragId !== entry.id &&

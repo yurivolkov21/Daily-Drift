@@ -51,7 +51,7 @@ export default function Appearance() {
                             <label
                                 key={theme.value}
                                 className={cn(
-                                    'flex cursor-pointer flex-col gap-2.5 rounded-[18px] border-2 bg-card p-2.5 transition-[translate,box-shadow,border-color] duration-250 ease-slide hover:-translate-y-0.5 has-focus-visible:ring-2 has-focus-visible:ring-ring',
+                                    'flex cursor-pointer flex-col gap-2.5 rounded-panel border-2 bg-card p-2.5 transition-[translate,box-shadow,border-color] duration-250 ease-slide hover:-translate-y-0.5 has-focus-visible:ring-2 has-focus-visible:ring-ring',
                                     checked
                                         ? 'border-primary shadow-[0_0_0_4px_rgb(110_91_245/0.14)]'
                                         : 'border-border',
@@ -84,7 +84,7 @@ export default function Appearance() {
                                                 : 'border-input bg-card text-transparent',
                                         )}
                                     >
-                                        <Check className="size-[11px] stroke-4" />
+                                        <Check className="size-2.75 stroke-4" />
                                     </span>
                                 </span>
                             </label>
@@ -114,10 +114,10 @@ function ThemePreview({ canvas, card }: { canvas: string; card: string }) {
     return (
         <span
             aria-hidden="true"
-            className="flex h-[104px] gap-1.5 rounded-xl p-2"
+            className="flex h-26 gap-1.5 rounded-xl p-2"
             style={{ background: canvas }}
         >
-            <span className="w-[34px] rounded-lg bg-night" />
+            <span className="w-8.5 rounded-lg bg-night" />
             <span className="flex flex-1 flex-col gap-1.5">
                 <span className="h-3.5 rounded-[5px]" style={cardStyle} />
                 <span className="flex flex-1 gap-1.5">

@@ -24,7 +24,7 @@ export function AddList({ teamSlug, projectId }: Props) {
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="flex h-12 w-[19rem] shrink-0 items-center gap-2 rounded-2xl border border-dashed px-4 text-sm text-muted-foreground transition-colors outline-none hover:border-ring/50 hover:bg-accent/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-12 w-76 shrink-0 items-center gap-2 rounded-2xl border border-dashed px-4 text-sm text-muted-foreground transition-colors outline-none hover:border-ring/50 hover:bg-accent/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             >
                 <Plus className="size-4" /> Add list
             </button>
@@ -32,7 +32,7 @@ export function AddList({ teamSlug, projectId }: Props) {
     }
 
     return (
-        <div className="w-[19rem] shrink-0 rounded-2xl border bg-card p-2 shadow-xs">
+        <div className="w-76 shrink-0 rounded-2xl border bg-card p-2 shadow-xs">
             <Form
                 {...store.form({ current_team: teamSlug, project: projectId })}
                 options={{ preserveScroll: true }}

@@ -258,7 +258,7 @@ export function Agenda({
                         >
                             <h3
                                 className={cn(
-                                    'sticky top-0 z-[1] flex items-center gap-2 bg-card px-2 pt-3.5 pb-1.5 text-[13px] font-bold',
+                                    'sticky top-0 z-1 flex items-center gap-2 bg-card px-2 pt-3.5 pb-1.5 text-[13px] font-bold',
                                     isToday && 'text-primary',
                                 )}
                             >

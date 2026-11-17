@@ -78,7 +78,7 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" variant="floating">
-            <SidebarHeader className="gap-4 px-[18px] pt-4">
+            <SidebarHeader className="gap-4 px-4.5 pt-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
@@ -102,11 +102,11 @@ export function AppSidebar() {
             {/* The scrollbar gutter (10px) plus 8px matches the 18px inset
                 on the left; on the rail there is no gutter, so 18px both
                 sides leaves exactly the 40px buttons. */}
-            <SidebarContent className="thin-scrollbar gap-5 pt-2 pr-2 pl-[18px] scrollbar-on-dark group-data-[collapsible=icon]:[scrollbar-gutter:auto] group-data-[collapsible=icon]:pr-[18px]">
+            <SidebarContent className="thin-scrollbar gap-5 pt-2 pr-2 pl-4.5 scrollbar-on-dark group-data-[collapsible=icon]:scrollbar-gutter-auto group-data-[collapsible=icon]:pr-4.5">
                 <NavMain items={mainNavItems} />
                 {teamSlug && recentProjects.length > 0 && (
                     <SidebarGroup className="p-0">
-                        <SidebarGroupLabel className="px-[11px] text-[11px] font-semibold tracking-[0.08em] text-sidebar-muted uppercase duration-450 ease-panel">
+                        <SidebarGroupLabel className="px-2.75 text-[11px] font-semibold tracking-[0.08em] text-sidebar-muted uppercase duration-450 ease-panel">
                             Recent
                         </SidebarGroupLabel>
                         <SidebarMenu>
@@ -124,14 +124,14 @@ export function AppSidebar() {
                                             tooltip={{ children: project.name }}
                                             className={cn(
                                                 navButtonClass,
-                                                'pl-[9px] text-[13.5px] text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-white',
+                                                'pl-2.25 text-[13.5px] text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-white',
                                             )}
                                         >
                                             <Link href={href} prefetch>
                                                 <span
                                                     aria-hidden="true"
                                                     className={cn(
-                                                        'flex size-[22px] shrink-0 items-center justify-center rounded-[7px] text-[11px] font-extrabold text-white',
+                                                        'flex size-5.5 shrink-0 items-center justify-center rounded-[7px] text-[11px] font-extrabold text-white',
                                                         HUES[project.color].dot,
                                                     )}
                                                 >
@@ -165,7 +165,7 @@ export function AppSidebar() {
                 )}
             </SidebarContent>
 
-            <SidebarFooter className="gap-3 px-[18px] pb-4">
+            <SidebarFooter className="gap-3 px-4.5 pb-4">
                 <FoldButton />
                 <NavUser />
             </SidebarFooter>
@@ -202,7 +202,7 @@ function FoldButton() {
                     }}
                     className={cn(
                         navButtonClass,
-                        'border border-sidebar-border bg-white/[0.04] pl-[10px] text-white',
+                        'border border-sidebar-border bg-white/4 pl-2.5 text-white',
                     )}
                 >
                     {folded ? <PanelLeftOpen /> : <PanelLeftClose />}

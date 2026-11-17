@@ -190,7 +190,7 @@ export function SearchBox() {
                 data-test="search-button"
                 aria-label="Search"
                 aria-keyshortcuts={isMac() ? 'Meta+K' : 'Control+K'}
-                className="hidden h-[42px] items-center gap-2.5 rounded-xl border bg-secondary/50 pr-2 pl-3.5 text-[13.5px] text-muted-foreground transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:flex"
+                className="hidden h-10.5 items-center gap-2.5 rounded-xl border bg-secondary/50 pr-2 pl-3.5 text-[13.5px] text-muted-foreground transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:flex"
             >
                 <Search className="size-4" aria-hidden="true" />
                 Search
@@ -202,15 +202,15 @@ export function SearchBox() {
                 type="button"
                 onClick={() => setOpen(true)}
                 aria-label="Search"
-                className="flex size-[42px] items-center justify-center rounded-xl border bg-card md:hidden"
+                className="flex size-10.5 items-center justify-center rounded-xl border bg-card md:hidden"
             >
-                <Search className="size-[18px]" />
+                <Search className="size-4.5" />
             </button>
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent
                     showCloseButton={false}
-                    className="top-[14%] translate-y-0 gap-0 overflow-hidden rounded-[22px] p-0 sm:max-w-[640px]"
+                    className="top-[14%] translate-y-0 gap-0 overflow-hidden rounded-[22px] p-0 sm:max-w-160"
                 >
                     <DialogTitle className="sr-only">Search</DialogTitle>
                     <DialogDescription className="sr-only">

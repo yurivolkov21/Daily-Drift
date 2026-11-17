@@ -163,7 +163,7 @@ function WeeklySummary({
 
     return (
         <>
-            <div className="flex items-center gap-3 border-b bg-primary/[0.04] px-6 py-5">
+            <div className="flex items-center gap-3 border-b bg-primary/4 px-6 py-5">
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <ScrollText className="size-5" />
                 </span>
@@ -324,7 +324,7 @@ function Points({
                         >
                             <span
                                 aria-hidden="true"
-                                className="mt-[7px] size-1.5 shrink-0 rounded-full bg-current opacity-40"
+                                className="mt-1.75 size-1.5 shrink-0 rounded-full bg-current opacity-40"
                             />
                             {point}
                         </li>

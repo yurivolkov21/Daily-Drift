@@ -105,7 +105,7 @@ export function ThroughputChart({
                                 y={-10}
                                 width={WIDTH + 20}
                                 height={HEIGHT + 20}
-                                className="origin-left animate-fill [animation-delay:450ms] [animation-duration:1.6s] [transform-box:fill-box]"
+                                className="origin-left animate-fill animation-duration-[1.6s] [animation-delay:450ms] transform-fill"
                             />
                         </clipPath>
                     </defs>
@@ -150,7 +150,7 @@ export function ThroughputChart({
                 </svg>
                 <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute size-3.5 -translate-1/2 animate-fade rounded-full border-[3px] border-primary bg-card [animation-delay:1.6s] [animation-duration:0.6s]"
+                    className="pointer-events-none absolute size-3.5 -translate-1/2 animate-fade rounded-full border-[3px] border-primary bg-card animation-duration-[0.6s] [animation-delay:1.6s]"
                     style={{
                         left: `${(last.x / WIDTH) * 100}%`,
                         top: `${(last.y / HEIGHT) * 100}%`,

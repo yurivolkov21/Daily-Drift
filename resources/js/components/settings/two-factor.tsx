@@ -97,9 +97,9 @@ export default function TwoFactorSettings({
                     )}
                 >
                     {state === 'on' ? (
-                        <ShieldCheck className="size-[22px]" />
+                        <ShieldCheck className="size-5.5" />
                     ) : (
-                        <ShieldAlert className="size-[22px]" />
+                        <ShieldAlert className="size-5.5" />
                     )}
                 </span>
                 <SubHeading
@@ -218,7 +218,7 @@ export default function TwoFactorSettings({
                                             type="submit"
                                             variant="ghost"
                                             disabled={processing}
-                                            className={cn(BUTTON, 'h-[34px]')}
+                                            className={cn(BUTTON, 'h-8.5')}
                                         >
                                             <RefreshCw />
                                             New codes
@@ -232,7 +232,7 @@ export default function TwoFactorSettings({
                                 onClick={() => void showCodes()}
                                 aria-expanded={codesShown}
                                 aria-controls="recovery-codes"
-                                className={cn(BUTTON, 'h-[34px] bg-card')}
+                                className={cn(BUTTON, 'h-8.5 bg-card')}
                             >
                                 {codesShown ? 'Hide' : 'Show'}
                             </Button>

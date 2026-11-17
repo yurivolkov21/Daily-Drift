@@ -37,7 +37,7 @@ export function AuthTabs({
                     href={tab.href}
                     aria-current={tab.key === current ? 'page' : undefined}
                     className={cn(
-                        'relative flex min-h-[38px] items-center justify-center rounded-[9px] text-sm font-semibold no-underline transition-colors',
+                        'relative flex min-h-9.5 items-center justify-center rounded-[9px] text-sm font-semibold no-underline transition-colors',
                         tab.key === current
                             ? 'text-foreground'
                             : 'text-muted-foreground hover:text-foreground',
