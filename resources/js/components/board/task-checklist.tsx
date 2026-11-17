@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import {
     Check,
     Eye,
@@ -8,11 +8,16 @@ import {
     MoreHorizontal,
     Pencil,
     Plus,
+    Sparkles,
     Trash2,
 } from 'lucide-react';
 import type { ClipboardEvent, DragEvent, KeyboardEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import {
+    StepSuggestions,
+    useStepSuggestions,
+} from '@/components/board/step-suggestions';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -61,6 +66,8 @@ export function TaskChecklist({
     task: Pick<Task, 'id' | 'checklist' | 'completedAt'>;
     canManage: boolean;
 }) {
+    const { aiHelpers } = usePage().props;
+    const suggestions = useStepSuggestions(teamSlug, task.id);
     const [items, setItems] = useState<ChecklistItem[]>(task.checklist);
     const [hideChecked, setHideChecked] = useState(readHidden);
     const [editing, setEditing] = useState<number | null>(null);
@@ -272,20 +279,47 @@ export function TaskChecklist({
                         {checked} of {items.length}
                     </span>
                 )}
-                {checked > 0 && (
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        aria-pressed={hideChecked}
-                        onClick={toggleHidden}
-                        className="ml-auto h-7 gap-1.5 px-2 text-[12.5px] text-muted-foreground"
-                    >
-                        {hideChecked ? <Eye /> : <EyeOff />}
-                        {hideChecked ? 'Show checked' : 'Hide checked'}
-                    </Button>
-                )}
+                <div className="ml-auto flex items-center gap-0.5">
+                    {checked > 0 && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            aria-pressed={hideChecked}
+                            onClick={toggleHidden}
+                            className="h-7 gap-1.5 px-2 text-[12.5px] text-muted-foreground"
+                        >
+                            {hideChecked ? <Eye /> : <EyeOff />}
+                            {hideChecked ? 'Show checked' : 'Hide checked'}
+                        </Button>
+                    )}
+                    {/* Spec 0011: Claude drafts steps; the person keeps some. */}
+                    {aiHelpers && canManage && !full && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={suggestions.state.status === 'loading'}
+                            onClick={() => void suggestions.suggest()}
+                            className="h-7 gap-1.5 px-2 text-[12.5px] text-primary hover:text-primary"
+                        >
+                            <Sparkles />
+                            Suggest steps
+                        </Button>
+                    )}
+                </div>
             </div>
+
+            <StepSuggestions
+                state={suggestions.state}
+                onToggle={suggestions.toggle}
+                onRetry={() => void suggestions.suggest()}
+                onClose={suggestions.close}
+                onAdd={(steps) => {
+                    add(steps.join('\n'));
+                    suggestions.close();
+                }}
+            />
 
             {items.length > 0 && (
                 <div
