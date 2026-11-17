@@ -78,6 +78,8 @@ export type ProjectAbilities = {
     manageLists: boolean;
     /** Owners and admins delete anyone's files (spec 0010). */
     deleteAnyFile: boolean;
+    /** Have Claude write a new weekly summary (spec 0011). */
+    summarize: boolean;
 };
 
 export type ProjectHealth = 'attention' | 'track';

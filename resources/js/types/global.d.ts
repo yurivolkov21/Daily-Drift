@@ -14,6 +14,8 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            /** Whether the AI helpers are on, which needs a key (spec 0011). */
+            aiHelpers: boolean;
             /** The viewer's time zone, and today's date in it (spec 0003). */
             timeZone: string;
             today: string;
