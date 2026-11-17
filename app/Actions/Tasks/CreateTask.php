@@ -18,9 +18,9 @@ class CreateTask
     public function handle(TaskList $list, User $creator, string $title, ?string $dueOn = null, array $attributes = [], bool $drafted = false): Task
     {
         return DB::transaction(function () use ($list, $creator, $title, $dueOn, $attributes, $drafted) {
-            $count = $list->tasks()->lockForUpdate()->count();
+            $list->lockForNewTasks();
 
-            $task = $list->tasks()->make([...$attributes, 'title' => $title, 'position' => $count, 'due_on' => $dueOn]);
+            $task = $list->tasks()->make([...$attributes, 'title' => $title, 'position' => $list->tasks()->count(), 'due_on' => $dueOn]);
             $task->project()->associate($list->project_id);
             $task->creator()->associate($creator);
             $task->drafted = $drafted;

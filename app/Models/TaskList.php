@@ -75,6 +75,16 @@ class TaskList extends Model
     }
 
     /**
+     * Lock the list's row until the transaction ends, so tasks added to it at
+     * the same time get different positions. Locking its tasks would not do:
+     * on PostgreSQL that neither stops new rows nor works with a count.
+     */
+    public function lockForNewTasks(): void
+    {
+        static::query()->whereKey($this->getKey())->lockForUpdate()->value('id');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
