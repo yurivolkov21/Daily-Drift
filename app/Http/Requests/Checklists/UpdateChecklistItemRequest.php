@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Checklists;
 
+use App\Models\ChecklistItem;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,7 +26,7 @@ class UpdateChecklistItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body' => ['sometimes', 'required', 'string', 'max:300'],
+            'body' => ['sometimes', 'required', 'string', 'max:'.ChecklistItem::MAX_LENGTH],
             'checked' => ['sometimes', 'boolean'],
         ];
     }
