@@ -4,7 +4,7 @@ A collaborative task manager: teams create projects, organise work into lists an
 
 Daily-Drift is a personal remake of a team project I built in my second semester at VTC Academy, rebuilt from scratch with a current Laravel + React stack.
 
-> **Status:** Phase 1 is done: projects, lists, tasks with drag and drop, progress and the dashboard, in a new design ([design notes](docs/design/README.md)), with "today" and "overdue" in each person's time zone. Phase 2 (collaboration) is done: tasks can be assigned, each person has a _My tasks_ page, tasks have comments and a history, a bell tells you when you are assigned or mentioned, tasks have labels, board filters and a Ctrl K search, and a project can be seen as a board, a list or a calendar. Phase 3 (advanced) has started: people can sign in with Google or GitHub.
+> **Status:** Phase 1 is done: projects, lists, tasks with drag and drop, progress and the dashboard, in a new design ([design notes](docs/design/README.md)), with "today" and "overdue" in each person's time zone. Phase 2 (collaboration) is done: tasks can be assigned, each person has a _My tasks_ page, tasks have comments and a history, a bell tells you when you are assigned or mentioned, tasks have labels, board filters and a Ctrl K search, and a project can be seen as a board, a list or a calendar. Phase 3 (advanced) is under way: people can sign in with Google or GitHub; tasks have checklists, files and repeat rules; and optional AI helpers draft checklist steps, a project's first tasks and a weekly summary with Claude.
 
 ## Stack
 
@@ -13,6 +13,7 @@ Daily-Drift is a personal remake of a team project I built in my second semester
 - **Frontend:** Inertia 3, React 19, TypeScript, Tailwind CSS 4, Vite+
 - **UI:** [shadcn/ui](https://ui.shadcn.com) (Radix, `new-york` style), with every component available for this style installed in `resources/js/components/ui`
 - **Drag and drop:** [ReUI](https://reui.io) Kanban on `@dnd-kit`
+- **AI helpers:** the official [Anthropic PHP SDK](https://github.com/anthropics/anthropic-sdk-php) for Claude, used only when a key is set
 - **Dates:** date-fns, and react-day-picker under the shadcn date picker
 - **Tooling:** PHPUnit, PHPStan, Pint, Wayfinder (typed routes for the frontend)
 
@@ -73,19 +74,22 @@ Dates follow the day you seed, so something is always overdue, due today and due
 - **The scheduler is optional.** Once a day it deletes expired team invitations. `composer dev` does not start it; run `php artisan schedule:work` in another terminal if you want it.
 - **Use the address in `APP_URL`.** Passkeys only work on that host, so open `localhost:8000`, not `127.0.0.1:8000`. If you change the port or host, change `APP_URL` too.
 - **Files up to 10 MB need PHP to allow them.** PHP refuses uploads above `upload_max_filesize` and `post_max_size`, which are 2 MB and 8 MB by default. For local development, set `upload_max_filesize = 10M` and `post_max_size = 12M` in your `php.ini` (`php --ini` shows which file), then restart `composer dev`. Files are kept in `storage/app/private`, never under `public/`.
+- **The AI helpers are optional.** Without a key their buttons are hidden and everything else works. To turn them on, set `ANTHROPIC_API_KEY` in `.env` to a key from the [Claude Console](https://platform.claude.com) and run `php artisan config:clear`. The model is `claude-opus-5-5` unless `ANTHROPIC_MODEL` names another. Each click sends a request that is billed to that key, limited to 10 a minute per person and 100 a day per team. What is sent: the task, the brief or the project's week, but never comment text or file contents ([spec 0011](docs/spec/0011-ai-helpers.md#privacy)). Tests never call Claude.
 - **Google and GitHub sign-in is optional.** Without keys the buttons are hidden and everything else works. To turn it on, follow [setting up sign in with Google and GitHub](docs/guides/social-sign-in.md) and fill in the four `GOOGLE_*` and `GITHUB_*` variables in `.env`.
 
 ### Troubleshooting
 
-| Problem                                                | Fix                                                                                           |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| Composer refuses to install because of the PHP version | Install PHP 8.4.27 or newer (see [Requirements](#requirements)).                              |
-| `pnpm` is missing or the wrong version                 | Run `corepack enable pnpm`; it picks the version pinned in `package.json`.                    |
-| The page says _Vite manifest not found_                | Keep `composer dev` running, or build once with `pnpm run build`.                             |
-| A change to `.env` has no effect                       | Run `php artisan config:clear`, then restart `composer dev`.                                  |
-| A team invitation email never shows up in the log      | Check that the queue worker is running (it is part of `composer dev`).                        |
-| A file over 2 MB says _The server refused the file_    | Raise PHP's upload limits (see [Good to know](#good-to-know)).                                |
-| You want to start over with an empty database          | `php artisan migrate:fresh --seed`. It deletes all data, then creates the demo account again. |
+| Problem                                                      | Fix                                                                                                   |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Composer refuses to install because of the PHP version       | Install PHP 8.4.27 or newer (see [Requirements](#requirements)).                                      |
+| `pnpm` is missing or the wrong version                       | Run `corepack enable pnpm`; it picks the version pinned in `package.json`.                            |
+| The page says _Vite manifest not found_                      | Keep `composer dev` running, or build once with `pnpm run build`.                                     |
+| A change to `.env` has no effect                             | Run `php artisan config:clear`, then restart `composer dev`.                                          |
+| A team invitation email never shows up in the log            | Check that the queue worker is running (it is part of `composer dev`).                                |
+| A file over 2 MB says _The server refused the file_          | Raise PHP's upload limits (see [Good to know](#good-to-know)).                                        |
+| No _Suggest steps_, _Draft tasks_ or _Weekly summary_ button | Set `ANTHROPIC_API_KEY` in `.env`, then run `php artisan config:clear`.                               |
+| An AI helper says _AI helpers aren't set up correctly_       | The key is wrong, out of credit or has no access to the model; `storage/logs/laravel.log` says which. |
+| You want to start over with an empty database                | `php artisan migrate:fresh --seed`. It deletes all data, then creates the demo account again.         |
 
 ## Checks
 
