@@ -2,13 +2,13 @@
 
 ## Runtime and tooling
 
-| Tool     | Version              | Notes                                                                                                                                      |
-| -------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| PHP      | 8.4.27 or newer      | Required by `composer.json` (`^8.4.27`); older 8.4 releases are hit by PHP2Shell. See [ADR 0003](../decisions/0003-php-8-4-27-minimum.md). |
-| Composer | 2.x                  | Platform pinned to PHP 8.4.27 so the lock file resolves the same everywhere.                                                               |
-| Node.js  | 24 LTS (24.22.1+)    | `.nvmrc` and `engines` in `package.json`.                                                                                                  |
-| pnpm     | 12.16.1              | Pinned in `packageManager`; `corepack enable pnpm` selects it. See [ADR 0002](../decisions/0002-pnpm-and-node-24.md).                      |
-| Database | SQLite (development) | PostgreSQL planned for production (Phase 3).                                                                                               |
+| Tool     | Version               | Notes                                                                                                                                      |
+| -------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| PHP      | 8.4.27 or newer       | Required by `composer.json` (`^8.4.27`); older 8.4 releases are hit by PHP2Shell. See [ADR 0003](../decisions/0003-php-8-4-27-minimum.md). |
+| Composer | 2.x                   | Platform pinned to PHP 8.4.27 so the lock file resolves the same everywhere.                                                               |
+| Node.js  | 24 LTS (24.22.1+)     | `.nvmrc` and `engines` in `package.json`.                                                                                                  |
+| pnpm     | 12.16.1               | Pinned in `packageManager`; `corepack enable pnpm` selects it. See [ADR 0002](../decisions/0002-pnpm-and-node-24.md).                      |
+| Database | SQLite, PostgreSQL 17 | SQLite in development. PostgreSQL 17 in production, on Supabase ([spec 0012](../spec/0012-production-readiness.md)); CI tests on both.     |
 
 ## Backend
 
@@ -31,4 +31,16 @@
 
 ## CI
 
-GitHub Actions (`.github/workflows/tests.yml`) runs on every pull request: install, build, lint and format, TypeScript, Pint, PHPStan and the test suite. The `ci` check is required by the `main` ruleset.
+GitHub Actions (`.github/workflows/tests.yml`) runs on every pull request: install, build, lint and format, TypeScript, Pint, PHPStan and the test suite on SQLite, then the test suite again on PostgreSQL 17 in a service container. The `ci` check is required by the `main` ruleset.
+
+## Production
+
+See [spec 0012](../spec/0012-production-readiness.md) and the [deploy guide](../guides/deploy-render.md).
+
+| Piece    | What                                                   | Notes                                                                                       |
+| -------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Hosting  | Render, one Starter web service in Singapore           | Described by `render.yaml`; deploys a commit on `main` once its CI checks pass.             |
+| Image    | `serversideup/php` 8.4 with nginx and PHP-FPM (trixie) | The queue worker and the scheduler run as S6 services in the same container (`docker/s6/`). |
+| Database | PostgreSQL 17 on Supabase's free plan                  | Through the IPv4 session pooler, with TLS. `db:backup` makes the weekly backups.            |
+| Files    | Cloudflare R2, through `league/flysystem-aws-s3-v3`    | Any S3-compatible bucket works. Composer keeps only the S3 part of the AWS SDK.             |
+| Email    | The log, for now                                       | A mail provider comes with the email notifications item.                                    |

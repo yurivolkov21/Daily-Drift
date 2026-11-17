@@ -6,14 +6,14 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
-- [Spec 0012](../spec/0012-production-readiness.md) for production readiness, the next Phase 3 item. Planned, on Render in Singapore (the owner's choice):
-    - one Docker image that runs the app, the queue worker and the scheduler;
-    - PostgreSQL in production and in CI next to SQLite;
-    - attachments in a private S3-compatible bucket;
-    - HTTPS behind Render's proxy, security headers, and rate limits on sign-up, invitations and all other requests;
-    - a Render Blueprint and a deploy guide.
-
-    The owner chose Supabase's free PostgreSQL in Singapore, with the app's own weekly backups, to keep the cost near US$7 a month, and kept the other proposals for now. The deploy waits for the owner's go-ahead.
+- Production readiness on Render ([spec 0012](../spec/0012-production-readiness.md), [deploy guide](../guides/deploy-render.md)). The code is ready; the deploy waits for the owner's go-ahead, since it is the step that costs money (about US$7 a month).
+    - **One Docker image** on `serversideup/php` 8.4 runs nginx, PHP-FPM, the queue worker and the scheduler, the last two as S6 services. On start it migrates and caches the config, routes, views and events.
+    - **`render.yaml`** describes a Starter web service in Singapore. It deploys each commit on `main` once its CI checks pass, and seeds the demo workspace once after the first deploy. Six secrets are entered in the dashboard; `APP_URL` falls back to the address Render gives the service.
+    - **PostgreSQL 17** in production, on Supabase's free plan, reached through its IPv4 session pooler with TLS. CI now runs the tests on PostgreSQL 17 as well as SQLite, inside the required `ci` check.
+    - **Files in a bucket:** with `FILESYSTEM_DISK=s3`, attachments go to a private S3-compatible bucket (Cloudflare R2) and are still sent only through the app. The AWS SDK keeps only its S3 part.
+    - **Weekly backups:** `php artisan db:backup` dumps the app's tables with `pg_dump` and streams them to the bucket every Sunday at 03:00, Vietnam time, keeping the 8 latest. Supabase's free plan keeps none.
+    - **Safety:** `TRUSTED_PROXIES` for the visitor's address and HTTPS behind Render's proxy; HTTPS links in production; `nosniff`, a referrer policy, `X-Frame-Options: DENY` and a `Permissions-Policy` on every response, and `Strict-Transport-Security` in production.
+    - **Rate limits:** 5 sign-ups an hour per address and 20 invitations an hour per team, since each sends an email, and 240 requests a minute per person or address for everything else.
 
 - AI helpers with Claude ([spec 0011](../spec/0011-ai-helpers.md)), on when `ANTHROPIC_API_KEY` is set. Each one drafts, and a person picks what to keep:
     - **Suggest steps**, in a task's checklist: 3 to 8 steps drafted from the task, leaving out the ones the checklist has. The checked ones are added at the end.
@@ -66,6 +66,9 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Fixed
 
+- Adding a task failed on PostgreSQL, which refuses `FOR UPDATE` with a count. Adding a task now locks its list's row, which also keeps two tasks added at the same time from sharing a position.
+- The four people in the header could change places between requests on PostgreSQL when they joined in the same second.
+- The demo seeder created its people through the factory, which needs Faker, a development package that production does not install.
 - **Folding the sidebar** no longer stutters, and the folded rail is centered.
     - On the 76 px rail the logo, team tile, icons, project tiles and avatar sat 4 to 10 px left of the middle; they are now centered.
     - While the sidebar folded, the icons jumped to the middle of the still-wide card and slid back, labels shrank to "Dashb…", and counts and the team name popped in and out. Now the icons stay where they are, the labels, counts and chevrons fade out and back in, and the _Recent_ heading moves with the card.

@@ -4,7 +4,7 @@ A collaborative task manager: teams create projects, organise work into lists an
 
 Daily-Drift is a personal remake of a team project I built in my second semester at VTC Academy, rebuilt from scratch with a current Laravel + React stack.
 
-> **Status:** Phase 1 is done: projects, lists, tasks with drag and drop, progress and the dashboard, in a new design ([design notes](docs/design/README.md)), with "today" and "overdue" in each person's time zone. Phase 2 (collaboration) is done: tasks can be assigned, each person has a _My tasks_ page, tasks have comments and a history, a bell tells you when you are assigned or mentioned, tasks have labels, board filters and a Ctrl K search, and a project can be seen as a board, a list or a calendar. Phase 3 (advanced) is under way: people can sign in with Google or GitHub; tasks have checklists, files and repeat rules; and optional AI helpers draft checklist steps, a project's first tasks and a weekly summary with Claude.
+> **Status:** Phase 1 is done: projects, lists, tasks with drag and drop, progress and the dashboard, in a new design ([design notes](docs/design/README.md)), with "today" and "overdue" in each person's time zone. Phase 2 (collaboration) is done: tasks can be assigned, each person has a _My tasks_ page, tasks have comments and a history, a bell tells you when you are assigned or mentioned, tasks have labels, board filters and a Ctrl K search, and a project can be seen as a board, a list or a calendar. Phase 3 (advanced) is under way: people can sign in with Google or GitHub; tasks have checklists, files and repeat rules; optional AI helpers draft checklist steps, a project's first tasks and a weekly summary with Claude; and the app is ready to run on Render ([deploy guide](docs/guides/deploy-render.md)).
 
 ## Stack
 
@@ -16,6 +16,7 @@ Daily-Drift is a personal remake of a team project I built in my second semester
 - **AI helpers:** the official [Anthropic PHP SDK](https://github.com/anthropics/anthropic-sdk-php) for Claude, used only when a key is set
 - **Dates:** date-fns, and react-day-picker under the shadcn date picker
 - **Tooling:** PHPUnit, PHPStan, Pint, Wayfinder (typed routes for the frontend)
+- **Production:** one Docker image on Render (nginx, PHP-FPM, the queue worker and the scheduler), PostgreSQL 17 on Supabase and files in a Cloudflare R2 bucket
 
 ## Docs
 
@@ -71,7 +72,7 @@ Dates follow the day you seed, so something is always overdue, due today and due
 
 - **Emails go to the log.** With `MAIL_MAILER=log`, verification links, password resets and team invitations are written to `storage/logs/laravel.log` instead of being sent. Copy the link from there. To see them in an inbox, point the `MAIL_*` variables at a local mail catcher such as [Mailpit](https://mailpit.axllent.org).
 - **The queue worker sends invitations.** Team invitation emails go through the queue (`QUEUE_CONNECTION=database`). `composer dev` runs the worker; if you start the server another way, also run `php artisan queue:listen`.
-- **The scheduler is optional.** Once a day it deletes expired team invitations. `composer dev` does not start it; run `php artisan schedule:work` in another terminal if you want it.
+- **The scheduler is optional.** Once a day it deletes expired team invitations, and on PostgreSQL it makes a weekly backup. `composer dev` does not start it; run `php artisan schedule:work` in another terminal if you want it.
 - **Use the address in `APP_URL`.** Passkeys only work on that host, so open `localhost:8000`, not `127.0.0.1:8000`. If you change the port or host, change `APP_URL` too.
 - **Files up to 10 MB need PHP to allow them.** PHP refuses uploads above `upload_max_filesize` and `post_max_size`, which are 2 MB and 8 MB by default. For local development, set `upload_max_filesize = 10M` and `post_max_size = 12M` in your `php.ini` (`php --ini` shows which file), then restart `composer dev`. Files are kept in `storage/app/private`, never under `public/`.
 - **The AI helpers are optional.** Without a key their buttons are hidden and everything else works. To turn them on, set `ANTHROPIC_API_KEY` in `.env` to a key from the [Claude Console](https://platform.claude.com) and run `php artisan config:clear`. The model is `claude-opus-5-5` unless `ANTHROPIC_MODEL` names another. Each click sends a request that is billed to that key, limited to 10 a minute per person and 100 a day per team. What is sent: the task, the brief or the project's week, but never comment text or file contents ([spec 0011](docs/spec/0011-ai-helpers.md#privacy)). Tests never call Claude.
@@ -90,6 +91,7 @@ Dates follow the day you seed, so something is always overdue, due today and due
 | No _Suggest steps_, _Draft tasks_ or _Weekly summary_ button | Set `ANTHROPIC_API_KEY` in `.env`, then run `php artisan config:clear`.                               |
 | An AI helper says _AI helpers aren't set up correctly_       | The key is wrong, out of credit or has no access to the model; `storage/logs/laravel.log` says which. |
 | You want to start over with an empty database                | `php artisan migrate:fresh --seed`. It deletes all data, then creates the demo account again.         |
+| Signing up says _Too many sign-ups from this address_        | One address signs up 5 times an hour. Locally, `php artisan cache:clear` starts the count again.      |
 
 ## Checks
 
@@ -100,6 +102,10 @@ pnpm run types:check   # TypeScript
 ```
 
 Fonts (Inter and Plus Jakarta Sans) are installed as npm packages and served by the app, so building needs no access to a font service.
+
+## Deploying
+
+The app runs on [Render](https://render.com) as one Docker image, with PostgreSQL on [Supabase](https://supabase.com) and files in a [Cloudflare R2](https://developers.cloudflare.com/r2/) bucket, for about US$7 a month. [Deploying to Render](docs/guides/deploy-render.md) walks through it step by step; `Dockerfile` and `render.yaml` hold the setup. The live site seeds the same demo workspace, so `test@example.com` with the password `password` signs in there too.
 
 ## Credits
 
