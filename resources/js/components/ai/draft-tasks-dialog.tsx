@@ -142,7 +142,7 @@ function DraftTasks({
 
     return (
         <>
-            <div className="flex items-center gap-3 border-b bg-primary/[0.04] px-6 py-5">
+            <div className="flex items-center gap-3 border-b bg-primary/4 px-6 py-5">
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <Sparkles className="size-5" />
                 </span>
@@ -260,7 +260,7 @@ function DraftTasks({
                                         aria-label={entry.title}
                                     />
                                     <span className="flex min-w-0 flex-1 flex-col gap-1">
-                                        <span className="text-sm leading-snug font-semibold break-words">
+                                        <span className="text-sm leading-snug font-semibold wrap-break-word">
                                             {entry.title}
                                         </span>
                                         {entry.description && (

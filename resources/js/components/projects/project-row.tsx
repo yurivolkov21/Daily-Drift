@@ -36,7 +36,7 @@ export function ProjectRow({ teamSlug, project, index = 0 }: Props) {
         <li
             className={cn(
                 'relative flex animate-rise flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl px-4 py-3 transition-[background-color,translate,box-shadow] duration-200 hover:-translate-y-px hover:bg-card hover:shadow-[0_12px_30px_-20px_rgb(40_30_120/0.35)]',
-                attention ? 'bg-red-500/[0.03]' : 'bg-muted/60',
+                attention ? 'bg-red-500/3' : 'bg-muted/60',
             )}
             style={{ animationDelay: delay }}
         >

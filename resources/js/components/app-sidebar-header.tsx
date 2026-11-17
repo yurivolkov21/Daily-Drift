@@ -30,7 +30,7 @@ export function AppSidebarHeader({
     const more = teamPeople ? teamPeople.total - teamPeople.names.length : 0;
 
     return (
-        <header className="relative z-20 flex min-h-[62px] shrink-0 animate-rise flex-wrap items-center gap-3 rounded-panel bg-card py-2.5 pr-2.5 pl-4 shadow-[0_1px_2px_rgb(23_21_59/0.06)] [animation-delay:60ms]">
+        <header className="relative z-20 flex min-h-15.5 shrink-0 animate-rise flex-wrap items-center gap-3 rounded-panel bg-card py-2.5 pr-2.5 pl-4 shadow-[0_1px_2px_rgb(23_21_59/0.06)] [animation-delay:60ms]">
             <SidebarTrigger className="-ml-1 md:hidden" />
             <Breadcrumbs breadcrumbs={breadcrumbs} />
             <div className="ml-auto flex items-center gap-3">

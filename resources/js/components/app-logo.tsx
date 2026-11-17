@@ -9,7 +9,7 @@ export default function AppLogo() {
 
     return (
         <>
-            <div className="flex aspect-square size-[38px] shrink-0 items-center justify-center rounded-[11px] bg-primary font-display text-base font-extrabold text-primary-foreground">
+            <div className="flex aspect-square size-9.5 shrink-0 items-center justify-center rounded-[11px] bg-primary font-display text-base font-extrabold text-primary-foreground">
                 {name.charAt(0)}
             </div>
             {/* Fades out on the folded sidebar's rail. */}

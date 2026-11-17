@@ -125,7 +125,7 @@ export function StepSuggestions({
             ref={section}
             aria-label="Suggested steps"
             aria-busy={state.status === 'loading'}
-            className="flex animate-pop flex-col gap-2 rounded-xl border border-primary/15 bg-primary/[0.04] p-2.5"
+            className="flex animate-pop flex-col gap-2 rounded-xl border border-primary/15 bg-primary/4 p-2.5"
         >
             <div className="flex min-h-7 items-center gap-2 pl-1">
                 <Sparkles className="size-3.5 text-primary" />
@@ -208,7 +208,7 @@ export function StepSuggestions({
                                     />
                                     <span
                                         className={cn(
-                                            'min-w-0 flex-1 leading-snug break-words',
+                                            'min-w-0 flex-1 leading-snug wrap-break-word',
                                             !entry.keep && 'line-through',
                                         )}
                                     >

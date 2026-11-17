@@ -198,7 +198,7 @@ export default function MyTasks({ myTasks: data, filters }: Props) {
                                     aria-checked={on}
                                     onClick={() => pickProject(chip.id)}
                                     className={cn(
-                                        'flex min-h-[34px] items-center gap-2 rounded-full border px-3 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                        'flex min-h-8.5 items-center gap-2 rounded-full border px-3 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                         on
                                             ? 'border-foreground bg-foreground text-background'
                                             : 'bg-card hover:bg-muted',
@@ -305,7 +305,7 @@ export default function MyTasks({ myTasks: data, filters }: Props) {
                                 >
                                     <span
                                         aria-hidden="true"
-                                        className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white"
+                                        className="flex size-5.5 shrink-0 items-center justify-center rounded-full bg-green-500 text-white"
                                     >
                                         <Check className="size-3 stroke-4" />
                                     </span>
@@ -441,7 +441,7 @@ function Row({
                 disabled={leaving}
                 aria-label={`Complete ${task.title}`}
                 onCheckedChange={(checked) => checked === true && onComplete()}
-                className="size-[22px] rounded-full"
+                className="size-5.5 rounded-full"
             />
             <span className="flex min-w-0 flex-[1_1_14rem] flex-col gap-0.5">
                 <Link
@@ -456,7 +456,7 @@ function Row({
                 <ProjectLine task={task} />
             </span>
             {/* On a phone this line drops under the title, lined up with it. */}
-            <span className="flex items-center gap-3 max-sm:basis-full max-sm:pl-[34px]">
+            <span className="flex items-center gap-3 max-sm:basis-full max-sm:pl-8.5">
                 <PriorityPill priority={task.priority} />
                 <span
                     className={cn(

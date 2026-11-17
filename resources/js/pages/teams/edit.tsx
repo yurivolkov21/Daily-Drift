@@ -117,7 +117,7 @@ export default function TeamEdit({
                     <Form
                         {...update.form(team.slug)}
                         options={{ preserveScroll: true }}
-                        className="grid max-w-[420px] gap-2"
+                        className="grid max-w-105 gap-2"
                     >
                         {({ errors, processing, isDirty }) => (
                             <>
@@ -303,7 +303,7 @@ function MemberRow({
             {fixed ? (
                 <span
                     className={cn(
-                        'flex h-[34px] items-center rounded-[10px] px-3 text-[13px] font-semibold',
+                        'flex h-8.5 items-center rounded-[10px] px-3 text-[13px] font-semibold',
                         member.role === 'owner'
                             ? 'bg-primary/10 text-primary'
                             : 'text-muted-foreground',
@@ -318,7 +318,7 @@ function MemberRow({
                             type="button"
                             data-test="member-role-trigger"
                             aria-label={`Role for ${member.name}: ${member.role_label}`}
-                            className="group flex h-[34px] items-center gap-1.5 rounded-[10px] border bg-card pr-2.5 pl-3 text-[13px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:border-primary"
+                            className="group flex h-8.5 items-center gap-1.5 rounded-[10px] border bg-card pr-2.5 pl-3 text-[13px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:border-primary"
                         >
                             {member.role_label}
                             <ChevronDown className="size-3.5 transition-transform duration-300 group-data-[state=open]:rotate-180" />
@@ -349,7 +349,7 @@ function MemberRow({
                                     </span>
                                     <Check
                                         className={cn(
-                                            'mt-0.5 size-[15px] text-primary',
+                                            'mt-0.5 size-3.75 text-primary',
                                             role.value !== member.role &&
                                                 'opacity-0',
                                         )}

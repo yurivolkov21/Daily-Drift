@@ -231,7 +231,7 @@ function TaskForm({
                     className="relative flex min-h-0 flex-1 flex-col"
                 >
                     {dropping && (
-                        <div className="pointer-events-none absolute inset-2 z-30 flex animate-pop flex-col items-center justify-center gap-2 rounded-[18px] border-2 border-dashed border-primary/60 bg-secondary/90 text-primary">
+                        <div className="pointer-events-none absolute inset-2 z-30 flex animate-pop flex-col items-center justify-center gap-2 rounded-panel border-2 border-dashed border-primary/60 bg-secondary/90 text-primary">
                             <Upload className="size-8" />
                             <span className="text-base font-bold">
                                 Drop files to attach them

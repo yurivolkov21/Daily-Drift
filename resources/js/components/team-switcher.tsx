@@ -65,7 +65,7 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                             : // Full width with a fixed left padding, so the
                               // 28px tile stays put and sits in the middle of
                               // the rail (18 + 1 + 5 + 14 = 38px).
-                              'h-10 w-full justify-start gap-2.5 overflow-hidden rounded-xl border border-sidebar-border bg-white/[0.04] pr-2 pl-[5px] text-white transition-[background-color,border-color] duration-200 group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent hover:bg-sidebar-accent hover:text-white has-[>svg]:pr-2 has-[>svg]:pl-[5px] data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+                              'h-10 w-full justify-start gap-2.5 overflow-hidden rounded-xl border border-sidebar-border bg-white/4 pr-2 pl-1.25 text-white transition-[background-color,border-color] duration-200 group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent hover:bg-sidebar-accent hover:text-white has-[>svg]:pr-2 has-[>svg]:pl-1.25 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
                     }
                     aria-label={inHeader ? undefined : 'Switch team'}
                 >
@@ -94,7 +94,7 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                         <span
                             className={
                                 inHeader
-                                    ? 'max-w-[120px] truncate font-medium'
+                                    ? 'max-w-30 truncate font-medium'
                                     : 'truncate font-semibold'
                             }
                         >
