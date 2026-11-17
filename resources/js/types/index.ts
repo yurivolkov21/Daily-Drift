@@ -1,5 +1,6 @@
 export type * from './auth';
 export type * from './activity';
+export type * from './ai';
 export type * from './dashboard';
 export type * from './labels';
 export type * from './navigation';

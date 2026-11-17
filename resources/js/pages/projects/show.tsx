@@ -8,9 +8,13 @@ import {
     ChevronsLeft,
     ListTodo,
     Plus,
+    ScrollText,
+    Sparkles,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { DraftTasksDialog } from '@/components/ai/draft-tasks-dialog';
+import { WeeklySummaryDialog } from '@/components/ai/weekly-summary-dialog';
 import { openAddTask } from '@/components/board/add-task';
 import { FilterBar } from '@/components/board/filter-bar';
 import { Board } from '@/components/board/board';
@@ -58,7 +62,7 @@ type Props = {
 };
 
 export default function ProjectShow({ project }: Props) {
-    const { currentTeam, auth } = usePage().props;
+    const { currentTeam, auth, aiHelpers } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
     const { today } = useLocalTime();
     const { labels } = useTeamLabels();
@@ -135,6 +139,10 @@ export default function ProjectShow({ project }: Props) {
         });
     }, [teamSlug, project.id, project.name, project.color]);
     const firstList = project.lists[0];
+    // Spec 0011: drafted tasks go to the first list that is not the Done list.
+    const firstOpenList = project.lists.find((list) => !list.isDone);
+    const [drafting, setDrafting] = useState(false);
+    const [summarizing, setSummarizing] = useState(false);
     const { stats } = project;
     const progress = percent(stats.completed, stats.tasks);
 
@@ -144,6 +152,17 @@ export default function ProjectShow({ project }: Props) {
 
             {project.can.manageLists && firstList && (
                 <HeaderActions>
+                    {aiHelpers && firstOpenList && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setDrafting(true)}
+                            aria-label="Draft tasks with Claude"
+                            className="h-10 rounded-xl px-4 text-primary hover:text-primary max-sm:px-3"
+                        >
+                            <Sparkles />
+                            <span className="max-sm:hidden">Draft tasks</span>
+                        </Button>
+                    )}
                     <Button
                         onClick={() => openAddTask(firstList.id)}
                         className="h-10 rounded-xl px-4 shadow-[0_8px_20px_-10px_var(--primary)]"
@@ -151,6 +170,25 @@ export default function ProjectShow({ project }: Props) {
                         <Plus /> New task
                     </Button>
                 </HeaderActions>
+            )}
+
+            {aiHelpers && firstOpenList && (
+                <DraftTasksDialog
+                    teamSlug={teamSlug}
+                    project={project}
+                    list={firstOpenList}
+                    open={drafting}
+                    onOpenChange={setDrafting}
+                />
+            )}
+            {aiHelpers && (
+                <WeeklySummaryDialog
+                    teamSlug={teamSlug}
+                    project={project}
+                    canWrite={project.can.summarize}
+                    open={summarizing}
+                    onOpenChange={setSummarizing}
+                />
             )}
 
             {/* With the board, the page is exactly as tall as the window
@@ -223,6 +261,15 @@ export default function ProjectShow({ project }: Props) {
                             className="h-[7px]"
                         />
                     </div>
+                    {aiHelpers && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setSummarizing(true)}
+                            className="rounded-xl"
+                        >
+                            <ScrollText /> Weekly summary
+                        </Button>
+                    )}
                     <ProjectMenu
                         teamSlug={teamSlug}
                         project={project}

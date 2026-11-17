@@ -28,6 +28,11 @@ export function describeEvent(event: TaskEvent, doneList?: string): string {
                 return `created this occurrence${list ? ` in ${text(list)}` : ''} when the last one was completed`;
             }
 
+            // Spec 0011: added from Claude's draft of the project's tasks.
+            if (event.properties.drafted) {
+                return `added it from an AI draft${list ? ` to ${text(list)}` : ''}`;
+            }
+
             return list
                 ? `created the task in ${text(list)}`
                 : 'created the task';
@@ -93,6 +98,10 @@ export function feedPhrase(event: TaskEvent): { verb: string; tail: string } {
 
     switch (event.type) {
         case 'task.created':
+            if (event.properties.drafted) {
+                return { verb: 'added', tail: 'from an AI draft' };
+            }
+
             return event.properties.repeated_from
                 ? { verb: 'created the next occurrence of', tail: '' }
                 : { verb: 'created', tail: '' };
