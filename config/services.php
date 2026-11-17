@@ -49,4 +49,12 @@ return [
         'redirect' => '/auth/github/callback',
     ],
 
+    // Spec 0011: the AI helpers. They show only when a key is set.
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
+        // Only for a proxy or gateway in front of the API.
+        'base_url' => env('ANTHROPIC_BASE_URL'),
+    ],
+
 ];

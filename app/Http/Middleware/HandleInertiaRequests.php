@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Ai\Assistant;
 use App\Models\Project;
 use App\Models\Task;
 use App\Queries\NotificationFeed;
@@ -48,6 +49,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            // Whether the AI helpers are on, which needs a key (spec 0011).
+            'aiHelpers' => fn () => app(Assistant::class)->enabled(),
             // The viewer's time zone and today's date in it (spec 0003).
             'timeZone' => fn () => LocalTime::zone($request),
             'today' => fn () => LocalTime::today($request),
