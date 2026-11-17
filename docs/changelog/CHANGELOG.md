@@ -6,6 +6,15 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
+- [Spec 0012](../spec/0012-production-readiness.md) for production readiness, the next Phase 3 item. Planned, on Render in Singapore (the owner's choice):
+    - one Docker image that runs the app, the queue worker and the scheduler;
+    - PostgreSQL in production and in CI next to SQLite;
+    - attachments in a private S3-compatible bucket;
+    - HTTPS behind Render's proxy, security headers, and rate limits on sign-up, invitations and all other requests;
+    - a Render Blueprint and a deploy guide.
+
+    Decisions 2 to 6 (compute, database, bucket, address and email, demo data) are proposals waiting for the owner.
+
 - AI helpers with Claude ([spec 0011](../spec/0011-ai-helpers.md)), on when `ANTHROPIC_API_KEY` is set. Each one drafts, and a person picks what to keep:
     - **Suggest steps**, in a task's checklist: 3 to 8 steps drafted from the task, leaving out the ones the checklist has. The checked ones are added at the end.
     - **Draft tasks**, on a project page: up to 12 tasks drafted from a few sentences about the project, each with a description, a priority and up to 5 steps. The kept ones go to the first list that is not the Done list, with their steps as checklists, and their history says they came from an AI draft.
