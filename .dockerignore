@@ -1,0 +1,36 @@
+# What the production image is built without (spec 0012). Dependencies and
+# the front end are built inside the image; secrets and local data stay out.
+.git
+.github
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+public/build
+public/hot
+public/storage
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+storage/*.key
+storage/logs/*
+!storage/logs/.gitignore
+storage/framework/cache/data/*
+!storage/framework/cache/data/.gitignore
+storage/framework/sessions/*
+!storage/framework/sessions/.gitignore
+storage/framework/views/*
+!storage/framework/views/.gitignore
+storage/app/private/*
+!storage/app/private/.gitignore
+storage/app/public/*
+!storage/app/public/.gitignore
+storage/inertia-devtools
+storage/pail
+database/*.sqlite*
+resources/js/actions
+resources/js/routes
+resources/js/wayfinder
+docs
+tests
+.phpunit.cache

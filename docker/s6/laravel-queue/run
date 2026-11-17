@@ -1,0 +1,5 @@
+#!/command/with-contenv sh
+# The queue worker (spec 0012). S6 restarts it when it stops, which it does
+# after an hour so that memory never builds up.
+cd /var/www/html || exit 1
+exec php artisan queue:work --tries=3 --max-time=3600 --sleep=3

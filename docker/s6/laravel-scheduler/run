@@ -1,0 +1,5 @@
+#!/command/with-contenv sh
+# The scheduler (spec 0012): runs the due tasks in routes/console.php every
+# minute.
+cd /var/www/html || exit 1
+exec php artisan schedule:work
