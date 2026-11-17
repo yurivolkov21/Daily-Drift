@@ -15,6 +15,7 @@
 - **Laravel 13** with **Inertia 3** (server-side routing, React pages).
 - **Laravel Fortify** for authentication: registration, email verification, password reset and confirmation, two-factor auth, passkeys.
 - **Laravel Socialite** for signing in with Google and GitHub; a provider is offered only when its keys are set ([spec 0009](../spec/0009-sign-in-with-google-and-github.md), [setup guide](../guides/social-sign-in.md)).
+- **Anthropic PHP SDK** (`anthropic-ai/sdk`) for the AI helpers, which call Claude on the server only when `ANTHROPIC_API_KEY` is set ([spec 0011](../spec/0011-ai-helpers.md)). Guzzle carries the requests and sets their 90-second timeout.
 - **Teams** from the starter kit's teams variant: teams, invitations, roles and permissions.
 - **Wayfinder** generates typed route helpers for the frontend.
 - Quality: **PHPUnit**, **PHPStan**, **Pint**.

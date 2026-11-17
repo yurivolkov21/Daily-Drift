@@ -206,6 +206,15 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 - **Attachments** as rows: a small thumbnail or a type icon, the name, then type, size, who and when. Download and the menu show on hover. An upload shows a progress bar in its row, and a refused file shows a red row that says why. A dashed line at the end accepts dropped files, and dropping anywhere on the sheet shows a full-sheet drop target.
 - **Completing** moves the card to the top of the project's _Done_ list. A repeating task leaves its next occurrence at the bottom of the list it came from. A toast says where the card went and when the next one is due, with _Undo_.
 
+### AI helpers
+
+No wireframe round: the owner asked to build them straight away (spec 0011), so they reuse the task sheet, the dialogs and the toasts.
+
+- A sparkles icon marks an action that asks Claude: _Suggest steps_ in the checklist's header, and _Draft tasks_ next to _New task_ in the header bar (the icon alone on a phone). _Weekly summary_ sits in the project's card with a scroll icon, since reading a saved summary asks nothing.
+- What Claude writes is a draft until someone keeps it. Suggestions and drafted tasks come with a checkbox each, all checked, and the button counts what will be added (_Add 4 steps_, _Add 8 tasks_).
+- While Claude writes, the place where the answer will appear shows grey placeholder lines and says it can take up to a minute. A failure shows its message in the same place, with _Try again_.
+- The step suggestions open in a tinted panel under the checklist's header, scrolled into view. Drafting tasks and the weekly summary use a dialog with a tinted header; the summary's parts are _Done_ (green), _At risk_ (amber) and _Next_ (the primary color).
+
 ## Components by screen
 
 | Screen        | shadcn/ui components                                                                                                                  | Other                                    |
@@ -228,6 +237,7 @@ A thin thumb (4 px, 6 px under the pointer) in the accent at 55 % opacity, or wh
 | List view     | `checkbox`, `tooltip` (assignee), label badges                                                                                        | Local segmented view switch              |
 | Calendar      | `calendar` (mini month), `popover` ("+n more", _Add task_), `drawer` and `checkbox` (phone agenda)                                    | Native drag and drop on the days         |
 | Task details  | `checkbox`, `progress`, `dropdown-menu` (item, file and _Repeat_ menus), `alert-dialog` (delete a file), `sonner` (toast with _Undo_) | Native drag and drop for items and files |
+| AI helpers    | `dialog`, `textarea`, `checkbox`, `skeleton`, `spinner`, `sonner`                                                                     | Lucide `Sparkles` marks Claude's actions |
 
 The small local components from the first pass (progress ring, segmented bar, hue bar) stay.
 

@@ -6,6 +6,12 @@ Newest first. Dates are in the project's local time (UTC+7).
 
 ### Added
 
+- AI helpers with Claude ([spec 0011](../spec/0011-ai-helpers.md)), on when `ANTHROPIC_API_KEY` is set. Each one drafts, and a person picks what to keep:
+    - **Suggest steps**, in a task's checklist: 3 to 8 steps drafted from the task, leaving out the ones the checklist has. The checked ones are added at the end.
+    - **Draft tasks**, on a project page: up to 12 tasks drafted from a few sentences about the project, each with a description, a priority and up to 5 steps. The kept ones go to the first list that is not the Done list, with their steps as checklists, and their history says they came from an AI draft.
+    - **Weekly summary**, on a project page: a headline, then _Done_, _At risk_ and _Next_ for the last 7 days, written from the project's history and open tasks. It is saved for the whole team, replaced on request and copied as plain text. Comment text and file contents are not sent.
+    - Claude is called on the server through the official Anthropic PHP SDK, with `claude-opus-5-5` by default and replies in a fixed JSON shape. A request that a safety classifier declines is retried on another model. Each person makes up to 10 requests a minute, and each team up to 100 a day.
+
 - Checklists, attachments and recurring tasks ([spec 0010](../spec/0010-checklists-attachments-recurring-tasks.md)).
     - **Checklist:** up to 50 items under the description, checked, edited in place, reordered and deleted with _Undo_. Pasted lines become one item each, and checked items can fold away. Cards and list rows show "2/5". Only checking and unchecking go into the history.
     - **Files:** up to 20 per task, 10 MB each: images, PDF, text, Word, Excel, PowerPoint and ZIP, checked by their content, so SVG and HTML are refused whatever they are called. They upload one by one with a progress bar, also when dropped on the sheet. They are stored outside `public/` under random names and sent only to the team, with headers that stop them running scripts. They leave the disk with their task, list, project or team. The uploader, owners and admins delete them.
