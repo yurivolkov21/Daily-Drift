@@ -13,16 +13,35 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class TeamInvitationController extends Controller
 {
+    /**
+     * Spec 0012: each invitation sends an email, so a team sends up to 20
+     * an hour.
+     */
+    public const int PER_HOUR = 20;
+
     /**
      * Store a newly created invitation.
      */
     public function store(CreateTeamInvitationRequest $request, Team $team): RedirectResponse
     {
         Gate::authorize('inviteMember', $team);
+
+        $key = self::limiterKey($team);
+
+        if (RateLimiter::tooManyAttempts($key, self::PER_HOUR)) {
+            throw ValidationException::withMessages([
+                'email' => __('Your team has sent :count invitations this hour. Try again in :minutes minutes.', [
+                    'count' => self::PER_HOUR,
+                    'minutes' => (int) ceil(RateLimiter::availableIn($key) / 60),
+                ]),
+            ]);
+        }
 
         $invitation = $team->invitations()->create([
             'email' => $request->validated('email'),
@@ -33,6 +52,8 @@ class TeamInvitationController extends Controller
 
         Notification::route('mail', $invitation->email)
             ->notify(new TeamInvitationNotification($invitation));
+
+        RateLimiter::hit($key, 3600);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Invitation sent.')]);
 
@@ -90,5 +111,10 @@ class TeamInvitationController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Invitation declined.')]);
 
         return to_route('dashboard');
+    }
+
+    public static function limiterKey(Team $team): string
+    {
+        return 'invitations:'.$team->id;
     }
 }

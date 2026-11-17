@@ -56,6 +56,11 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            // Spec 0012: production keeps files in an S3-compatible bucket,
+            // such as Cloudflare R2. Checksums only where S3 needs them, as
+            // not every such service accepts the newer ones.
+            'request_checksum_calculation' => 'when_required',
+            'response_checksum_validation' => 'when_required',
             'throw' => false,
             'report' => false,
         ],

@@ -1,0 +1,72 @@
+# Render Blueprint for Daily-Drift (spec 0012): one Docker web service in
+# Singapore that runs the app, the queue worker and the scheduler.
+#
+# The database (Supabase) and the bucket (Cloudflare R2) are made first, and
+# their settings are entered when the Blueprint is created. Step by step:
+# docs/guides/deploy-render.md.
+services:
+    - type: web
+      name: daily-drift
+      runtime: docker
+      region: singapore
+      plan: starter
+      branch: main
+      dockerfilePath: ./Dockerfile
+      healthCheckPath: /up
+      # Deploy a new commit on main once its CI checks have passed.
+      autoDeployTrigger: checksPass
+      # Seed the demo workspace once, after the first deploy (decision 6).
+      initialDeployHook: php artisan db:seed --force
+      envVars:
+          # Entered in the dashboard when the Blueprint is created.
+          - key: APP_KEY
+            sync: false
+          - key: DB_URL
+            sync: false
+          - key: AWS_ACCESS_KEY_ID
+            sync: false
+          - key: AWS_SECRET_ACCESS_KEY
+            sync: false
+          - key: AWS_BUCKET
+            sync: false
+          - key: AWS_ENDPOINT
+            sync: false
+
+          - key: APP_NAME
+            value: Daily-Drift
+          - key: APP_ENV
+            value: production
+          - key: APP_DEBUG
+            value: 'false'
+          # Emails go to the log for now (decision 5), and the log mailer writes
+          # at debug level. Use info once a mail provider is set up.
+          - key: LOG_LEVEL
+            value: debug
+          - key: MAIL_MAILER
+            value: log
+          # Every request comes through Render's proxy.
+          - key: TRUSTED_PROXIES
+            value: '*'
+          # nginx in the image listens on 8080.
+          - key: PORT
+            value: '8080'
+
+          - key: DB_CONNECTION
+            value: pgsql
+          - key: DB_SSLMODE
+            value: require
+          - key: SESSION_DRIVER
+            value: database
+          - key: SESSION_SECURE_COOKIE
+            value: 'true'
+          - key: CACHE_STORE
+            value: database
+          - key: QUEUE_CONNECTION
+            value: database
+
+          - key: FILESYSTEM_DISK
+            value: s3
+          - key: AWS_DEFAULT_REGION
+            value: auto
+          - key: AWS_USE_PATH_STYLE_ENDPOINT
+            value: 'true'

@@ -58,7 +58,7 @@ class HandleInertiaRequests extends Middleware
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
             'teamPeople' => fn () => $user?->currentTeam ? [
                 'total' => $user->currentTeam->members()->count(),
-                'names' => $user->currentTeam->members()->orderBy('team_members.created_at')->limit(4)->pluck('name')->all(),
+                'names' => $user->currentTeam->members()->orderBy('team_members.created_at')->orderBy('team_members.id')->limit(4)->pluck('name')->all(),
             ] : null,
             'activeProjectCount' => fn () => $user?->currentTeam ? $user->currentTeam->projects()->active()->count() : 0,
             // The viewer's open tasks in the current team, for _My tasks_ in the sidebar (spec 0004).

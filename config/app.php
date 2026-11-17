@@ -52,7 +52,8 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    // Spec 0012: on Render, the service's own address when APP_URL is unset.
+    'url' => env('APP_URL', env('RENDER_EXTERNAL_URL', 'http://localhost')),
 
     /*
     |--------------------------------------------------------------------------

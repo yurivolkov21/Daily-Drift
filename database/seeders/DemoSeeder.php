@@ -108,11 +108,18 @@ class DemoSeeder extends Seeder
     {
         $this->travel($this->moment(-26, 9));
 
+        // Created as signing up does, with a personal team, and not through
+        // the factory: production installs no Faker (spec 0012).
         foreach (DemoData::PEOPLE as $key => $person) {
-            $this->people[$key] = User::factory()->create([
+            $user = User::forceCreate([
                 'name' => $person['name'],
                 'email' => $person['email'],
+                'email_verified_at' => now(),
+                'password' => 'password',
             ]);
+            $this->createTeam->handle($user, $user->name."'s Team", isPersonal: true);
+
+            $this->people[$key] = $user;
         }
 
         $this->travel($this->moment(-25, 9));

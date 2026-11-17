@@ -31,13 +31,15 @@ class RepeatTask
      */
     public function next(Task $task, RepeatRule $rule, CarbonImmutable $due, CarbonImmutable $anchor, TaskList $list, CarbonImmutable $today, ?User $by): Task
     {
+        $list->lockForNewTasks();
+
         $next = $list->tasks()->make([
             'title' => $task->title,
             'description' => $task->description,
             'priority' => $task->priority,
             'assignee_id' => $task->assignee_id,
             'due_on' => $rule->nextDue($due, $anchor, $today)->toDateString(),
-            'position' => $list->tasks()->lockForUpdate()->count(),
+            'position' => $list->tasks()->count(),
             'repeat_unit' => $rule->unit,
             'repeat_every' => $rule->every,
             'repeat_anchor' => $anchor->toDateString(),
