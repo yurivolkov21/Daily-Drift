@@ -49,6 +49,12 @@ class Task extends Model
     use HasFactory;
 
     /**
+     * Set when the task comes from an AI draft (spec 0011). Its history
+     * notes it; it is not a column.
+     */
+    public bool $drafted = false;
+
+    /**
      * Changing a task counts as an update of its project.
      *
      * @var list<string>

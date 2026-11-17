@@ -43,6 +43,15 @@ class ProjectPolicy
     }
 
     /**
+     * Determine whether the user can have Claude write a new weekly summary
+     * (spec 0011). Every member reads the saved one.
+     */
+    public function summarize(User $user, Project $project): bool
+    {
+        return ! $project->isArchived() && $user->belongsToTeam($project->team);
+    }
+
+    /**
      * Determine whether the user can archive the project.
      */
     public function archive(User $user, Project $project): bool

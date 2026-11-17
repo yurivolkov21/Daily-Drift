@@ -16,6 +16,7 @@ readonly class ProjectAbilities
         public bool $delete,
         public bool $manageLists,
         public bool $deleteAnyFile,
+        public bool $summarize,
     ) {
         //
     }
@@ -34,6 +35,8 @@ readonly class ProjectAbilities
             // Spec 0010: owners and admins delete anyone's files.
             deleteAnyFile: ! $project->isArchived()
                 && $user->teamRole($project->team)?->isAtLeast(TeamRole::Admin) === true,
+            // Spec 0011: write a new weekly summary.
+            summarize: $user->can('summarize', $project),
         );
     }
 }

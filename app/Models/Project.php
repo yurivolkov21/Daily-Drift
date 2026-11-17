@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -27,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property-read User|null $creator
  * @property-read Collection<int, TaskList> $lists
  * @property-read Collection<int, Task> $tasks
+ * @property-read ProjectSummary|null $summary
  */
 #[Fillable(['name', 'description', 'color', 'archived_at'])]
 class Project extends Model
@@ -81,6 +83,25 @@ class Project extends Model
     public function doneList(): ?TaskList
     {
         return $this->lists()->where('is_done', true)->first();
+    }
+
+    /**
+     * The first list that is not the Done list, where drafted tasks go
+     * (spec 0011).
+     */
+    public function firstOpenList(): ?TaskList
+    {
+        return $this->lists()->where('is_done', false)->first();
+    }
+
+    /**
+     * The weekly summary Claude wrote for the project, if any (spec 0011).
+     *
+     * @return HasOne<ProjectSummary, $this>
+     */
+    public function summary(): HasOne
+    {
+        return $this->hasOne(ProjectSummary::class);
     }
 
     /**

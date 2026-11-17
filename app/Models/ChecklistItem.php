@@ -30,6 +30,11 @@ class ChecklistItem extends Model
     public const int LIMIT = 50;
 
     /**
+     * The most characters an item holds.
+     */
+    public const int MAX_LENGTH = 300;
+
+    /**
      * Changing an item counts as an update of its task.
      *
      * @var list<string>
